@@ -1,0 +1,51 @@
+@import url("https://webglfundamentals.org/webgl/resources/webgl-tutorials.css");
+body {
+  margin: 0;
+  background-color: rgb(235, 235, 235);
+}
+canvas {
+  margin-top: 42px;
+  width: 90%;
+  height: 620px;
+  display: block;
+  border: 0;
+}
+h1{
+  font: Stratos, optional;
+  font-family: 'Stratos';
+  margin: 20px;
+}
+.sliders{
+  font-family: 'Stratos';
+  text-shadow: none;
+}
+
+.grid-container {
+  
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
+.grid-child{
+  width: 0;
+        flex-grow: 1;
+}
+
+
+button{
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.codediv{
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+textarea{
+  overflow-x: hidden;
+  resize: none;
+  max-width: 90%;
+}
