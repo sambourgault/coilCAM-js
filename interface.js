@@ -22,6 +22,20 @@ function updatePath(newPath){
   main();
 }
 
+function toolpathGenerator(position = [0,0, 0], initialRadius = 20, layerHeight = 2, nbLayers = 10, nbPointsInLayer = 10, radiusShapingParameter = []){
+  let path = [];
+  for (let i = 0; i < nbLayers; i++){
+      for (let j = 0; j < nbPointsInLayer; j++){
+          let angle = 2*Math.PI/nbPointsInLayer;
+          let x = position[0] + (initialRadius+radiusShapingParameter[j])*Math.cos(angle*j);
+          let y = initialRadius*Math.sin(angle*j);
+          let z = position[2] + i*layerHeight;
+          path.push(x,y,z);
+      }
+  }
+  return path;
+}
+
 function createShader(gl, type, source) {
   var shader = gl.createShader(type);
   gl.shaderSource(shader, source);

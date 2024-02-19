@@ -1,4 +1,4 @@
-function toolpathGenerator(position = [0,0], initialRadius = 20, layerHeight = 2, nbLayers = 10, nbPointsInLayer = 10, radiusShapingParameter = []){
+function toolpathGenerator(position = [0,0, 0], initialRadius = 20, layerHeight = 2, nbLayers = 10, nbPointsInLayer = 10, radiusShapingParameter = []){
     
     
     let path = [];
