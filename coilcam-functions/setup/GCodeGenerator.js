@@ -1,3 +1,5 @@
+import {BABY_POTTERBOT, SUPER_POTTERBOT, createPreset} from "../coilcam-functions/PrinterPresets.js";
+
 //Helper functions for generateGCode
 function extrude(nozzleDiameter, layerHeight, segmentLen){
     let points = [];
@@ -7,11 +9,21 @@ function extrude(nozzleDiameter, layerHeight, segmentLen){
     }
     return points;
 }
+
 let round2pt = (value) => Math.floor(value*100)/100.0;
 let euclideanDist = (p1, p2) => Math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 + (p1[2]-p2[2])**2);
 
+
+//GCode Generator for preset values
+function generateGCode(path, preset){
+    // if(preset.name == "BABY_POTTERBOT" || preset.name == "SUPER_POTTERBOT"){
+    //     return generateGCode(path, preset.nozzleDiameter, preset.printSpeed, preset.layerHeight);
+    // }
+    return generateGCode(path, preset.nozzleDiameter, preset.printSpeed, preset.layerHeight);
+}
+
 //Main functions to generate GCode, calculate clay height, calculate number of tubes
-function generateGCode(nozzleDiameter, path, printSpeed, layerHeight){ //main function
+function generateGCode(path, nozzleDiameter, printSpeed, layerHeight){ //main function
     // printSpeed, nozzleDiameter, LayerHeight: float
     // path: array of point3
     let printSpeeds = [10000]; //First move should be 10000
@@ -40,8 +52,13 @@ function generateGCode(nozzleDiameter, path, printSpeed, layerHeight){ //main fu
     return gcode;
 }
 
+//using preset values
+function getNumTubes(path, preset){ 
+    return getNumTubes(path, preset.nozzleDiameter, preset.layerHeight);
+}
+
 //Not fully implemented in Rhino, may not be correct
-function getNumTubes(nozzleDiameter, path, layerHeight){ 
+function getNumTubes(path, nozzleDiameter, layerHeight){ 
     let segmentLen = [];
     for(var i = 1; i < len(path); i++){
         segmentLen.push(euclideanDist(path[i], path[i-1]));
@@ -51,8 +68,13 @@ function getNumTubes(nozzleDiameter, path, layerHeight){
     return ((nozzleDiameter/2)^2*totalExtrusion)/((95.5/2)^2)/430; //multiplier from original gcode
 }
 
+//Stub: using preset values
+function calculateClayHeight(path, preset){ 
+    return calculateClayHeight(path, preset.nozzleDiameter, preset.layerHeight);
+}
+
 //Stub: not fully implemented in Rhino, not sure what the value of multiplier should be
-function calculateClayHeight(nozzleDiameter, path, layerHeight){ 
-    let multiplier = 0;
-    return getNumTubes(nozzleDiameter, path, layerHeight)*multiplier;
+function calculateClayHeight(nozzleDiameter, path, layerHeight, extrusionMultiplier){ 
+    let extrusionMultiplier = 0; //Extrusion multiplier exists for Super Potterbot but is unused
+    return getNumTubes(nozzleDiameter, path, layerHeight)*extrusionMultiplier;
 }
