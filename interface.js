@@ -1,39 +1,13 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
-// this could take place in codemirror
 let path = [];
-let nbPoints= 10;
-  let nbLayers = 3;
-  let layerHeight = 2;
-  let radius = 100;
-  for (let j = 0; j < nbLayers; j++){
-    for (let i = 0; i < nbPoints; i++){
-        let angle = i*2*Math.PI/nbPoints;
-        path.push(radius*Math.cos(angle), radius*Math.sin(angle), j*layerHeight);
-    }
-  }
-
 let updatedPath = false;
 
 function updatePath(newPath){
   updatedPath = true;
   path = newPath;
   main();
-}
-
-function toolpathGenerator(position = [0,0, 0], initialRadius = 20, layerHeight = 2, nbLayers = 10, nbPointsInLayer = 10, radiusShapingParameter = []){
-  let path = [];
-  for (let i = 0; i < nbLayers; i++){
-      for (let j = 0; j < nbPointsInLayer; j++){
-          let angle = 2*Math.PI/nbPointsInLayer;
-          let x = position[0] + (initialRadius+radiusShapingParameter[j])*Math.cos(angle*j);
-          let y = initialRadius*Math.sin(angle*j);
-          let z = position[2] + i*layerHeight;
-          path.push(x,y,z);
-      }
-  }
-  return path;
 }
 
 function createShader(gl, type, source) {

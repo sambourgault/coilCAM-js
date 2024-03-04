@@ -13,17 +13,16 @@ function extrude(nozzleDiameter, layerHeight, segmentLen){
 let round2pt = (value) => Math.floor(value*100)/100.0;
 let euclideanDist = (p1, p2) => Math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 + (p1[2]-p2[2])**2);
 
-
 //GCode Generator for preset values
 function generateGCode(path, preset){
     // if(preset.name == "BABY_POTTERBOT" || preset.name == "SUPER_POTTERBOT"){
     //     return generateGCode(path, preset.nozzleDiameter, preset.printSpeed, preset.layerHeight);
     // }
-    return generateGCode(path, preset.nozzleDiameter, preset.printSpeed, preset.layerHeight);
+    return generateGCode(path, preset.layerHeight, preset.nozzleDiameter, preset.printSpeed);
 }
 
 //Main functions to generate GCode, calculate clay height, calculate number of tubes
-function generateGCode(path, nozzleDiameter, printSpeed, layerHeight){ //main function
+function generateGCode(path, layerHeight, nozzleDiameter, printSpeed){ //main function
     // printSpeed, nozzleDiameter, LayerHeight: float
     // path: array of point3
     let printSpeeds = [10000]; //First move should be 10000
@@ -77,4 +76,13 @@ function calculateClayHeight(path, preset){
 function calculateClayHeight(nozzleDiameter, path, layerHeight, extrusionMultiplier){ 
     let extrusionMultiplier = 0; //Extrusion multiplier exists for Super Potterbot but is unused
     return getNumTubes(nozzleDiameter, path, layerHeight)*extrusionMultiplier;
+}
+
+
+//Stub: Function to spiralize, add base, center print
+function buildVessel(path, layerHeight, bedSize){
+    let spiralize = spiralize(path, layerHeight);
+    let base = circlularBase(position=[0, 0, 0], radius=48.0, layerHeight=layerHeight, nbLayers=3, nbPointsInLayer=22); //preset
+    let centered = centerPrint(base, preset);
+    return generateGCode(centered, preset);
 }
