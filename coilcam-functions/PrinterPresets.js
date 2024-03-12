@@ -27,7 +27,7 @@ export const SUPER_POTTERBOT = { //can be renamed :~)
     extrusionMultiplier: 1.0 
 };
 
-function createPreset(name, bedDimensions, printSpeed, nozzleDiameter, layerHeight) {
+export function createPreset(name, bedDimensions, printSpeed, nozzleDiameter, layerHeight) {
     return {
         name: name,
         bed: {
@@ -42,4 +42,4 @@ function createPreset(name, bedDimensions, printSpeed, nozzleDiameter, layerHeig
     };
 }
 
-export {BABY_POTTERBOT, SUPER_POTTERBOT, createPreset};
+// export {BABY_POTTERBOT, SUPER_POTTERBOT, createPreset};

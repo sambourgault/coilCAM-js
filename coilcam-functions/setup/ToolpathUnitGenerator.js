@@ -1,5 +1,5 @@
 function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, nbPointsInLayer,
-                              radiusShapingParameter, scalingRadiusShapingParameter, scaleShapingParameter, 
+                              radiusShapingParameter, scaleShapingParameter, scalingRadiusShapingParameter,
                               translateShapingParameter, rotateShapingParameter){
     let path = [];
     let radsp = radiusShapingParameter.length === 0 ? new Array(nbPointsInLayer).fill(0) : radiusShapingParameter;
@@ -15,15 +15,14 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
                 position[1] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1],
                 position[2] + layerHeight * j
             );
-            // console.log("X:", position[0] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0])
         }
     }
-    updatePath(path);
+    console.log("Path length:", path.length);
     return path;
 }
 
-//toolpathUnitGenerator([0.0, 4.0, 0.0], 88.0, 3.2, 3.0, 5.0, [], [], [], [], []); //works
-
-// var tp = toolpathUnitGenerator([0.0, 4.0, 0.0], 53.0, 3.2, 3.0, 5.0, [], [], [], [], []); //does not
-// console.log("TP:", tp.length);
-// updatePath(tp);
+// var spout_ssp = linear(3.3, [], 3.0, [], "additive");
+// var spoutToolpath = toolpathUnitGenerator([-18.0, 0.0, 7.0], 74.14, 3.0, 60.0, 30.0, [], [], spout_ssp, [], []);
+// console.log("SP:", spoutToolpath.length);
+// console.log("sT:", spout_ssp);
+// updatePath(spoutToolpath);

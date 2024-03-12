@@ -1,6 +1,4 @@
-import Flatten from '@flatten-js/core'
-const {point, Polygon} = Flatten;
-const { intersect } = Flatten.BooleanOperations;
+import {point, Polygon, intersect} from '@flatten-js';
 
 function getNumLayers(path0, path1){
     //return larger number of layers
@@ -11,7 +9,7 @@ function getNumLayers(path0, path1){
     return Math.max(layers0.size, layers1.size);
 }
 
-function booleanIntersection(path0, path1, radius, tolerance){
+function intersection(path0, path1, radius){
     //assuming path0 is an array of points [x, y, z] -> [[1, 2, 3], [4, 5, 6], ...]
     //Flattenjs doesn't take in a tolerance
     layers = getNumLayers(path0);

@@ -1,4 +1,4 @@
-import Flatten from '@flatten-js/core'
+import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
 const {point, Polygon} = Flatten;
 const { subtract } = Flatten.BooleanOperations;
 
@@ -11,7 +11,7 @@ function getNumLayers(path0, path1){
     return Math.max(layers0.size, layers1.size);
 }
 
-function booleanDifference(path0, path1, radius, tolerance){
+function difference(path0, path1, radius, tolerance){
     //assuming path0 is an array of points [x, y, z] -> [[1, 2, 3], [4, 5, 6], ...]
     //Polygon0 - polygon1
     layers = getNumLayers(path0);
