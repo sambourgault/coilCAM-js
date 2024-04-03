@@ -1,4 +1,4 @@
-import {point, Polygon, intersect} from '@flatten-js';
+// const {point, Polygon, intersect} = Flatten;
 
 function getNumLayers(path0, path1){
     //return larger number of layers

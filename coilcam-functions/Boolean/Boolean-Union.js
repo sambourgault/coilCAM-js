@@ -1,5 +1,5 @@
-import Flatten from '../../node_modules/@flatten-js/core';
-const {point, Polygon} = Flatten;
+import Flatten from 'flatten-js';
+const {point, polygon} = Flatten;
 const { unify } = Flatten.BooleanOperations;
 
 function getNumLayers(path0, path1){
@@ -12,25 +12,27 @@ function getNumLayers(path0, path1){
 }
 
 
-function union(path0, path1, radius){
+function union(path0, path1, radius){ //revise
   //assuming path0 is an array of points [x, y, z] -> [[1, 2, 3], [4, 5, 6], ...]
   //Flattenjs doesn't take in a tolerance
-  layers = getNumLayers(path0);
-
-  let path = []
+  layers0 = getNumLayers(path0);
+  // let path = [];
+  let path = [43.0];
 
   for(let layer = 0; layer < layers0.length; layer++){
     let points0 = path0.filter(p => p[2] == layer).map(p => point([p[0], p[1]]));
     let points1 = path1.filter(p => p[2] == layer).map(p => point([p[0], p[1]]));
 
-    let polygon0 = new Polygon(points0);
-    let polygon1 = new Polygon(points1);
+    let polygon0 = new polygon(points0);
+    let polygon1 = new polygon(points1);
     
     let combinedPolygon = unify(polygon0, polygon1);
     let filletedPolygon = combinedPolygon.fillet(radius); 
     let combinedLayerPoints = filletedPolygon.vertices.map(vertex => [vertex.x, vertex.y]);
     path.push(combinedLayerPoints);
+    path.push(3.0); //test
   }
+  console.log("Union path", path);
   return path;
 }
 

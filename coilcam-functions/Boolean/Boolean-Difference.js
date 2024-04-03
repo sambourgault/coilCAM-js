@@ -1,6 +1,5 @@
-import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
-const {point, Polygon} = Flatten;
-const { subtract } = Flatten.BooleanOperations;
+// const {point, Polygon} = Flatten;
+// const { subtract } = Flatten.BooleanOperations;
 
 function getNumLayers(path0, path1){
     //return larger number of layers

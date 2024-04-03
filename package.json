@@ -1,7 +1,16 @@
 {
   "dependencies": {
-    "flatten-js/core": "^1.4.8",
-    "flatten-js": "^0.6.9",
-    "flatten-js/boolean-operations": "^1.4.8"
+    "@codemirror/autocomplete": "^6.4.2",
+    "@codemirror/commands": "^6.2.2",
+    "@codemirror/lang-css": "^6.1.1",
+    "@codemirror/lang-html": "^6.4.2",
+    "@codemirror/lang-javascript": "^6.1.4",
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/language": "^6.6.0",
+    "@codemirror/lint": "^6.2.0",
+    "@codemirror/state": "^6.2.0",
+    "@codemirror/view": "^6.9.2",
+    "@flatten-js/core": "1.2.22",
+    "parcel-bundler": "^1.12.5"
   }
 }

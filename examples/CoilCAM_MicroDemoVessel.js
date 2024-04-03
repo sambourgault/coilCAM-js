@@ -42,6 +42,6 @@ var spoutToolpath = toolpathUnitGenerator([-18.0, 0.0, 7.0], 5.14, potterbot_lay
 var toolpath = union(baseToolpath, spoutToolpath, 0.1);
 
 
-//GCODE GENERATOR
-var gcode = generateGCode(path, nozzleDiameter, printSpeed, layerHeight);
+// //GCODE GENERATOR
+var gcode = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_printSpeed, potterbot_layerHeight);
 console.log(gcode);

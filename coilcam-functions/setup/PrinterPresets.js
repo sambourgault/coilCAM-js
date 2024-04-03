@@ -1,7 +1,7 @@
 //Predefined printer settings for Baby Potterbot and Super Potterbot
 //Dimensions from Rhino coilCAM demos
 
-export const BABY_POTTERBOT = { //can be renamed :~)
+const BABY_POTTERBOT = { //can be renamed :~)
     name: "BABY_POTTERBOT",
     bed: {
         x: 280,
@@ -14,7 +14,7 @@ export const BABY_POTTERBOT = { //can be renamed :~)
     extrusionMultiplier: 1.0 //Check value
 };
 
-export const SUPER_POTTERBOT = { //can be renamed :~)
+const SUPER_POTTERBOT = { //can be renamed :~)
     name: "SUPER_POTTERBOT",
     bed: {
         x: 415,
@@ -27,7 +27,7 @@ export const SUPER_POTTERBOT = { //can be renamed :~)
     extrusionMultiplier: 1.0 
 };
 
-export function createPreset(name, bedDimensions, printSpeed, nozzleDiameter, layerHeight) {
+function createPreset(name, bedDimensions, printSpeed, nozzleDiameter, layerHeight) {
     return {
         name: name,
         bed: {
@@ -41,5 +41,3 @@ export function createPreset(name, bedDimensions, printSpeed, nozzleDiameter, la
         extrusionMultiplier: 1.0
     };
 }
-
-// export {BABY_POTTERBOT, SUPER_POTTERBOT, createPreset};
