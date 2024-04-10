@@ -95,9 +95,11 @@ function main() {
   }*/
 
   // Setup a ui.
+  console.log("max:", gl.canvas.height);
   webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
   webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), max: gl.canvas.height});
-  webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
+  webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -4000, max: -400});
+  // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
   webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
   webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
   webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
@@ -192,7 +194,7 @@ function main() {
 
    
     // Compute the matrices
-    //var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+    // var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
     var left = 0;
     var right = gl.canvas.clientWidth;
     var bottom = gl.canvas.clientHeight;
@@ -200,8 +202,8 @@ function main() {
     var near = 400;
     var far = -400;
     // perspective: function(fieldOfViewInRadians, aspect, near, far)
-    // var matrix = m4.perspective(fieldOfViewRadians, gl.canvas.clientWidth / gl.canvas.clientHeight, near, far);
-    var matrix = m4.orthographic(left, right, bottom, top, near, far);
+    var matrix = m4.perspective(fieldOfViewRadians, gl.canvas.clientWidth / gl.canvas.clientHeight, near, far);
+    // var matrix = m4.orthographic(left, right, bottom, top, near, far);
     matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
     matrix = m4.xRotate(matrix, rotation[0]);
     matrix = m4.yRotate(matrix, rotation[1]);
@@ -234,12 +236,12 @@ var m4 = {
     ];
   },
 
+
   orthographic: function(left, right, bottom, top, near, far) {
     return [
       2 / (right - left), 0, 0, 0,
       0, 2 / (top - bottom), 0, 0,
       0, 0, 2 / (near - far), 0,
- 
       (left + right) / (left - right),
       (bottom + top) / (bottom - top),
       (near + far) / (near - far),

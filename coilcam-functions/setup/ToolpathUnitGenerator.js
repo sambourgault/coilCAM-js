@@ -7,14 +7,13 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
     let rsp = rotateShapingParameter.length === 0 ? new Array(nbLayers).fill(0) : rotateShapingParameter;
     let tsp = translateShapingParameter.length === 0 ? new Array(nbLayers).fill([0, 0, 0]) : translateShapingParameter;
     let srsp = scalingRadiusShapingParameter.length === 0 ? new Array(nbLayers).fill(1) : scalingRadiusShapingParameter;
+    console.log("SSP", ssp);
     for(let j = 0; j < nbLayers; j++){
         for(let i = 0; i < nbPointsInLayer; i++){
             let angle = 2 * i * Math.PI / nbPointsInLayer;
-            path.push(
-                position[0] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0],
-                position[1] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1],
-                position[2] + layerHeight * j
-            );
+            path.push(position[0] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0]);
+            path.push(position[1] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1]);
+            path.push(position[2] + layerHeight * j);
         }
     }
     console.log("Path length:", path.length);

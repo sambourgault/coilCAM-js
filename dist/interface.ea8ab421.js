@@ -205,6 +205,7 @@ function main() {
   }*/
 
   // Setup a ui.
+  console.log("max:", gl.canvas.height);
   webglLessonsUI.setupSlider("#x", {
     value: translation[0],
     slide: updatePosition(0),
@@ -218,8 +219,10 @@ function main() {
   webglLessonsUI.setupSlider("#z", {
     value: translation[2],
     slide: updatePosition(2),
-    max: gl.canvas.height
+    min: -11000,
+    max: 4000
   });
+  // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
   webglLessonsUI.setupSlider("#angleX", {
     value: radToDeg(rotation[0]),
     slide: updateRotation(0),
@@ -339,7 +342,7 @@ function main() {
       */
 
     // Compute the matrices
-    //var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+    // var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
     var left = 0;
     var right = gl.canvas.clientWidth;
     var bottom = gl.canvas.clientHeight;
@@ -347,8 +350,8 @@ function main() {
     var near = 400;
     var far = -400;
     // perspective: function(fieldOfViewInRadians, aspect, near, far)
-    // var matrix = m4.perspective(fieldOfViewRadians, gl.canvas.clientWidth / gl.canvas.clientHeight, near, far);
-    var matrix = m4.orthographic(left, right, bottom, top, near, far);
+    var matrix = m4.perspective(fieldOfViewRadians, gl.canvas.clientWidth / gl.canvas.clientHeight, near, far);
+    // var matrix = m4.orthographic(left, right, bottom, top, near, far);
     matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
     matrix = m4.xRotate(matrix, rotation[0]);
     matrix = m4.yRotate(matrix, rotation[1]);
@@ -600,7 +603,7 @@ function setUpCodeMirror() {
 }
 setUpCodeMirror();
 main();
-},{}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{}],"../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -625,7 +628,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59724" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53885" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
@@ -769,5 +772,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js","interface.js"], null)
+},{}]},{},["../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","interface.js"], null)
 //# sourceMappingURL=/interface.ea8ab421.js.map

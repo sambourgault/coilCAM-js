@@ -125,10 +125,13 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
   var rsp = rotateShapingParameter.length === 0 ? new Array(nbLayers).fill(0) : rotateShapingParameter;
   var tsp = translateShapingParameter.length === 0 ? new Array(nbLayers).fill([0, 0, 0]) : translateShapingParameter;
   var srsp = scalingRadiusShapingParameter.length === 0 ? new Array(nbLayers).fill(1) : scalingRadiusShapingParameter;
+  console.log("SSP", ssp);
   for (var j = 0; j < nbLayers; j++) {
     for (var i = 0; i < nbPointsInLayer; i++) {
       var angle = 2 * i * Math.PI / nbPointsInLayer;
-      path.push(position[0] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.cos(angle + rsp[j] * Math.PI / 180) + tsp[j][0], position[1] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.sin(angle + rsp[j] * Math.PI / 180) + tsp[j][1], position[2] + layerHeight * j);
+      path.push(position[0] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.cos(angle + rsp[j] * Math.PI / 180) + tsp[j][0]);
+      path.push(position[1] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.sin(angle + rsp[j] * Math.PI / 180) + tsp[j][1]);
+      path.push(position[2] + layerHeight * j);
     }
   }
   console.log("Path length:", path.length);
@@ -140,7 +143,7 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
 // console.log("SP:", spoutToolpath.length);
 // console.log("sT:", spout_ssp);
 // updatePath(spoutToolpath);
-},{}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{}],"../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -165,7 +168,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59724" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53885" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
@@ -309,5 +312,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js","coilcam-functions/setup/ToolpathUnitGenerator.js"], null)
+},{}]},{},["../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","coilcam-functions/setup/ToolpathUnitGenerator.js"], null)
 //# sourceMappingURL=/ToolpathUnitGenerator.f936288e.js.map
