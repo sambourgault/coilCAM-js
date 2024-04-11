@@ -80,7 +80,8 @@ function main() {
   var fieldOfViewRadians = degToRad(60);
 
   //console.log(document.getElementById('canvas').width)
-  var translation = [document.getElementById('canvas').width, 500, 0];
+  //var translation = [document.getElementById('canvas').width, 500, 0];
+  var translation = [0, 0, -500];
   var rotation = [degToRad(90), degToRad(0), degToRad(0)];
   var scale = [1, 1, 1];
   var color = [Math.random(), Math.random(), Math.random(), 1];
@@ -98,7 +99,7 @@ function main() {
   console.log("max:", gl.canvas.height);
   webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
   webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), max: gl.canvas.height});
-  webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -4000, max: -400});
+  webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -1000, max: 0});
   // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
   webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
   webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
@@ -199,8 +200,8 @@ function main() {
     var right = gl.canvas.clientWidth;
     var bottom = gl.canvas.clientHeight;
     var top = 0;
-    var near = 400;
-    var far = -400;
+    var near = 500;
+    var far = 0;
     // perspective: function(fieldOfViewInRadians, aspect, near, far)
     var matrix = m4.perspective(fieldOfViewRadians, gl.canvas.clientWidth / gl.canvas.clientHeight, near, far);
     // var matrix = m4.orthographic(left, right, bottom, top, near, far);
