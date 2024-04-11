@@ -23,9 +23,9 @@ function sinusoidal(amplitude, period, offset, nbPoints, values0, mode){
     
     for (let i = 0; i < nbPoints; i++){
         if (mode == "additive"){
-            values.push(amplitude * Math.pow(Math.sin(period*i + offset[i]), 2) + values0[i]);
+            values.push(amplitude * Math.sin((2*Math.PI/period)*i + offset[i]) + values0[i]);
         } else if (mode == "multiplicative"){
-            values.push(amplitude * Math.pow(Math.sin(period*i + offset[i]), 2) * values0[i]);
+            values.push(amplitude * Math.sin((2*Math.PI/period)*i + offset[i]) * values0[i]);
         }
     }
     return values;

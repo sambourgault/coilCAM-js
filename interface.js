@@ -1,13 +1,23 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
+function radToDeg(r) {
+  return r * 180 / Math.PI;
+}
+
+function degToRad(d) {
+  return d * Math.PI / 180;
+}
+
 let path = [];
 let updatedPath = false;
+var t = [0, -100, -500];
+var r = [degToRad(270), degToRad(0), degToRad(0)];
 
 function updatePath(newPath){
   updatedPath = true;
   path = newPath;
-  main();
+  main(t,r);
 }
 
 function createShader(gl, type, source) {
@@ -37,7 +47,8 @@ function createProgram(gl, vertexShader, fragmentShader) {
   gl.deleteProgram(program);
 }
 
-function main() {
+
+function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]) {
   // Get A WebGL context
   var canvas = document.querySelector("#canvas");
   var gl = canvas.getContext("webgl");
@@ -68,21 +79,13 @@ function main() {
   //setGeometry(gl);
   setPath(gl, path);
 
-  function radToDeg(r) {
-    return r * 180 / Math.PI;
-  }
-
-  function degToRad(d) {
-    return d * Math.PI / 180;
-  }
-
   var cameraAngleRadians = degToRad(0);
   var fieldOfViewRadians = degToRad(60);
 
   //console.log(document.getElementById('canvas').width)
   //var translation = [document.getElementById('canvas').width, 500, 0];
-  var translation = [0, 0, -500];
-  var rotation = [degToRad(90), degToRad(0), degToRad(0)];
+  var translation = t;
+  var rotation = r;
   var scale = [1, 1, 1];
   var color = [Math.random(), Math.random(), Math.random(), 1];
 
@@ -98,7 +101,7 @@ function main() {
   // Setup a ui.
   console.log("max:", gl.canvas.height);
   webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
-  webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), max: gl.canvas.height});
+  webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), min:-gl.canvas.height/2, max: gl.canvas.height/2});
   webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -1000, max: 0});
   // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
   webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
@@ -121,6 +124,7 @@ function main() {
   function updatePosition(index) {
     return function(event, ui) {
       translation[index] = ui.value;
+      t[index] =  ui.value;
       drawScene();
     };
   }
@@ -130,6 +134,7 @@ function main() {
       var angleInDegrees = ui.value;
       var angleInRadians = angleInDegrees * Math.PI / 180;
       rotation[index] = angleInRadians;
+      r[index] = angleInRadians;
       drawScene();
     };
   }
