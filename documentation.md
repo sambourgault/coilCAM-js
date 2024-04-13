@@ -27,7 +27,15 @@ CoilCAM functions span different functions and operations:
 
 ### 1D Functions
 
+#### Linear 
+
+
+#### Sinusoidal
+
+
 ### 2D Functions
+
+### Set up Functions
 
 `toolpathUnitGenerator`: Generates a toolpath for a 3D form based on the provided initialization and shaping parameters. Example shape making functions include: exponential, linear, sinusoidal, square, and staircase.
 
