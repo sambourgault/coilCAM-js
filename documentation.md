@@ -28,6 +28,21 @@ CoilCAM functions span different functions and operations:
 ### 1D Functions
 
 #### Linear 
+#### 1D Function
+`linear 1D function` y = (ax + b) +/* Values0, x is an array of integers from 0 to nbPoints.
+
+**Parameters** 
+
+- `Amplitude (float)`: a, value multiplying x
+- `Offset (float, optional)`: b, value added to ax 
+- `nbPoints (int)`: number of output points (should match initialization params nbPointsInLayer for radiusShapingParameter or nbLayers for all other shaping parameters.)
+- `Values0 (float, optional)`:  Array of floats added to or multiplied by the function. 
+- `Mode (string, optional)`: ‘additive’ (default) or ‘multiplicative’ – mode determines if function operation is added to previous values or multiplied by previous values
+
+**Returns**
+
+`Values`: y, array of floats 
+
 
 
 #### Sinusoidal
@@ -36,7 +51,7 @@ CoilCAM functions span different functions and operations:
 ### 2D Functions
 
 ### Set up Functions
-
+#### Tool Path Unit Generator
 `toolpathUnitGenerator`: Generates a toolpath for a 3D form based on the provided initialization and shaping parameters. Example shape making functions include: exponential, linear, sinusoidal, square, and staircase.
 
 **Parameters**
