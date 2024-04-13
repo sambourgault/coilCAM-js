@@ -1,25 +1,23 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
-// this could take place in codemirror
-let path = [];
-let nbPoints= 10;
-  let nbLayers = 3;
-  let layerHeight = 2;
-  let radius = 100;
-  for (let j = 0; j < nbLayers; j++){
-    for (let i = 0; i < nbPoints; i++){
-        let angle = i*2*Math.PI/nbPoints;
-        path.push(radius*Math.cos(angle), radius*Math.sin(angle), j*layerHeight);
-    }
-  }
+function radToDeg(r) {
+  return r * 180 / Math.PI;
+}
 
+function degToRad(d) {
+  return d * Math.PI / 180;
+}
+
+let path = [];
 let updatedPath = false;
+var t = [0, -100, -500];
+var r = [degToRad(270), degToRad(0), degToRad(0)];
 
 function updatePath(newPath){
   updatedPath = true;
   path = newPath;
-  main();
+  main(t,r);
 }
 
 function createShader(gl, type, source) {
@@ -49,7 +47,8 @@ function createProgram(gl, vertexShader, fragmentShader) {
   gl.deleteProgram(program);
 }
 
-function main() {
+
+function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]) {
   // Get A WebGL context
   var canvas = document.querySelector("#canvas");
   var gl = canvas.getContext("webgl");
@@ -80,20 +79,13 @@ function main() {
   //setGeometry(gl);
   setPath(gl, path);
 
-  function radToDeg(r) {
-    return r * 180 / Math.PI;
-  }
-
-  function degToRad(d) {
-    return d * Math.PI / 180;
-  }
-
   var cameraAngleRadians = degToRad(0);
   var fieldOfViewRadians = degToRad(60);
 
   //console.log(document.getElementById('canvas').width)
-  var translation = [document.getElementById('canvas').width, 500, 0];
-  var rotation = [degToRad(90), degToRad(0), degToRad(0)];
+  //var translation = [document.getElementById('canvas').width, 500, 0];
+  var translation = t;
+  var rotation = r;
   var scale = [1, 1, 1];
   var color = [Math.random(), Math.random(), Math.random(), 1];
 
@@ -107,15 +99,17 @@ function main() {
   }*/
 
   // Setup a ui.
+  console.log("max:", gl.canvas.height);
   webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
-  webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), max: gl.canvas.height});
-  webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
+  webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), min:-gl.canvas.height/2, max: gl.canvas.height/2});
+  webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -1000, max: 0});
+  // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
   webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
   webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
   webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
   webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
-  webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 5, step: 0.01, precision: 2});
+  webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 10, step: 0.01, precision: 2});
 
   if (updatedPath){
     drawScene();
@@ -130,6 +124,7 @@ function main() {
   function updatePosition(index) {
     return function(event, ui) {
       translation[index] = ui.value;
+      t[index] =  ui.value;
       drawScene();
     };
   }
@@ -139,6 +134,7 @@ function main() {
       var angleInDegrees = ui.value;
       var angleInRadians = angleInDegrees * Math.PI / 180;
       rotation[index] = angleInRadians;
+      r[index] = angleInRadians;
       drawScene();
     };
   }
@@ -204,14 +200,16 @@ function main() {
 
    
     // Compute the matrices
-    //var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+    // var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
     var left = 0;
     var right = gl.canvas.clientWidth;
     var bottom = gl.canvas.clientHeight;
     var top = 0;
-    var near = 400;
-    var far = -400;
-    var matrix = m4.orthographic(left, right, bottom, top, near, far);
+    var near = 500;
+    var far = 0;
+    // perspective: function(fieldOfViewInRadians, aspect, near, far)
+    var matrix = m4.perspective(fieldOfViewRadians, gl.canvas.clientWidth / gl.canvas.clientHeight, near, far);
+    // var matrix = m4.orthographic(left, right, bottom, top, near, far);
     matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
     matrix = m4.xRotate(matrix, rotation[0]);
     matrix = m4.yRotate(matrix, rotation[1]);
@@ -232,7 +230,6 @@ function main() {
 }
 
 var m4 = {
-
   perspective: function(fieldOfViewInRadians, aspect, near, far) {
     var f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
     var rangeInv = 1.0 / (near - far);
@@ -245,12 +242,12 @@ var m4 = {
     ];
   },
 
+
   orthographic: function(left, right, bottom, top, near, far) {
     return [
       2 / (right - left), 0, 0, 0,
       0, 2 / (top - bottom), 0, 0,
       0, 0, 2 / (near - far), 0,
- 
       (left + right) / (left - right),
       (bottom + top) / (bottom - top),
       (near + far) / (near - far),
