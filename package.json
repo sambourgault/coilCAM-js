@@ -16,10 +16,10 @@
     "@codemirror/lint": "^6.2.0",
     "@codemirror/state": "^6.2.0",
     "@codemirror/view": "^6.9.2",
-    "@flatten-js/core": "1.2.22",
+    "@flatten-js/core": "^1.5.1",
     "parcel-bundler": "^1.12.5"
   },
   "devDependencies": {
-    "parcel": "latest"
+    "parcel": "^2.12.0"
   }
 }

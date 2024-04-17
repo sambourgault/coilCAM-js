@@ -584,21 +584,20 @@ function setUpCodeMirror(){
   }
 
   document.getElementById("b_save").addEventListener("click", saveCode);
-
   function saveCode(){
-    const filename = saveName.value();
-    
-    let content = myCodeMirror.getValue();
+    // let content = myCodeMirror.getValue();
+    // var content = document.getElementById("textArea").value;
+    var editor = CodeMirror.fromTextArea(document.getElementById("textArea"), {styleActiveLine: true});
+    var content = editor.doc.getValue();
     content = content.replace(/\n/g, "\r\n"); // To retain the Line breaks.
     let blob = new Blob([content], { type: "text/plain"});
+    let filename = "code.txt";
     let anchor = document.createElement("a");
-    if (filename){
-      anchor.download = filename + ".txt";
-    } else {
-      anchor.download = "untitled.txt";
-    }
+    anchor.download = filename;
+    anchor.innerHTML = "Download File";
+    window.URL = window.URL || window.webkitURL;
     anchor.href = window.URL.createObjectURL(blob);
-    anchor.target ="_blank";
+    // anchor.target ="_blank";
     anchor.style.display = "none"; // just to be safe!
     document.body.appendChild(anchor);
     anchor.click();
