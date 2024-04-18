@@ -1,9 +1,9 @@
 // /* eslint-disable no-unused-vars */
 import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
 const {point, Polygon} = Flatten;
-const { unify } = Flatten.BooleanOperations;
+const { intersect } = Flatten.BooleanOperations;
 
-export function union(path0, path1){
+export function union(path0, path1, radius){ //revise
   let path = [];
   let points0 = [];
   let points1 = [];
@@ -24,22 +24,24 @@ export function union(path0, path1){
     let layer_points1 = points1.filter(p => p[2] == layer).map(p => point([p[0], p[1]]));
     let polygon0 = new Polygon(layer_points0);
     let polygon1 = new Polygon(layer_points1);
+    console.log('polygon0', layer_points0);
+    console.log('polygon1', layer_points1);
     
-    let combinedPolygon = unify(polygon0, polygon1);
+    let combinedPolygon = intersect(polygon0, polygon1);
+    console.log("combined polygon: ", combinedPolygon.vertices);
     let points = [];
     let regex = /(?<=L)-?\d+(\.\d+)?,-?\d+(\.\d+)?/g; //regex to extract points from the svg path
-    let polygonSVG = combinedPolygon.svg(); //convert to svg to rely on flatten-js's even-odd algorithm
-    polygonSVG.match(regex).map(point => { //convert from svg to list of points
+    let polygonSVG = combinedPolygon.svg();
+    console.log("PSVG: ", polygonSVG);
+    let orderedPolygon = polygonSVG.match(regex).map(point => {
       let [x, y] = point.split(',');
       points.push(parseInt(x));
       points.push(parseInt(y));
       points.push(layer);
     });
-    // this solution doesn't work if the two shapes don't intersect, to do: 
-    // 1) need to change updatePath to draw 2 distinct shapes, 
-    // 2) need to seperate points by shape (SVG does this automatically, all new shapes start with "M" in the SVG file path)
 
     path.push(...points);
+    console.log("points: ", path);  
   }
   return path;
 }

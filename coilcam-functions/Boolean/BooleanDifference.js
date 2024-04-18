@@ -1,9 +1,9 @@
 // /* eslint-disable no-unused-vars */
 import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
 const {point, Polygon} = Flatten;
-const { unify } = Flatten.BooleanOperations;
+const { subtract, intersect, outerClip} = Flatten.BooleanOperations;
 
-export function union(path0, path1){
+export function difference(path0, path1){ //revise
   let path = [];
   let points0 = [];
   let points1 = [];
@@ -18,30 +18,32 @@ export function union(path0, path1){
   points1.sort((a, b) => a[2] - b[2]);
   points0.forEach(point => layers.add(point[2]));
   points1.forEach(point => layers.add(point[2]));
-
+  layers = [97];
   for(let layer of layers){
     let layer_points0 = points0.filter(p => p[2] == layer).map(p => point([p[0], p[1]]));
     let layer_points1 = points1.filter(p => p[2] == layer).map(p => point([p[0], p[1]]));
     let polygon0 = new Polygon(layer_points0);
     let polygon1 = new Polygon(layer_points1);
     
-    let combinedPolygon = unify(polygon0, polygon1);
+    let combinedPolygon = subtract(polygon0, polygon1);
     let points = [];
     let regex = /(?<=L)-?\d+(\.\d+)?,-?\d+(\.\d+)?/g; //regex to extract points from the svg path
     let polygonSVG = combinedPolygon.svg(); //convert to svg to rely on flatten-js's even-odd algorithm
-    polygonSVG.match(regex).map(point => { //convert from svg to list of points
-      let [x, y] = point.split(',');
-      points.push(parseInt(x));
-      points.push(parseInt(y));
-      points.push(layer);
-    });
-    // this solution doesn't work if the two shapes don't intersect, to do: 
-    // 1) need to change updatePath to draw 2 distinct shapes, 
-    // 2) need to seperate points by shape (SVG does this automatically, all new shapes start with "M" in the SVG file path)
-
+    let shapes = polygonSVG.match(/M[^M]*/g);
+    console.log("Shapes", shapes);
+    console.log("polygonSVG", polygonSVG);
+    for (let shape of shapes){
+      shape.match(regex).map(point => { //convert from svg to list of points
+        let [x, y] = point.split(',');
+        points.push(parseInt(x));
+        points.push(parseInt(y));
+        points.push(layer);
+      });
+    }
     path.push(...points);
   }
+  console.log("path", path);
   return path;
 }
 
-window.union = union;
+window.difference = difference;
