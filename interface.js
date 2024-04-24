@@ -80,7 +80,7 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
   setPath(gl, path);
 
   var cameraAngleRadians = degToRad(0);
-  var fieldOfViewRadians = degToRad(60);
+  var fieldOfViewRadians = degToRad(30);
 
   //console.log(document.getElementById('canvas').width)
   //var translation = [document.getElementById('canvas').width, 500, 0];
@@ -220,12 +220,23 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
     // Draw the geometry.
-    //var primitiveType = gl.TRIANGLES;
-    var primitiveType = gl.LINE_STRIP;
-    var offset = 0;
-    //var count = 18;  // 6 triangles in the 'F', 3 points per triangle
-    var count = path.length/3;
-    gl.drawArrays(primitiveType, offset, count);
+    if(Array.isArray(path[0])){
+      var primitiveType = gl.LINE_STRIP;
+      let path_lengths = path[0].map(array => array.length);
+
+      let points_printed = 0;
+      for(let pl of path_lengths){
+        gl.drawArrays(primitiveType, points_printed, pl/3);
+        points_printed += pl/3;
+      }
+    } else{
+      var primitiveType = gl.LINE_STRIP;
+      var offset = 0;
+      var count = path.length/3;
+      gl.drawArrays(primitiveType, offset, count);
+    }
+    
+    
   }
 }
 
@@ -524,13 +535,22 @@ function setGeometry(gl) {
 
 function setPath(gl, path) {
   //let positions = [];
+  let combinedpath = [];
+  if(Array.isArray(path[0])){
+    for (let i = 0; i < path.length; i++){
+      for(let j = 0; j < path[i].length; j++){
+        combinedpath.push(...path[i][j]);
+      }
+    }
+  } else{
+    combinedpath = path;
+  }
 
   gl.bufferData(
       gl.ARRAY_BUFFER,
-      new Float32Array(path),
+      new Float32Array(combinedpath),
       gl.STATIC_DRAW);
 }
-
 
 function setUpCodeMirror(){
 
