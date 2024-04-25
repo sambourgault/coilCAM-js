@@ -4,7 +4,7 @@ import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
 const {point, Polygon} = Flatten;
 const { subtract, unify} = Flatten.BooleanOperations;
 
-export function union(path0, path1, by_layer = true){
+export function union(path0, path1, by_layer = true, multishape = true){
   let path = [];
   let points0 = [];
   let points1 = [];
@@ -28,6 +28,7 @@ export function union(path0, path1, by_layer = true){
     let layer_points1 = points1.filter(p => p[2] == layer).map(p => point([p[0], p[1]]));
     let polygon0 = new Polygon(layer_points0);
     let polygon1 = new Polygon(layer_points1);
+    
     let combinedPolygon = unify(polygon0, polygon1);
     let polygonSVG = combinedPolygon.svg(); //convert to svg to rely on flatten-js's even-odd algorithm
     const shapesString = polygonSVG.match(/(M[^M]+z)/g); //separate svg into just the section containing points
