@@ -221,6 +221,7 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
 
     // Draw the geometry.
     if(Array.isArray(path[0])){ //multiple vessels
+      console.log("check");
       var primitiveType = gl.LINE_STRIP;
       let path_lengths = path[0].map(array => array.length);
 
@@ -230,6 +231,8 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
         points_printed += (pl-1)/3;
       }
     } else{ //single toolpath
+      console.log("single toolpath");
+      console.log(path);
       var primitiveType = gl.LINE_STRIP;
       var offset = 0;
       var count = path.length/3;
@@ -534,21 +537,9 @@ function setGeometry(gl) {
 }
 
 function setPath(gl, path) {
-  //let positions = [];
-  let combinedpath = [];
-  if(Array.isArray(path[0])){
-    for (let i = 0; i < path.length; i++){
-      for(let j = 0; j < path[i].length; j++){
-        combinedpath.push(...path[i][j]);
-      }
-    }
-  } else{
-    combinedpath = path;
-  }
-
   gl.bufferData(
       gl.ARRAY_BUFFER,
-      new Float32Array(combinedpath),
+      new Float32Array(path),
       gl.STATIC_DRAW);
 }
 

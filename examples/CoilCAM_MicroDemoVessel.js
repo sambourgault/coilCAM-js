@@ -24,8 +24,6 @@ var srsp = linear(-0.03, 1.8, nbLayers, [], "additive");
 //ROTATION PARAMETER
 var rtsp = staircase(3.0, 30.0, 3.0, nbLayers, [], "");
 
-
-
 //--Spout
 //SCALING SHAPING PARAMETER
 var spout_ssp = linear(0.63, 0.0, 60, [], "additive");

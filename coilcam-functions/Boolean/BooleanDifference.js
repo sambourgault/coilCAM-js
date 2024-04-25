@@ -26,12 +26,12 @@ export function difference(path0, path1, by_layer = true){ //revise
     let layer_points1 = points1.filter(p => p[2] == layer).map(p => point([p[0], p[1]]));
     let polygon0 = new Polygon(layer_points0);
     let polygon1 = new Polygon(layer_points1);
-    if(polygon1.contains(polygon0)){//skip layer
+    if(polygon1.contains(polygon0)){ //skip layer
       continue;
     }
     if(polygon0.contains(polygon1)){ //do not subtract shapes, push all points from first shape
       for(let point of layer_points0){
-        shapes.push(point.x, point.y, layer);
+        shapes[0].push(point.x, point.y, layer);
       }
     } else{
       let combinedPolygon = subtract(polygon0, polygon1);
@@ -63,8 +63,7 @@ export function difference(path0, path1, by_layer = true){ //revise
       }
     }
   }
-  path.push(shapes);
-  console.log("path", path);
+  path = shapes.flat();
   return path;
 }
 
