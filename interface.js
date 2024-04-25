@@ -220,16 +220,16 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
     // Draw the geometry.
-    if(Array.isArray(path[0])){
+    if(Array.isArray(path[0])){ //multiple vessels
       var primitiveType = gl.LINE_STRIP;
       let path_lengths = path[0].map(array => array.length);
 
       let points_printed = 0;
       for(let pl of path_lengths){
         gl.drawArrays(primitiveType, points_printed, pl/3);
-        points_printed += pl/3;
+        points_printed += (pl-1)/3;
       }
-    } else{
+    } else{ //single toolpath
       var primitiveType = gl.LINE_STRIP;
       var offset = 0;
       var count = path.length/3;
