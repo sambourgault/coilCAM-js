@@ -32,7 +32,7 @@ var spout_tsp = linear2D(0.712, 0.0, 0.0, 0.0, 0.0, 60, [], [], "")
 
 // TOOLPATH UNIT GENERATORS
 var baseToolpath = toolpathUnitGenerator([0.0, 0.0, 7.0], 48.16, potterbot_layerHeight, nbLayers=60, nbPointsInLayer=42, rsp, ssp3, srsp, [], rtsp);
-var spoutToolpath = toolpathUnitGenerator([100.0, 100.0, 7.0], 5.14, potterbot_layerHeight, nbLayers=60.0, nbPointsInLayer=3.0, [], spout_ssp, [], spout_tsp, []);
+var spoutToolpath = toolpathUnitGenerator([18.0, 0.0, 7.0], 5.14, potterbot_layerHeight, nbLayers=60.0, nbPointsInLayer=3.0, [], spout_ssp, [], spout_tsp, []);
 var toolpath = union(baseToolpath, spoutToolpath);
 // var toolpath = difference(baseToolpath, spoutToolpath);
 updatePath(toolpath);
