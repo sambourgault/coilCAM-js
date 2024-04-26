@@ -19,10 +19,10 @@ function setParameter(input, parameter_name, nb){
     }
     else{
         if(parameter_name === "radiusShapingParameter"){
-            var error_str = "Length of values in shaping parameter " + parameter_name + " must be 0, 1 or equal to nbPointsInLayer";
+            var error_str = "Length of values for parameter " + parameter_name + " is currently " + input.length + ", must be 0, 1 or equal to nbPointsInLayer: " + nb;
             throw new Error(error_str);
         } else{
-            var error_str = "Length of values in shaping parameter " + parameter_name + " must be 0, 1 or equal to nbPointsInLayer";
+            var error_str = "Length of values for parameter " + parameter_name + " is currently " + input.length + ", must be 0, 1 or equal to nbLayers: " + nb;
             throw new Error(error_str);
         }
     }

@@ -4,14 +4,16 @@ var potterbot_nozzleDiameter = 5.0;
 var potterbot_layerHeight = 2.0;
 
 //--Parameters for vessels
-var nbLayers = 10;
-var nbPointsInLayer = 12;
-var radius = 5.0;
+var nbLayers = 40;
+var nbPointsInLayer = 24;
+var radius = 25.0;
 
 
 //RADIUS SHAPING PARAMETER
 var rsp = sinusoidal(4.0, 7.0, 30.0, nbPointsInLayer, [], "multiplicative");
-var ssp = linear(-0.9,7.0, nbLayers, [], "additive");
+var ssp1 = sinusoidal(0.5,10.0, 30.0, nbLayers, [], "additive");
+var ssp = linear(-0.4,ssp1, nbLayers, [], "additive");
+
 
 // TOOLPATH UNIT GENERATORS
 let vessels = [];
@@ -26,10 +28,6 @@ for (let i = 0; i < num_copies; i++){
 }
 base = vessels[0];
 updatePath(base);
-var num_points_bowl = 30;
-var bowl_radius = sinusoidal(30.0, num_copies*20, -0.2, num_points_bowl, [], "additive");
-let bowl = toolpathUnitGenerator([0.0, 0.0, 15.0], 30.0, potterbot_layerHeight, num_points_bowl, 60, [], bowl_radius, [], [], []);
 
-var toolpath = union(base, bowl);
 updatePath(toolpath);
 console.log(generateGCode(toolpath, potterbot_printSpeed, potterbot_nozzleDiameter, potterbot_layerHeight));
