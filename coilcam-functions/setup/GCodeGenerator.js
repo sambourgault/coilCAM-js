@@ -1,15 +1,14 @@
 //Helper functions for generateGCode
 function extrude(nozzleDiameter, layerHeight, segmentLen){
-    console
     let points = [];
-    let extrusion_multiplier = (nozzleDiameter/1.91)^2 //extrusion multiplier for correct filament thickness
+    let extrusion_multiplier = (nozzleDiameter/1.91)**2 //extrusion multiplier for correct filament thickness
     let totalExtruded = 0;
     points.push(0);
     for(var i = 0; i < segmentLen.length; i++){
         var newPoint = (segmentLen[i]*layerHeight/nozzleDiameter) * (4/Math.PI + layerHeight/nozzleDiameter);
+        console.log("newPoint", newPoint*extrusion_multiplier);
+        points.push(((newPoint + totalExtruded) * extrusion_multiplier).toFixed(4));
         totalExtruded += newPoint;
-        newPoint = (newPoint + totalExtruded) * extrusion_multiplier;
-        points.push(newPoint);
     }
     // E = SegmentLen*LayerHeight/NozzleWidth * (4/math.pi + LayerHeight/NozzleWidth)
     return points;
@@ -34,20 +33,36 @@ function generateGCode(path, layerHeight, nozzleDiameter, printSpeed){ //main fu
     let extr = extrude(nozzleDiameter, layerHeight, segmentLen);
     console.log("Extrusions", extr);
     
-    let startGcodePrefix = ';;; START GCODE ;;;\nM82 ;absolute extrusion mode\nG28 ;Home\nG1 X207.5 Y202.5 Z20 F10000 ;Move X and Y to center, Z to 20mm high\nG1 E2000 F20000 ; !!Prime Extruder\nG92 E0\nG1 F30000 E-150\n;;; ======';
-    let endGcodePostfix = ";;; === END GCODE ===\nM83 ;Set to Relative Extrusion Mode\nG28 Z ;Home Z\n; === DEPRESSURIZE ===\nG91\nG91\nG1 E-1300 F4000\nG90\nG90";
-    let gcode = [startGcodePrefix];
-    gcode.push(startGcodePrefix);
-    
+    let startGcodePrefix = ";;; START GCODE ;;;\nM82 ;absolute extrusion mode\nG28 ;Home\nG1 X207.5 Y202.5 Z20 F10000 ;Move X and Y to center, Z to 20mm high\nG1 E4000 F40000 ; !!Prime Extruder\nG92 E0\nG1 F30000 E-150\n;;; ======\n";
+    let endGcodePostfix = ";;; === END GCODE ===\nM83 ;Set to Relative Extrusion Mode\nG28 Z ;Home Z\n; === DEPRESSURIZE ===\nG91\nG91\nG1 E-1300 F4000\nG90\nG90\n";
+    let gcode = startGcodePrefix;
+    console.log("gcode", gcode);
     for(var i = 0; i < (path.length / 3); i++){ //path is an array of ints, not represented as tuples
         x = round2pt(path[(i*3)]);
         y = round2pt(path[(i*3)+1]);
         z = round2pt(path[(i*3)+2]);
-        gcode.push("G1 F" + printSpeeds[i]+ " X"+ x +" Y" + y + " Z" + z + " E" + extr[i]);
+        gcode += "G1 F" + printSpeeds[i]+ " X"+ x +" Y" + y + " Z" + z + " E" + extr[i] +"\n";
     }
-    gcode.push(endGcodePostfix);
+    gcode += endGcodePostfix;
     return gcode;
 }
+
+function downloadGCode(gcode_string, fileName) { //pass in gcode string, filename
+    const blob = new Blob([gcode_string], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName; 
+    link.style.display = 'none';
+  
+    document.body.appendChild(link);
+    link.click();
+  
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  
 
 //Not fully implemented in Rhino, may not be correct
 function getNumTubes(path, nozzleDiameter, layerHeight){ 
