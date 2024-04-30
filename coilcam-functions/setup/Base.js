@@ -13,15 +13,25 @@ export function baseSpiral(position, path, nbPointsInLayer, radius){
         basePoints.push(path[i], path[i+1], path[i+2]);
     }
 
-    let x = position[0];
-    let y = position[1];
-    for (let i = 0; i < 10; i+=3){
+    let scale = .3; 
+    let x = radius * Math.PI * (1/scale);
+    let y = radius* Math.PI * (1/scale);
+    
+    for (let i = radius - 1; i >= 0; i--){
+        for (let j = nbPointsInLayer - 1; j >= 0; j--){
+            let theta =  (j*2*Math.PI/nbPointsInLayer); 
+            let outer = (2* Math.PI * i); 
+            x = (x +(outer + theta) * Math.cos(theta)) * scale;
+            y = (y +(outer + theta) * Math.sin(theta)) * scale;
+            basePath.push(x, y, height);
+        }
+    }
+    for (let i = 0; i < radius; i++){
         for (let j = 0; j < nbPointsInLayer; j++){
             let theta =  (j*2*Math.PI/nbPointsInLayer); 
-            let outer = ((2/3) * Math.PI * i); 
-            let scale = .9; 
-            x = (x + (outer + theta) * Math.cos(theta)) * scale;
-            y = (y + (outer + theta) * Math.sin(theta)) * scale;
+            let outer = (2* Math.PI * i); 
+            x = (x +(outer + theta) * Math.cos(180 + theta)) * scale;
+            y = (y +(outer + theta) * Math.sin(180 + theta)) * scale;
             basePath.push(x, y, height);
         }
     }
