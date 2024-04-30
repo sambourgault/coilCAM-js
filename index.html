@@ -22,7 +22,28 @@
     <button type="button" id="b_save">save</button>
 
       <div class="codediv" id = 'code1'>
-        <textarea id = "editor"></textarea>
+        <textarea id = "editor">// DEFAULT EXAMPLE
+
+// POTTERBOT CONFIG
+var potterbot_printSpeed = 30;
+var potterbot_nozzleDiameter = 5.0;
+var potterbot_layerHeight = 1.8;
+var potterbot_extrusionMultiplier = 1.0;
+var potterbot_bedSize = [280, 265, 305];
+
+
+// Main Vessel
+var nbLayers = 60;
+var nbPointsInLayer = 30;
+var vesselRadius = 20;
+var position = [0, 0, 4.5];
+var scalingParameter = sinusoidal(10, 15, 0, nbLayers, 0, "");
+var toolpath = toolpathUnitGenerator(position, 42.00, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], []);
+
+var base = baseSpiral(position, toolpath, nbPointsInLayer, vesselRadius);
+updatePath(base);
+//var gcode_string = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
+        </textarea>
       </div>
       <div class="codediv" id = 'console1'>
         <textarea id = "console"></textarea>
@@ -148,9 +169,14 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 
 <!-- <script src="coilcam-functions/setup/GCodeGenerator.js" type="module"></script> -->
 <script src="coilcam-functions/setup/ToolpathUnitGenerator.js"></script>
-<script src="coilcam-functions/setup/Base.js"></script>
+<!-- <script src="coilcam-functions/setup/Base.js"></script> -->
+<script type="module" src="coilcam-functions/setup/Base.js">
+  import {Base} from './coilcam-functions/setup/Base.js';
+</script>
 <!-- <script src="coilcam-functions/setup/PrinterPresets.js" type="application/javascript"></script> -->
-<script src="coilcam-functions/setup/Spiralize.js"></script>
+<script type="module" src="coilcam-functions/setup/Spiralize.js">
+  import {Spiralize} from './coilcam-functions/setup/Spiralize.js';
+</script>
 
 
 <script src="coilcam-functions/2D-functions/Linear2D.js"></script>
@@ -158,7 +184,6 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 <script type="module" src="coilcam-functions/boolean/BooleanUnion.js">
   import {BooleanUnion} from './coilcam-functions/boolean/BooleanUnion.js';
 </script>
-
 <script type="module" src="coilcam-functions/boolean/BooleanDifference.js">
   import {BooleanDifference} from './coilcam-functions/boolean/BooleanDifference.js';
 </script>

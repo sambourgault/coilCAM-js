@@ -89,6 +89,8 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
   var scale = [1, 1, 1];
   var color = [Math.random(), Math.random(), Math.random(), 1];
 
+  
+
   drawScene();
 
   // Setup a ui.
@@ -111,6 +113,7 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
   webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 10, step: 0.01, precision: 2});
 
+  
   if (updatedPath){
     drawScene();
     updatedPath = false;
@@ -221,7 +224,6 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
 
     // Draw the geometry.
     if(Array.isArray(path[0])){ //multiple vessels
-      console.log("check");
       var primitiveType = gl.LINE_STRIP;
       let path_lengths = path[0].map(array => array.length);
 
@@ -231,8 +233,6 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
         points_printed += (pl-1)/3;
       }
     } else{ //single toolpath
-      console.log("single toolpath");
-      console.log(path);
       var primitiveType = gl.LINE_STRIP;
       var offset = 0;
       var count = path.length/3;
@@ -577,8 +577,9 @@ function setUpCodeMirror(){
   // configs
   consoleCodeMirror = CodeMirror.fromTextArea(textArea2, {
     lineNumbers: true,
-    mode: 'javascript',
+    mode: 'javascript'
     //extraKeys: {"Ctrl-Space":"autocomplete"}
+    
   });
 
   // buttons

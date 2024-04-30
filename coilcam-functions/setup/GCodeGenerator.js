@@ -27,7 +27,6 @@ function generateGCode(path, layerHeight, nozzleDiameter, printSpeed){ //main fu
     
     for(var i = 0; i < path.length - 3; i+=3){
         segmentLen.push(euclideanDist(path.slice(i, i+3), path.slice(i+3, i+6))); //path is array of #s, not points
-        // printSpeeds.push(Math.floor(printSpeed[i]*60));
         printSpeeds.push(Math.floor(printSpeed*60));
     };
     let extr = extrude(nozzleDiameter, layerHeight, segmentLen);
@@ -47,6 +46,8 @@ function generateGCode(path, layerHeight, nozzleDiameter, printSpeed){ //main fu
     return gcode;
 }
 
+function spiralize
+
 function downloadGCode(gcode_string, fileName) { //pass in gcode string, filename
     const blob = new Blob([gcode_string], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -61,8 +62,6 @@ function downloadGCode(gcode_string, fileName) { //pass in gcode string, filenam
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }
-
-  
 
 //Not fully implemented in Rhino, may not be correct
 function getNumTubes(path, nozzleDiameter, layerHeight){ 
@@ -80,17 +79,17 @@ function getNumTubes(path, nozzleDiameter, layerHeight){
 //     return calculateClayHeight(path, preset.nozzleDiameter, preset.layerHeight);
 // }
 
-//Stub: not fully implemented in Rhino, not sure what the value of multiplier should be
-function calculateClayHeight(nozzleDiameter, path, layerHeight, extrusionMultiplier){ 
-    extrusionMultiplier = 0; //Extrusion multiplier exists for Super Potterbot but is unused
-    return getNumTubes(nozzleDiameter, path, layerHeight)*extrusionMultiplier;
-}
+// //Stub: not fully implemented in Rhino, not sure what the value of multiplier should be
+// function calculateClayHeight(nozzleDiameter, path, layerHeight, extrusionMultiplier){ 
+//     extrusionMultiplier = 0; //Extrusion multiplier exists for Super Potterbot but is unused
+//     return getNumTubes(nozzleDiameter, path, layerHeight)*extrusionMultiplier;
+// }
 
 
-//Stub: Function to spiralize, add base, center print
-function buildVessel(path, layerHeight, bedSize){
-    let spiralize = spiralize(path, layerHeight);
-    let base = circlularBase(position=[0, 0, 0], radius=48.0, layerHeight=layerHeight, nbLayers=3, nbPointsInLayer=22); //preset
-    let centered = centerPrint(base, preset);
-    return generateGCode(centered, preset);
-}
+// //Stub: Function to spiralize, add base, center print
+// function buildVessel(path, layerHeight, bedSize){
+//     let spiralize = spiralize(path, layerHeight);
+//     let base = circlularBase(position=[0, 0, 0], radius=48.0, layerHeight=layerHeight, nbLayers=3, nbPointsInLayer=22); //preset
+//     let centered = centerPrint(base, preset);
+//     return generateGCode(centered, preset);
+// }
