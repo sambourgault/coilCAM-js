@@ -3,6 +3,7 @@ import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
 const {point, Polygon, Segment} = Flatten;
 const {intersect} = Flatten.BooleanOperations;
 
+
 export function baseSpiral(position, path, nbPointsInLayer, layerHeight, layerWidth, radius){ 
     let basePoints = [];
     let basePath = [];
@@ -17,8 +18,8 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, layerWi
     let x = radius * Math.PI * (1/scale);
     let y = radius* Math.PI * (1/scale);
     
-    for (let i = radius - 1; i >= 0; i--){
-        for (let j = nbPointsInLayer - 1; j >= 0; j--){
+    for (let i = radius - 1; i > 0; i--){
+        for (let j = nbPointsInLayer - 1; j > 0; j--){
             let theta =  (j*2*Math.PI/nbPointsInLayer); 
             let outer = (2* Math.PI * i); 
             x = (x +(outer + theta) * Math.cos(theta)) * scale;
@@ -26,8 +27,8 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, layerWi
             basePath.push(x, y, height);
         }
     }
-    for (let i = 0; i < radius; i++){
-        for (let j = 0; j < nbPointsInLayer; j++){
+    for (let i = 1; i < radius; i++){
+        for (let j = 1; j < nbPointsInLayer; j++){
             let theta =  (j*2*Math.PI/nbPointsInLayer); 
             let outer = (2* Math.PI * i); 
             x = (x +(outer + theta) * Math.cos(180 + theta)) * scale;
@@ -35,8 +36,6 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, layerWi
             basePath.push(x, y, height);
         }
     }
-
-    console.log("base Path:", basePath);
     return basePath;
 }
 
@@ -46,11 +45,9 @@ export function baseFill(position, path, nbPointsInLayer, layerHeight, layerWidt
     // let height = path[2]; //assuming toolpath is sorted with smallest height listed first
     let height = layerHeight;
     console.log(height);
-    console.log("path", path);
     for(let i = 0; i < nbPointsInLayer*3; i+=3){
         basePath.push(point(path[i], path[i+1]));
     }
-    console.log("basepath", basePath);
     let baseCircle = new Polygon(basePath);
     
     let diameter = radius*4; //radius values off, check correctness
@@ -60,7 +57,6 @@ export function baseFill(position, path, nbPointsInLayer, layerHeight, layerWidt
     for (let i = 0; i < (diameter*2); i+=layerWidth){
         let line = new Segment(point([start[0]+(i), start[1]]), point([start[0]+(i), start[1]+(diameter*2)]));
         let intersectionPoints = (line.intersect(baseCircle).map(pt => [pt.x, pt.y])).flat();
-        console.log("ip:", intersectionPoints.length);
         if(intersectionPoints.length == 4){
             if(i % (2*layerWidth) == 0){
                 newPoints.push(intersectionPoints[0], intersectionPoints[1]);
@@ -80,15 +76,18 @@ export function baseFill(position, path, nbPointsInLayer, layerHeight, layerWidt
     return newPoints;
 }
 
-// export function base(position, path, nbPointsInLayer, layerHeight, layerWidth, radius){
-//     console.log("build base");
-//     let path = [40.0];
-//     // path.append(baseSpiral(position, path, nbPointsInLayer, layerHeight, layerWidth, radius));
-//     // path.append(baseFill(position, path, nbPointsInLayer, layerHeight*2, layerWidth, radius));
-//     return path;
-// }
+export function base(position, path, nbPointsInLayer, layerHeight, layerWidth, radius){
+    console.log("build base");
+    let bottomBase = baseSpiral(position, path, nbPointsInLayer, layerHeight, layerWidth, radius);
+    let middleBase = baseFill(position, path, nbPointsInLayer, layerHeight*7, layerWidth, radius);
+    let topBase = baseSpiral(position, path, nbPointsInLayer, layerHeight*14, layerWidth, radius);
+    let newPath = topBase.concat(middleBase.concat(bottomBase));
+    console.log(middleBase);
+    console.log("newpath", newPath);
+    return newPath;
+}
 
 //baseFill doesn't work unless function base is commented out
 window.baseSpiral = baseSpiral;
 window.baseFill = baseFill;
-// window.base = base;
+window.base = base;
