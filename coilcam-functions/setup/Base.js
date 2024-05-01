@@ -15,24 +15,25 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, layerWi
     }
 
     let scale = .3; 
-    let x = radius * Math.PI * (1/scale);
-    let y = radius* Math.PI * (1/scale);
+    let diameter = radius*2;
+    let x = radius * Math.PI * (1/scale) + (position[0]);
+    let y = radius* Math.PI * (1/scale) + (position[1]);
     
-    for (let i = radius - 1; i > 0; i--){
+    for (let i = radius - 2; i > 0; i--){ //inwards spiral
         for (let j = nbPointsInLayer - 1; j > 0; j--){
             let theta =  (j*2*Math.PI/nbPointsInLayer); 
             let outer = (2* Math.PI * i); 
-            x = (x +(outer + theta) * Math.cos(theta)) * scale;
-            y = (y +(outer + theta) * Math.sin(theta)) * scale;
+            x = ((x +(outer + theta) * Math.cos(theta)) * scale) + (position[0]);
+            y = ((y +(outer + theta) * Math.sin(theta)) * scale) + (position[1]);
             basePath.push(x, y, height);
         }
     }
-    for (let i = 1; i < radius; i++){
+    for (let i = 1; i < radius - 1; i++){ //outwards spiral
         for (let j = 1; j < nbPointsInLayer; j++){
             let theta =  (j*2*Math.PI/nbPointsInLayer); 
             let outer = (2* Math.PI * i); 
-            x = (x +(outer + theta) * Math.cos(180 + theta)) * scale;
-            y = (y +(outer + theta) * Math.sin(180 + theta)) * scale;
+            x = ((x +(outer + theta) * Math.cos(180 + theta)) * scale)  + (position[0]);
+            y = ((y +(outer + theta) * Math.sin(180 + theta)) * scale)  + (position[1]);
             basePath.push(x, y, height);
         }
     }
