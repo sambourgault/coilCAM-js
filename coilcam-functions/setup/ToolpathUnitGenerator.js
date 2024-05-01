@@ -14,7 +14,6 @@ function setParameter(input, parameter_name, nb){
     } else if(!Array.isArray(input)){
         parameter = new Array(nb).fill(input);
     } else if(input.length == nb){
-        console.log("chilling");
         return input;
     }
     else{
@@ -26,7 +25,7 @@ function setParameter(input, parameter_name, nb){
             throw new Error(error_str);
         }
     }
-    console.log("parameter", parameter_name, parameter);
+    // console.log("parameter", parameter_name, parameter);
     return parameter;
 }
 
@@ -39,7 +38,6 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
     let rsp = setParameter(rotateShapingParameter, "rotateShapingParameter", nbLayers);
     let tsp = setParameter(translateShapingParameter, "translateShapingParameter", nbLayers);
     let srsp = setParameter(scalingRadiusShapingParameter, "scalingRadiusShapingParameter", nbLayers);
-    console.log("ssp", ssp)
 
     for(let j = 0; j < nbLayers; j++){
         for(let i = 0; i < nbPointsInLayer; i++){
@@ -49,6 +47,5 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
             path.push(position[2] + layerHeight * j);
         }
     }
-    console.log("path in tug", path);
     return path;
 }

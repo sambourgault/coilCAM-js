@@ -1,13 +1,13 @@
 // /* eslint-disable no-unused-vars */
 import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
-const {point, Polygon} = Flatten;
+const {point, Polygon, Segment} = Flatten;
 const {intersect} = Flatten.BooleanOperations;
 
-export function baseSpiral(position, path, nbPointsInLayer, radius){ 
-    console.log("test! path:", path);
+export function baseSpiral(position, path, nbPointsInLayer, layerHeight, layerWidth, radius){ 
     let basePoints = [];
     let basePath = [];
-    let height = path[2]; //assuming toolpath is sorted with smallest height listed first
+    // let height = path[2]; //assuming toolpath is sorted with smallest height listed first
+    let height = layerHeight;
     console.log(height);
     for(let i = 0; i < nbPointsInLayer; i+=3){
         basePoints.push(path[i], path[i+1], path[i+2]);
@@ -40,26 +40,55 @@ export function baseSpiral(position, path, nbPointsInLayer, radius){
     return basePath;
 }
 
-// var basePath = [57.14, 0, 7, -55.569999999999986, 65.07314884036272, 7, -55.570000000000036, -65.0731488403627, 7, 60.44, 0, 8, -57.219999999999985, 67.93103267285137, 8, -57.220000000000034, -67.93103267285134, 8, 63.739999999999995, 0, 9, -58.869999999999976, 70.78891650534001, 9, -58.87000000000003, -70.78891650533998, 9]
-// var bs = baseSpiral([5.4, 2.4, 5.4], basePath, 60.0, 2.0);
-// updatePath(bs);
 
-// function baseZigzag(position, basePath, nbLayers, nbPointsInLayer, layerHeight, layerThickness, radius){
-//     let lines = [];
-//     let intersectPoints = [];
-//     let points = basePath.map(p => point([p[0], p[1]]));
-//     let baseCircle = new Polygon(points);
+export function baseFill(position, path, nbPointsInLayer, layerHeight, layerWidth, radius){
+    let basePath = [];
+    // let height = path[2]; //assuming toolpath is sorted with smallest height listed first
+    let height = layerHeight;
+    console.log(height);
+    console.log("path", path);
+    for(let i = 0; i < nbPointsInLayer*3; i+=3){
+        basePath.push(point(path[i], path[i+1]));
+    }
+    console.log("basepath", basePath);
+    let baseCircle = new Polygon(basePath);
+    
+    let diameter = radius*4; //radius values off, check correctness
+    let start = [position[0] - diameter, position[1] - diameter, layerHeight*2];
+    let newPoints = [];
 
-//     start = [position[0] - radius, position[1] - radius, layerHeight*2];
-//     for (let i = 0; i*layerThickness < radius*2; i++){
-//         let line = new Segment(point([start[0]+(i*layerThickness), start[1]],
-//                     point([start[0]+(i*layerThickness), start[1]+radius*2])));
-//         lines.push(line);
-//     }
-//     for(let i = 0; i < lines.length; i++){
-//         intersectPoints.push(intersect(lines[i], baseCircle));
-//     }
-//     return intersectPoints;
+    for (let i = 0; i < (diameter*2); i+=layerWidth){
+        let line = new Segment(point([start[0]+(i), start[1]]), point([start[0]+(i), start[1]+(diameter*2)]));
+        let intersectionPoints = (line.intersect(baseCircle).map(pt => [pt.x, pt.y])).flat();
+        console.log("ip:", intersectionPoints.length);
+        if(intersectionPoints.length == 4){
+            if(i % (2*layerWidth) == 0){
+                newPoints.push(intersectionPoints[0], intersectionPoints[1]);
+                newPoints.push(height);
+                newPoints.push(intersectionPoints[2], intersectionPoints[3]);
+                newPoints.push(height);
+            } else{
+                newPoints.push(intersectionPoints[2], intersectionPoints[3]);
+                newPoints.push(height);
+                newPoints.push(intersectionPoints[0], intersectionPoints[1]);
+                newPoints.push(height);
+            }
+        }
+        
+    }
+    console.log("gp", newPoints);
+    return newPoints;
+}
+
+// export function base(position, path, nbPointsInLayer, layerHeight, layerWidth, radius){
+//     console.log("build base");
+//     let path = [40.0];
+//     // path.append(baseSpiral(position, path, nbPointsInLayer, layerHeight, layerWidth, radius));
+//     // path.append(baseFill(position, path, nbPointsInLayer, layerHeight*2, layerWidth, radius));
+//     return path;
 // }
 
+//baseFill doesn't work unless function base is commented out
 window.baseSpiral = baseSpiral;
+window.baseFill = baseFill;
+// window.base = base;
