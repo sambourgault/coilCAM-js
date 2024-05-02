@@ -1,7 +1,7 @@
 //Helper functions for generateGCode
 function extrude(nozzleDiameter, layerHeight, segmentLen){
     let points = [];
-    let extrusion_multiplier = (nozzleDiameter/1.91)**2 //extrusion multiplier for correct filament thickness
+    let extrusion_multiplier = (nozzleDiameter/1.91)**2; //extrusion multiplier for correct filament thickness
     let totalExtruded = 0;
     points.push(0);
     for(var i = 0; i < segmentLen.length; i++){
@@ -45,8 +45,6 @@ function generateGCode(path, layerHeight, nozzleDiameter, printSpeed){ //main fu
     gcode += endGcodePostfix;
     return gcode;
 }
-
-function spiralize
 
 function downloadGCode(gcode_string, fileName) { //pass in gcode string, filename
     const blob = new Blob([gcode_string], { type: 'text/plain' });

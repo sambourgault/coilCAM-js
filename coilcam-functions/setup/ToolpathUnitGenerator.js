@@ -42,6 +42,10 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
     for(let j = 0; j < nbLayers; j++){
         for(let i = 0; i < nbPointsInLayer; i++){
             let angle = 2 * i * Math.PI / nbPointsInLayer;
+            if(i == 0 && j == 0){
+                console.log("start x:", position[0] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0]);
+                console.log("start y:", position[1] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1]);
+            }
             path.push(position[0] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0]);
             path.push(position[1] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1]);
             path.push(position[2] + layerHeight * j);

@@ -36,12 +36,12 @@ var potterbot_bedSize = [280, 265, 305];
 var nbLayers = 60;
 var nbPointsInLayer = 30;
 var vesselRadius = 20;
-var position = [0, 0, 4.5];
+var position = [3.0, 10.0, 4.5];
 var scalingParameter = sinusoidal(10, 15, 0, nbLayers, 0, "");
 var toolpath = toolpathUnitGenerator(position, 42.00, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], [], [], [], []);
 
 //var base = baseSpiral(position, toolpath, nbPointsInLayer, vesselRadius);
-var b = base(position, toolpath, nbPointsInLayer, potterbot_layerHeight, 4.0, vesselRadius);
+var b = base(position, toolpath, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
 updatePath(union(b, toolpath));
 //var gcode_string = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
         </textarea>

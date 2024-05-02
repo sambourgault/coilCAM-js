@@ -72,7 +72,6 @@ export function union(path0, path1, by_layer = true, multishape = true){
     }
   }
   path = shapes.flat();
-  console.log("union toolpath:", path)
   return path;
 }
 
