@@ -4,7 +4,7 @@ const {point, Polygon, Segment} = Flatten;
 const {intersect} = Flatten.BooleanOperations;
 
 
-export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_diameter, radius){ 
+export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_diameter, radius, rotate=0){ 
     let basePoints = [];
     let basePath = [];
     // let height = path[2]; //assuming toolpath is sorted with smallest height listed first
@@ -14,37 +14,20 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_
         basePoints.push(path[i], path[i+1], path[i+2]);
     }
 
-    let diameter = radius*2;
-    // let layers = Math.floor(radius / (nozzle_diameter));
-    let layers = (diameter/nbPointsInLayer * nozzle_diameter);
-    let scale = (Math.PI*nozzle_diameter/(radius));
-    let x = Math.sin(diameter) + (position[0]);
-    let y = Math.cos(diameter) + (position[1]);
-    // console.log("diameter", diameter);
-    // console.log("layers", layers);
+    let diameter = radius*2; //change to be relative to base
+    let layers = nbPointsInLayer*diameter/nozzle_diameter;
+    let scale = 0.4;
+    let bias = .0001;
+    let step = 2 * Math.PI / nbPointsInLayer;
 
-    for (let i = layers; i > 0; i--){ //inwards spiral
-        for (let j = nbPointsInLayer - 1; j >= 0; j--){
-            let theta =  (j*2*Math.PI/nbPointsInLayer); 
-            let outer = (2* Math.PI * i); 
-            x = ((x +(outer + theta) * Math.sin(theta))*scale) + (position[0]);
-            y = ((y +(outer + theta) * Math.cos(theta))*scale) + (position[1]);
-            basePath.push(x, y, height);
-        }
+    for (let angle = 0; angle < layers * step; angle += step) {
+        let spiralRadius = scale * angle;
+        let x = bias + position[0] + spiralRadius * Math.cos(angle);
+        let y = bias + position[1] + spiralRadius * Math.sin(angle);
+        basePath.push(x, y, height);
     }
-    for (let i = 0; i <= layers; i++){ //outwards spiral
-        for (let j = 0; j < nbPointsInLayer; j++){
-            // 4*nbPointsInLayer/(Math.PI))
-            let theta =  (j*2*Math.PI/nbPointsInLayer); 
-            let outer = (2* Math.PI * i); 
-            let newX = ((x +(outer + theta) * Math.sin(theta+Math.PI*2))*scale) + (position[0]);
-            let newY = ((y +(outer + theta) * Math.cos(theta+(Math.PI*2)))*scale) + (position[1]);
-            x = newX;
-            y = newY;
-            basePath.push(x, y, height);
-        }
-    }
-    // console.log("spiral base path", basePath);
+
+    console.log("spiral base path", basePath);
     return basePath;
 }
 
@@ -96,3 +79,72 @@ export function base(position, path, nbPointsInLayer, layerHeight, nozzleDiamete
 window.baseSpiral = baseSpiral;
 window.baseFill = baseFill;
 window.base = base;
+
+
+// p5fab solution
+// let diameter = radius*2;
+// let r = diameter + 2;
+// let step = 2 * Math.PI/nbPointsInLayer; //fix
+// for(let angle = 0; angle < 8 * 2 * Math.PI; angle+=step){
+//     let x = r * Math.cos(angle);
+//     let y = r * Math.sin(angle);
+//     let z = height;
+//     basePath.push(x + position[0], y + position[1], z);
+//     r -= 0.6;
+//     if (r < 0){
+//         break;
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+// let basePoints = [];
+// let basePath = [];
+// // let height = path[2]; //assuming toolpath is sorted with smallest height listed first
+// let height = layerHeight;
+// console.log(height);
+// for(let i = 0; i < nbPointsInLayer; i+=3){
+//     basePoints.push(path[i], path[i+1], path[i+2]);
+// }
+
+// let diameter = radius*2; //change to be relative to base
+// // let layers = (diameter/nbPointsInLayer * nozzle_diameter);
+// let layers = (radius/nozzle_diameter) + (1/2*nozzle_diameter);
+// // let scale = layers*(1/nbPointsInLayer);
+// let scale = 0.01;
+// let x = diameter + (position[0]);
+// let y = diameter + (position[1]);
+
+// for (let i = layers; i >= 0; i--){ //inwards spiral
+//     for (let j = nbPointsInLayer; j >= 0; j--){
+//         let theta =  (j*2*Math.PI/nbPointsInLayer); 
+//         let outer = (2* Math.PI * i)*scale; 
+//         x = ((x +(outer) + Math.sin(theta))) + (position[0]);
+//         y = ((y +(outer) + Math.cos(theta))) + (position[1]);
+        
+//         basePath.push(x, y, height);
+//     }
+// }
+
+// for (let i = 0; i <= layers; i++){ //outwards spiral
+//     for (let j = 0; j <= nbPointsInLayer; j++){
+//         // let rotate = -45; //for 30 nbPoints
+//         let rotate = 1.5*nbPointsInLayer;
+//         let theta =  (j*2*Math.PI/nbPointsInLayer); 
+//         let outer = (2* Math.PI * i); 
+//         let newX = ((x +(outer + theta) * Math.sin(theta + rotate))*scale);
+//         let newY = ((y +(outer + theta) * Math.cos(theta + rotate))*scale);
+//         x = newX + (position[0]);
+//         y = newY + (position[1]);
+//         basePath.push(x, y, height);
+//     }
+// }

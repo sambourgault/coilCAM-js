@@ -11,8 +11,8 @@ function degToRad(d) {
 
 let path = [];
 let updatedPath = false;
-var t = [0, -100, -500];
-var r = [degToRad(270), degToRad(0), degToRad(0)];
+var t = [0, -50, -500];
+var r = [degToRad(173), degToRad(0), degToRad(0)];
 
 function updatePath(newPath){
   updatedPath = true;
