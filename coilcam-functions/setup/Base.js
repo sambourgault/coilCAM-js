@@ -15,16 +15,24 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_
     }
 
     let diameter = radius*2; //change to be relative to base
-    let layers = nbPointsInLayer*diameter/nozzle_diameter;
-    let scale = 0.4;
+    let layers = .8*(nbPointsInLayer*diameter/(nozzle_diameter*Math.PI));
+    let scale = nozzle_diameter/Math.PI;
     let bias = .0001;
     let step = 2 * Math.PI / nbPointsInLayer;
 
-    for (let angle = 0; angle < layers * step; angle += step) {
+    for (let angle = -layers * step; angle < layers * step; angle += step) {
+        let factor = (angle < 0) ? 0 : Math.PI/2;
         let spiralRadius = scale * angle;
-        let x = bias + position[0] + spiralRadius * Math.cos(angle);
-        let y = bias + position[1] + spiralRadius * Math.sin(angle);
-        basePath.push(x, y, height);
+        if (angle < 0) {
+            let x = bias + position[0] + spiralRadius * Math.cos(angle);
+            let y = bias + position[1] + spiralRadius * Math.sin(angle);
+            basePath.push(x, y, height);
+        }
+        else {
+            let x = bias + position[0] + spiralRadius * Math.sin(angle + factor);
+            let y = bias + position[1] + spiralRadius * Math.cos(angle + factor);
+            basePath.push(x, y, height);
+        }
     }
 
     console.log("spiral base path", basePath);
