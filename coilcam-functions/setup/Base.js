@@ -21,7 +21,7 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_
     let step = 2 * Math.PI / nbPointsInLayer;
 
     for (let angle = -layers * step; angle < layers * step; angle += step) {
-        let factor = (angle < 0) ? 0 : Math.PI/2;
+        let factor = Math.PI/2; //still not sure what this # should be, adjust manually?
         let spiralRadius = scale * angle;
         if (angle < 0) {
             let x = bias + position[0] + spiralRadius * Math.cos(angle);
@@ -48,6 +48,7 @@ export function baseFill(position, path, nbPointsInLayer, layerHeight, nozzle_di
     for(let i = 0; i < nbPointsInLayer*3; i+=3){
         basePath.push(point(path[i], path[i+1]));
     }
+
     let baseCircle = new Polygon(basePath);
     
     let diameter = radius*4; //change to be relative to base

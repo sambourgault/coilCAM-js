@@ -22,28 +22,50 @@
     <button type="button" id="b_save">save</button>
 
       <div class="codediv" id = 'code1'>
-        <textarea id = "editor">// DEFAULT EXAMPLE
-
-// POTTERBOT CONFIG
+        <textarea id = "editor">//POTTERBOT
 var potterbot_printSpeed = 30;
 var potterbot_nozzleDiameter = 5.0;
-var potterbot_layerHeight = 1.8;
-var potterbot_extrusionMultiplier = 1.0;
+var potterbot_layerHeight = 2.5;
 var potterbot_bedSize = [280, 265, 305];
 
+//--Parameters for vessels
+var nbLayers = 55;
+var nbPointsInLayer = 24;
+var radius = 18.0;
+let position = [0.0, 0.0, potterbot_layerHeight*4];
 
-// Main Vessel
-var nbLayers = 60;
-var nbPointsInLayer = 50;
-var vesselRadius = 20;
-var position = [0.0, 0.0, 7.2];
-var scalingParameter = sinusoidal(10, 15, 0, nbLayers, 0, "");
-var toolpath = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], [], [], [], []);
+//RADIUS SHAPING PARAMETER
+var rsp = sinusoidal(4.0, 7.0, 30.0, nbPointsInLayer, [], "multiplicative");
+var ssp1 = sinusoidal(1,9.0, 55.0, nbLayers, [], "additive");
+var ssp2 = linear(0.35,ssp1, nbLayers, [], "additive");
+var ssp3 = linear(-0.45, 4, nbLayers, ssp2, "additive");
 
-//var base = baseSpiral(position, toolpath, nbPointsInLayer, vesselRadius);
-var b = base(position, toolpath, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
-updatePath(union(b, toolpath));
+var ssp = sinusoidal(2,30.0, -9.0, nbLayers, ssp3, "additive");
+
+// TOOLPATH UNIT GENERATORS
+let vessels = [];
+let num_copies = 5;
+var bool_vessels = [];
+for (let i = 0; i < num_copies; i++){
+    var rotateSP = sinusoidal(3.0, 5.0, 0, 12, [], "multiplicative");
+    vessels[i] = toolpathUnitGenerator([(32)*Math.sin(i*2*Math.PI/num_copies),(32)*Math.cos(i*2*Math.PI/num_copies), position[2]], radius, potterbot_layerHeight, nbLayers, nbPointsInLayer, rsp, ssp, [], [], (288*i)+240);
+    if(i > 0){
+        vessels[0] = union(vessels[i], vessels[0], true);
+    }
+}
+bool_vessels = vessels[0];
+
+let vesselRadius = 50;
+let main_vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer*1.5, [], [], [], [], []);
+console.log("bv", bool_vessels);
+console.log("mv", main_vessel);
+var b = base(position, main_vessel, nbPointsInLayer*1.5, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
+let toolpath = union(b, union(main_vessel, bool_vessels));
+updatePath(toolpath);
+var gcode = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
+
 //var gcode_string = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
+        
         </textarea>
       </div>
       <div class="codediv" id = 'console1'>
@@ -167,7 +189,6 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 <script src="examples_for_esme/test.js"></script>
 
 <script src="coilcam-functions/setup/GCodeGenerator.js"></script>
-
 <!-- <script src="coilcam-functions/setup/GCodeGenerator.js" type="module"></script> -->
 <script src="coilcam-functions/setup/ToolpathUnitGenerator.js"></script>
 <!-- <script src="coilcam-functions/setup/Base.js"></script> -->
@@ -178,6 +199,7 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 <script type="module" src="coilcam-functions/setup/Spiralize.js">
   import {Spiralize} from './coilcam-functions/setup/Spiralize.js';
 </script>
+<script src="coilcam-functions/setup/CenterPrint.js"></script>
 
 
 <script src="coilcam-functions/2D-functions/Linear2D.js"></script>

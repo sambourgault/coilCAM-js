@@ -3,11 +3,13 @@
 //POTTERBOT
 var potterbot_printSpeed = 30;
 var potterbot_nozzleDiameter = 5.0;
-var potterbot_layerHeight = 2.0;
+var potterbot_layerHeight = 2.5;
+var potterbot_bedSize = [280, 265, 305];
 
 //--Parameters for vessel
 var nbLayers = 60;
 var nbPointsInLayer = 42;
+var main_position = [0.0, 0.0, 7.0];
 
 
 //RADIUS SHAPING PARAMETER
@@ -31,9 +33,14 @@ var spout_tsp = linear2D(0.712, 0.0, 0.0, 0.0, 0.0, 60, [], [], "")
 
 
 // TOOLPATH UNIT GENERATORS
-var baseToolpath = toolpathUnitGenerator([0.0, 0.0, 7.0], 48.16, potterbot_layerHeight, nbLayers=60, nbPointsInLayer=42, rsp, ssp3, srsp, [], rtsp);
+var baseToolpath = toolpathUnitGenerator(main_position, 48.16, potterbot_layerHeight, nbLayers=60, nbPointsInLayer=42, rsp, ssp3, srsp, [], rtsp);
 var spoutToolpath = toolpathUnitGenerator([18.0, 0.0, 7.0], 5.14, potterbot_layerHeight, nbLayers=60.0, nbPointsInLayer=3.0, [], spout_ssp, [], spout_tsp, []);
 var toolpath = union(baseToolpath, spoutToolpath);
-// var toolpath = difference(baseToolpath, spoutToolpath);
+var b = base(main_position, baseToolpath, nbPointsInLayer=42, potterbot_layerHeight, potterbot_nozzleDiameter, 48.16);
+toolpath = union(toolpath, b);
+toolpath = centerPrint(toolpath, main_position, potterbot_bedSize, potterbot_layerHeight);
 updatePath(toolpath);
 console.log(generateGCode(toolpath, potterbot_printSpeed, potterbot_nozzleDiameter, potterbot_layerHeight));
+var gcode = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
+console.log(checkOverflow(toolpath, potterbot_bedSize, potterbot_layerHeight));
+//downloadGCode(gcode, "microdemovessel.gcode");

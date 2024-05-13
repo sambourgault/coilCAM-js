@@ -6,7 +6,6 @@ function extrude(nozzleDiameter, layerHeight, segmentLen){
     points.push(0);
     for(var i = 0; i < segmentLen.length; i++){
         var newPoint = (segmentLen[i]*layerHeight/nozzleDiameter) * (4/Math.PI + layerHeight/nozzleDiameter);
-        console.log("newPoint", newPoint*extrusion_multiplier);
         points.push(((newPoint + totalExtruded) * extrusion_multiplier).toFixed(4));
         totalExtruded += newPoint;
     }
