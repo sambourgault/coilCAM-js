@@ -1,6 +1,6 @@
 //POTTERBOT
 var potterbot_printSpeed = 30;
-var potterbot_nozzleDiameter = 5.0;
+var potterbot_nozzleDiameter = 6.0;
 var potterbot_layerHeight = 2.5;
 var potterbot_bedSize = [280, 265, 305];
 
@@ -40,4 +40,4 @@ updatePath(toolpath);
 var gcode = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
 console.log("gcode", gcode);
 console.log(checkOverflow(toolpath, potterbot_bedSize, potterbot_layerHeight));
-//downloadGCode(gcode, "microdemovessel.gcode");
+//downloadGCode(gcode, "microdemovessel_final.gcode");

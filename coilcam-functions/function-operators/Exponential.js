@@ -1,4 +1,5 @@
 function exponential(amplitude, base, ampExp, offset, nbPoints, values0, mode){
+    console.log("a", amplitude, "a", base, "a", ampExp, "a", offset, "a", nbPoints, "a", values0, "a", mode);
     let values = [];
     if(offset.length === 0){
         offset = new Array(nbPoints).fill(0);
@@ -24,4 +25,5 @@ function exponential(amplitude, base, ampExp, offset, nbPoints, values0, mode){
             values.push(amplitude * Math.pow(base, ampExp*i + offset[i]) * values0[i]);
         }
     }
+    return values;
 }
