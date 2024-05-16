@@ -4,7 +4,7 @@ import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
 const {point, Polygon} = Flatten;
 const { subtract, unify} = Flatten.BooleanOperations;
 
-export function union(path0, path1, by_layer = true, multishape = true){
+export function union(path0, path1, by_layer = true){
   let path = [];
   let points0 = [];
   let points1 = [];
@@ -14,7 +14,6 @@ export function union(path0, path1, by_layer = true, multishape = true){
   }
   for(let i = 2; i <= path1.length; i+=3){
     points1.push(path1.slice(i-2, i+1))
-    // console.log("push", path1.slice(i-2, i+1));
   }
   points0.sort((a, b) => a[2] - b[2]);
   points1.sort((a, b) => a[2] - b[2]);
@@ -28,19 +27,8 @@ export function union(path0, path1, by_layer = true, multishape = true){
     let layer_points1 = points1.filter(p => p[2] == layer).map(p => point([p[0], p[1]]));
     let polygon0 = new Polygon(layer_points0);
     let polygon1 = new Polygon(layer_points1);
-    // if(polygon1.contains(polygon0)){ //polygons
-    //   if(!multishape){//if polygon contains another, skip layer
-    //     continue;
-    //   }
-    //   if(by_layer){
-    //     for(let point of layer_points0){
-    //       shapes.push(point.x, point.y, layer);
-    //     }
-    //   }
-    // }
 
-
-
+    //to add: tolerance
     let combinedPolygon = unify(polygon0, polygon1);
     let polygonSVG = combinedPolygon.svg(); //convert to svg to rely on flatten-js's even-odd algorithm
     const shapesString = polygonSVG.match(/(M[^M]+z)/g); //separate svg into just the section containing points
@@ -60,7 +48,6 @@ export function union(path0, path1, by_layer = true, multishape = true){
           shapes[0].push(layer);
         }
       }
-      // shapes[shapeidx].push(shapes[shapeidx][0], shapes[shapeidx][1], layer); //close the shape
       if(by_layer){ //close the shape: push starting point of current shape to end of shape
         shapes[0].push(shapes[0][(total_num_points)], shapes[0][(total_num_points)+1], layer);
         let num_points = (pairs.length+1)*3;
