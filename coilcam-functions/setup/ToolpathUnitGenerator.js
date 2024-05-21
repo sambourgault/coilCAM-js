@@ -1,15 +1,14 @@
 function setParameter(input, parameter_name, nbLayers=[], nbPointsInLayer=[]){
     if(parameter_name === "radiusShapingParameter"){ //radsp runs calculations using nbPointsInLayer
-        if(input.length == nbPointsInLayer && input[0].length == nbLayers){
+        if(!Array.isArray(input)){
+            return new Array(nbPointsInLayer).fill(input);
+        } else if(input.length == nbPointsInLayer){
+            return input;
+        } else if(input.length == nbPointsInLayer*nbLayers){
             return input;
         }
-        if(!Array.isArray(input)){
-            return new Array(nbLayers).fill(Array(nbPointsInLayer).fill(input));
-        } else if(input.length == nbPointsInLayer){
-            return new Array(nbLayers).fill(input);
-        } 
         else if(input.length === 0){
-            return new Array(nbLayers).fill(Array(nbPointsInLayer).fill(0));
+            return new Array(nbPointsInLayer).fill(0);
         }
         //an error has occurred
         var error_str = "Length of values for parameter " + parameter_name + " is currently " + input.length + ", must be 0, 1 or equal to nbPointsInLayer: " + nbPointsInLayer;
@@ -48,18 +47,22 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
     let tsp = setParameter(translateShapingParameter, "translateShapingParameter", nbLayers);
     let srsp = setParameter(scalingRadiusShapingParameter, "scalingRadiusShapingParameter", nbLayers);
     let k = 0; //accounting for case where radsp is a 2D array
-
+    console.log("j+i:", nbLayers*nbPointsInLayer);
     for(let j = 0; j < nbLayers; j++){
+        if(radsp.length == nbLayers*nbPointsInLayer){
+            k++;
+        }
         for(let i = 0; i < nbPointsInLayer; i++){
             let angle = 2 * i * Math.PI / nbPointsInLayer;
             if(i == 0 && j == 0){
-                console.log("start x:", position[0] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0]);
-                console.log("start y:", position[1] + (initialRadius + srsp[j] * radsp[i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1]);
+                console.log("start x:", position[0] + (initialRadius + srsp[j] * radsp[(nbLayers*j*k)+i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0]);
+                console.log("start y:", position[1] + (initialRadius + srsp[j] * radsp[(nbLayers*j*k)+i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1]);
             }
-            path.push(position[0] + (initialRadius + srsp[j] * radsp[j][i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0]);
-            path.push(position[1] + (initialRadius + srsp[j] * radsp[j][i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1]);
+            path.push(position[0] + (initialRadius + srsp[j] * radsp[(nbLayers*j*k)+i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0]);
+            path.push(position[1] + (initialRadius + srsp[j] * radsp[(nbLayers*j*k)+i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1]);
             path.push(position[2] + layerHeight * j);
         }
     }
+    
     return path;
 }
