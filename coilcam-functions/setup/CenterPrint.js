@@ -41,7 +41,7 @@ function checkOverflow(path, bedDimensions, layerHeight){
             throw new Error(error_str);
         }
     }
-    return false;
+    return "All values are within printer bed dimensions";
 }
 
 //import {BABY_POTTERBOT, SUPER_POTTERBOT, createPreset} from "../coilcam-functions/PrinterPresets.js";

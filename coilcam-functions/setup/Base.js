@@ -27,6 +27,9 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_
             let x = bias + position[0] + spiralRadius * Math.cos(angle + rotate);
             let y = bias + position[1] + spiralRadius * Math.sin(angle + rotate);
             basePath.push(x, y, height);
+            if(angle == -layers * step){
+                console.log("starting point", x, y, height);
+            }
         }
 
         else {
@@ -34,6 +37,7 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_
             let y = bias + position[1] + spiralRadius * Math.cos(angle + factor - rotate);
             basePath.push(x, y, height);
         }
+        
     }
     return basePath;
 }

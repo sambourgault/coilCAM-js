@@ -23,9 +23,20 @@ function spiralize(path, layerHeight){ //revisit
         }
         nPointsIterated += nbPointsInLayer[i]*3;
     }
-    // console.log("spiralized path", path);
     return points;
 }
 
 
 
+// function deleteDuplicatePoints(path){
+//     const allPoints = new Set();
+//     var newPath = [];
+//     for(let p = 0; p < path.length; p+=3){
+//         if (!allPoints.has([path[p], path[p+1], path[p+2]])){
+//             newPath.push(path[p], path[p+1], path[p+2]);
+//             allPoints.add([path[p], path[p+1], path[p+2]]);
+//         }
+//     }
+//     return newPath;
+//     // console.log("newPath", newPath);
+// }

@@ -31,7 +31,7 @@ function generateGCode(path, layerHeight, nozzleDiameter, printSpeed){ //main fu
     let extr = extrude(nozzleDiameter, layerHeight, segmentLen);
     console.log("Extrusions", extr);
     
-    let startGcodePrefix = ";;; START GCODE ;;;\nM82 ;absolute extrusion mode\nG28 ;Home\nG1 X207.5 Y202.5 Z20 F10000 ;Move X and Y to center, Z to 20mm high\nG1 E2000 F20000 ; !!Prime Extruder\nG92 E0\nG1 F30000 E-150\n;;; ======\n";
+    let startGcodePrefix = ";;; START GCODE ;;;\nM82 ;absolute extrusion mode\nG28 ;Home\nG1 X207.5 Y202.5 Z20 F10000 ;Move X and Y to center, Z to 20mm high\nG1 E2000 F20000 ; !!Prime Extruder\nG92 E0\n;;; ======\n";
     let endGcodePostfix = ";;; === END GCODE ===\nM83 ;Set to Relative Extrusion Mode\nG28 Z ;Home Z\n; === DEPRESSURIZE ===\nG91\nG91\nG1 E-200 F4000\nG90\nG90\n";
     let gcode = startGcodePrefix;
     console.log("gcode", gcode);
@@ -42,6 +42,7 @@ function generateGCode(path, layerHeight, nozzleDiameter, printSpeed){ //main fu
         gcode += "G1 F" + printSpeeds[i]+ " X"+ x +" Y" + y + " Z" + z + " E" + extr[i] +"\n";
     }
     gcode += endGcodePostfix;
+    console.log("gcode", gcode);
     return gcode;
 }
 
