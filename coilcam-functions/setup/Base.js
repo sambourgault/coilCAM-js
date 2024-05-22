@@ -58,7 +58,7 @@ export function baseFill(position, path, nbPointsInLayer, layerHeight, nozzle_di
     let start = [position[0] - diameter, position[1] - diameter, layerHeight*2];
     let newPoints = [];
 
-    for (let i = 0; i < (diameter*2); i+=nozzle_diameter){
+    for (let i = 0; i < (diameter*2); i+=nozzle_diameter*1.8){
         let line = new Segment(point([start[0]+(i), start[1]]), point([start[0]+(i), start[1]+(diameter*2)]));
         let intersectionPoints = (line.intersect(baseCircle).map(pt => [pt.x, pt.y])).flat();
         if(intersectionPoints.length == 4){
