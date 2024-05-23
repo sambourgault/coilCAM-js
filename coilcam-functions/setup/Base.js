@@ -13,28 +13,23 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_
     }
 
     let diameter = radius*2;
-    let layers = .8*(nbPointsInLayer*diameter/(nozzle_diameter*Math.PI));
+    let layers = (nbPointsInLayer*diameter/(nozzle_diameter*4));
     let scale = nozzle_diameter/Math.PI;
     let bias = .0001;
     let step = 2 * Math.PI / nbPointsInLayer;
-    var rotate = 2*Math.PI - ((-layers * step) % (2 * Math.PI));
-
+    let offset = nbPointsInLayer % 2 == 0 ? 0 : Math.PI/(nbPointsInLayer); //offset slightly if odd # of points
 
     for (let angle = -layers * step; angle < layers * step; angle += step) {
-        let factor = Math.PI/2; //still not sure what this # should be, adjust manually?
         let spiralRadius = scale * angle;
-        if (angle < 0) {
-            let x = bias + position[0] + spiralRadius * Math.cos(angle + rotate);
-            let y = bias + position[1] + spiralRadius * Math.sin(angle + rotate);
+        if (angle < 0) { //inwards spiral
+            let x = bias + position[0] + spiralRadius * Math.cos(angle-offset);
+            let y = bias + position[1] + spiralRadius * Math.sin(angle-offset);
             basePath.push(x, y, height);
-            if(angle == -layers * step){
-                console.log("starting point", x, y, height);
-            }
         }
 
-        else {
-            let x = bias + position[0] + spiralRadius * Math.sin(angle + factor - rotate);
-            let y = bias + position[1] + spiralRadius * Math.cos(angle + factor - rotate);
+        else { //outwards spiral
+            let x = bias + position[0] + spiralRadius * Math.sin(angle+Math.PI/2);
+            let y = bias + position[1] + spiralRadius * Math.cos(angle+Math.PI/2);
             basePath.push(x, y, height);
         }
         
@@ -45,20 +40,18 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_
 
 export function baseFill(position, path, nbPointsInLayer, layerHeight, nozzle_diameter, radius){
     let basePath = [];
-    // let height = path[2]; //assuming toolpath is sorted with smallest height listed first
     let height = layerHeight;
-    // console.log(height);
     for(let i = 0; i < nbPointsInLayer*3; i+=3){
         basePath.push(point(path[i], path[i+1]));
     }
 
     let baseCircle = new Polygon(basePath);
     
-    let diameter = radius*2; //change to be relative to base
+    let diameter = radius*2;
     let start = [position[0] - diameter, position[1] - diameter, layerHeight*2];
     let newPoints = [];
 
-    for (let i = 0; i < (diameter*2); i+=nozzle_diameter*1.8){
+    for (let i = 0; i < (diameter*2); i+=nozzle_diameter){
         let line = new Segment(point([start[0]+(i), start[1]]), point([start[0]+(i), start[1]+(diameter*2)]));
         let intersectionPoints = (line.intersect(baseCircle).map(pt => [pt.x, pt.y])).flat();
         if(intersectionPoints.length == 4){
@@ -80,11 +73,9 @@ export function baseFill(position, path, nbPointsInLayer, layerHeight, nozzle_di
 }
 
 export function base(position, path, nbPointsInLayer, layerHeight, nozzleDiameter, radius){
-    let bottomBase = baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzleDiameter, radius);
-    let middleBase = baseFill(position, path, nbPointsInLayer, layerHeight*2, nozzleDiameter, radius);
-    let topBase = baseSpiral(position, path, nbPointsInLayer, layerHeight*3, nozzleDiameter, radius);
-    let newPath = bottomBase.concat(middleBase.concat(topBase));
-    // console.log(middleBase);
+    let bottomBase = baseFill(position, path, nbPointsInLayer, layerHeight, nozzleDiameter, radius);
+    let topBase = baseSpiral(position, path, nbPointsInLayer, layerHeight*2, nozzleDiameter, radius);
+    let newPath = bottomBase.concat(topBase);
     return newPath;
 }
 

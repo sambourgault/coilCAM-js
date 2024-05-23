@@ -3,20 +3,22 @@
 // POTTERBOT CONFIG
 var potterbot_printSpeed = 30;
 var potterbot_nozzleDiameter = 5.0;
-var potterbot_layerHeight = 1.8;
+var potterbot_layerHeight = 4.8;
 var potterbot_extrusionMultiplier = 1.0;
 var potterbot_bedSize = [280, 265, 305];
 
 
-// Main Vessel
-var nbLayers = 60;
-var nbPointsInLayer = 30;
-var vesselRadius = 20;
-var position = [0, 0, 4.5];
+// VESSEL PARAMETERS
+var nbLayers = 20;
+var nbPointsInLayer = 6;
+var vesselRadius = 40;
+var position = [0, 0, potterbot_layerHeight*1.5];
 var scalingParameter = sinusoidal(10, 15, 0, nbLayers, 0, "");
-var toolpath = toolpathUnitGenerator(position, 42.00, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], []);
+var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], []);
+var b = base(position, vessel, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
+var toolpath = b.concat(spiralize(vessel, potterbot_layerHeight));
+updatePath(toolpath);
 
-//var base = baseSpiral(position, toolpath, nbPointsInLayer, vesselRadius);
-var base = baseFill(position, toolpath, nbPointsInLayer, potterbot_layerHeight, 4.0, vesselRadius);
-updatePath(base);
-//var gcode_string = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
+// GENERATE GCODE
+var gcode_string = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
+// downloadGCode(gcode_string, "simple_vessel.gcode");
