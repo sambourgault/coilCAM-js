@@ -26,7 +26,7 @@ var spiralized = spiralize(union(vessel_star, main_vessel), potterbot_layerHeigh
 var toolpath = (b.concat(spiralized));
 toolpath = centerPrint(toolpath, position, potterbot_bedSize, potterbot_layerHeight);
 updatePath(toolpath);
-var gcode = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
+var gcode = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_printSpeed);
 console.log(checkOverflow(toolpath, potterbot_bedSize, potterbot_layerHeight));
 
 //downloadGCode(gcode, "dish_esmepuzio_V1");

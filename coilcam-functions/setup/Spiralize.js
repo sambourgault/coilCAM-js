@@ -1,4 +1,5 @@
-function spiralize(path, layerHeight){ //revisit
+function spiralize(path){
+    var layerHeight = path[2];
     var nbPointsInLayer = [];
     var currHeight = path[2];
     var ctr = 0;

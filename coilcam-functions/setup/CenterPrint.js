@@ -1,4 +1,4 @@
-function centerPrint(path, position, bedDimensions, layerHeight = 2.5){
+function centerPrint(path, position, bedDimensions, layerHeight){
     let bedXOffset = bedDimensions[0]/2 - position[0];
     let bedYOffset = bedDimensions[1]/2 - position[1];
     let bedZOffset = layerHeight - path[2];

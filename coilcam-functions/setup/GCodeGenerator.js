@@ -18,9 +18,8 @@ let euclideanDist = (p1, p2) => Math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 + 
 
 
 //Main functions to generate GCode, calculate clay height, calculate number of tubes
-function generateGCode(path, layerHeight, nozzleDiameter, printSpeed){ //main function
-    // printSpeed, nozzleDiameter, LayerHeight: float
-    // path: array of point3
+function generateGCode(path, nozzleDiameter, printSpeed){ //main function
+    let layerHeight = path[2];
     let printSpeeds = [10000]; //First move should be 10000
     let segmentLen = [];
     
