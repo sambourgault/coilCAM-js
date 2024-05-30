@@ -1,6 +1,6 @@
 ## rough draft, examples to follow
 Getting started
-Open the CoilCAM editor in a new window, and press the "Run" button at the upper left.
+In the editor below, press the "Run" button at the upper left.
 In the visualization window to the right, you should see a simple vessel appear. 
 
 Forms are created through the ToolpathUnitGenerator function. This function accepts ten parameters.
@@ -58,7 +58,7 @@ You can copy the GCode string using console.log, or download the GCode string di
 While there are no limits for the kinds of vessels that can be constructed through CoilCAM, there are a few common mistakes that lead to faulty prints. 
 * Each layer in the toolpath must be able to support the weight of the layers above it. Each layer of the toolpath should stay within 45 degrees of difference of the layer below it.
 * Layer height should be around half of the nozzle diameter.
-* Joining two vessels together through the boolean union function can cause "artifacts" in the toolpath if the two layers are not rotationally aligned. Consider changing the rotation of one or more layers if this issue damages the toolpath. 
+* Joining two vessels together through the boolean union function can cause "artifacts" in the toolpath if the two layers are not rotationally aligned. Consider changing the rotation of one or more layers if this issue affects the toolpath. 
 
 # Other examples
 To view or modify pre-existing examples, please view the vessels in the "examples" folder.
