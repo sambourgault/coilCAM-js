@@ -1,30 +1,43 @@
-function spiralize(path, layerHeight){ //revisit
-    console.log("Called!");
-    prevHeight = path[2];
-    layerNbPoints = [];
-    for(let i = 0; i < path.length; i+=3){ //only z points (2)
-        if(Math.abs(prevHeight - path[i]) > 0.01){
-            layerNbPoints.push(i);
-            previousHeight = path[i];
+function spiralize(path){
+    var layerHeight = path[2];
+    var nbPointsInLayer = [];
+    var currHeight = path[2];
+    var ctr = 0;
+    for(let i = 0; i < path.length; i+=3){
+        if(path[i+2] > currHeight){
+            currHeight = path[i+2];
+            nbPointsInLayer.push(ctr);
+            ctr = 0;
         }
+        ctr++;
     }
-    console.log("Layer nb pts:", layerNbPoints);
+    nbPointsInLayer.push(ctr);
+    console.log("nbpl", nbPointsInLayer);
 
-    points = [];
-    index = 0;
-    previousLastIndex = 0;
-    previousLayerNbPoints = 0;
-    for(let j = 0; j < layerNbPoints.length; j++){
-        for(let i = 0; i < layerNbPoints[j].length; i++){
-            points.push(path[i]);
-            points.push(path[i+1]); 
-            points.push(path[i+2] + (i-previousLastIndex)*layerHeight/(layerNbPoints[j] - previousLayerNbPoints));
+    currLayer = 0;
+    nPointsIterated = 0;
+    var points = path;
+    for(let i = 0; i < nbPointsInLayer.length; i++){
+        // console.log("npr", nPointsIterated);
+        for(let j = 0; j < nbPointsInLayer[i]; j++){
+            points[nPointsIterated + (j*3)+2] += ((j+1)*(layerHeight/(nbPointsInLayer[i])));
         }
-        previousLayerNbPoints = layerNbPoints[j]
-        previousLastIndex = index
+        nPointsIterated += nbPointsInLayer[i]*3;
     }
-    console.log("Points:", points)
-    return points; 
+    return points;
 }
 
 
+
+// function deleteDuplicatePoints(path){
+//     const allPoints = new Set();
+//     var newPath = [];
+//     for(let p = 0; p < path.length; p+=3){
+//         if (!allPoints.has([path[p], path[p+1], path[p+2]])){
+//             newPath.push(path[p], path[p+1], path[p+2]);
+//             allPoints.add([path[p], path[p+1], path[p+2]]);
+//         }
+//     }
+//     return newPath;
+//     // console.log("newPath", newPath);
+// }

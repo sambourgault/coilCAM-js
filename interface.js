@@ -11,8 +11,8 @@ function degToRad(d) {
 
 let path = [];
 let updatedPath = false;
-var t = [0, -100, -500];
-var r = [degToRad(270), degToRad(0), degToRad(0)];
+var t = [0, -50, -500];
+var r = [degToRad(173), degToRad(0), degToRad(0)];
 
 function updatePath(newPath){
   updatedPath = true;
@@ -80,7 +80,7 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
   setPath(gl, path);
 
   var cameraAngleRadians = degToRad(0);
-  var fieldOfViewRadians = degToRad(60);
+  var fieldOfViewRadians = degToRad(30);
 
   //console.log(document.getElementById('canvas').width)
   //var translation = [document.getElementById('canvas').width, 500, 0];
@@ -88,6 +88,8 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
   var rotation = r;
   var scale = [1, 1, 1];
   var color = [Math.random(), Math.random(), Math.random(), 1];
+
+  
 
   drawScene();
 
@@ -100,7 +102,7 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
 
   // Setup a ui.
   console.log("max:", gl.canvas.height);
-  webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
+  webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), min: -gl.canvas.width, max: gl.canvas.width });
   webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), min:-gl.canvas.height/2, max: gl.canvas.height/2});
   webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -1000, max: 0});
   // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
@@ -111,6 +113,7 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
   webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 10, step: 0.01, precision: 2});
 
+  
   if (updatedPath){
     drawScene();
     updatedPath = false;
@@ -220,12 +223,23 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
     // Draw the geometry.
-    //var primitiveType = gl.TRIANGLES;
-    var primitiveType = gl.LINE_STRIP;
-    var offset = 0;
-    //var count = 18;  // 6 triangles in the 'F', 3 points per triangle
-    var count = path.length/3;
-    gl.drawArrays(primitiveType, offset, count);
+    if(Array.isArray(path[0])){ //multiple vessels
+      var primitiveType = gl.LINE_STRIP;
+      let path_lengths = path[0].map(array => array.length);
+
+      let points_printed = 0;
+      for(let pl of path_lengths){
+        gl.drawArrays(primitiveType, points_printed, pl/3);
+        points_printed += (pl-1)/3;
+      }
+    } else{ //single toolpath
+      var primitiveType = gl.LINE_STRIP;
+      var offset = 0;
+      var count = path.length/3;
+      gl.drawArrays(primitiveType, offset, count);
+    }
+    
+    
   }
 }
 
@@ -523,14 +537,11 @@ function setGeometry(gl) {
 }
 
 function setPath(gl, path) {
-  //let positions = [];
-
   gl.bufferData(
       gl.ARRAY_BUFFER,
       new Float32Array(path),
       gl.STATIC_DRAW);
 }
-
 
 function setUpCodeMirror(){
 
@@ -566,8 +577,9 @@ function setUpCodeMirror(){
   // configs
   consoleCodeMirror = CodeMirror.fromTextArea(textArea2, {
     lineNumbers: true,
-    mode: 'javascript',
+    mode: 'javascript'
     //extraKeys: {"Ctrl-Space":"autocomplete"}
+    
   });
 
   // buttons
@@ -584,21 +596,20 @@ function setUpCodeMirror(){
   }
 
   document.getElementById("b_save").addEventListener("click", saveCode);
-
   function saveCode(){
-    const filename = saveName.value();
-    
-    let content = myCodeMirror.getValue();
+    // let content = myCodeMirror.getValue();
+    // var content = document.getElementById("textArea").value;
+    var editor = CodeMirror.fromTextArea(document.getElementById("textArea"), {styleActiveLine: true});
+    var content = editor.doc.getValue();
     content = content.replace(/\n/g, "\r\n"); // To retain the Line breaks.
     let blob = new Blob([content], { type: "text/plain"});
+    let filename = "code.txt";
     let anchor = document.createElement("a");
-    if (filename){
-      anchor.download = filename + ".txt";
-    } else {
-      anchor.download = "untitled.txt";
-    }
+    anchor.download = filename;
+    anchor.innerHTML = "Download File";
+    window.URL = window.URL || window.webkitURL;
     anchor.href = window.URL.createObjectURL(blob);
-    anchor.target ="_blank";
+    // anchor.target ="_blank";
     anchor.style.display = "none"; // just to be safe!
     document.body.appendChild(anchor);
     anchor.click();

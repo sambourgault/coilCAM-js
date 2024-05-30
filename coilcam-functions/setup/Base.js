@@ -1,44 +1,88 @@
-// import {point, Segment, Polygon, intersect} from '@flatten-js';
+// /* eslint-disable no-unused-vars */
+import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
+const {point, Polygon, Segment} = Flatten;
+const {intersect} = Flatten.BooleanOperations;
 
-function baseSpiral(position, basePath, radius, layerThickness){ 
-    let path = [];
-    let contour = [];
-    let nbPointsInLayer = basePath.length;
-    let numSpirals = 5;
-    for(let i = 0; i < numSpirals; i++){
-        let angle = 2 * i * Math.PI / nbPointsInLayer;
-        path.push(position[0] + (radius-(layerThickness*numSpirals)) * Math.cos(angle), position[1] + (radius-(layerThickness*numSpirals))* Math.sin(angle), position[2]+numSpirals*10);
-        // contour.push(path[path.length - 1][0] - position[0], path[path.length - 1][1] - position[1], 0);
+
+export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_diameter, radius, rotate=0){ 
+    let basePoints = [];
+    let basePath = [];
+    let height = layerHeight;
+    for(let i = 0; i < nbPointsInLayer; i+=3){
+        basePoints.push(path[i], path[i+1], path[i+2]);
     }
-    // console.log("Path:", path);
-    // path.push(path[0]);
-    // contour.push(path[path.length - 1]);
-    return path;
+
+    let diameter = radius*2;
+    let layers = (nbPointsInLayer*diameter/(nozzle_diameter*4));
+    let scale = nozzle_diameter/Math.PI;
+    let bias = .0001;
+    let step = 2 * Math.PI / nbPointsInLayer;
+    let offset = nbPointsInLayer % 2 == 0 ? 0 : Math.PI/(nbPointsInLayer); //offset slightly if odd # of points
+
+    for (let angle = -layers * step; angle < layers * step; angle += step) {
+        let spiralRadius = scale * angle;
+        if (angle < 0) { //inwards spiral
+            let x = bias + position[0] + spiralRadius * Math.cos(angle-offset);
+            let y = bias + position[1] + spiralRadius * Math.sin(angle-offset);
+            basePath.push(x, y, height);
+        }
+
+        else { //outwards spiral
+            let x = bias + position[0] + spiralRadius * Math.sin(angle+Math.PI/2);
+            let y = bias + position[1] + spiralRadius * Math.cos(angle+Math.PI/2);
+            basePath.push(x, y, height);
+        }
+        
+    }
+    return basePath;
 }
 
-var basePath = [57.14, 0, 7, -55.569999999999986, 65.07314884036272, 7, -55.570000000000036, -65.0731488403627, 7, 60.44, 0, 8, -57.219999999999985, 67.93103267285137, 8, -57.220000000000034, -67.93103267285134, 8, 63.739999999999995, 0, 9, -58.869999999999976, 70.78891650534001, 9, -58.87000000000003, -70.78891650533998, 9]
-var bs = baseSpiral([5.4, 2.4, 5.4], basePath, 60.0, 2.0);
-updatePath(bs);
 
-// function baseZigzag(position, basePath, nbLayers, nbPointsInLayer, layerHeight, layerThickness, radius){
-//     let lines = [];
-//     let intersectPoints = [];
-//     let points = basePath.map(p => point([p[0], p[1]]));
-//     let baseCircle = new Polygon(points);
+export function baseFill(position, path, nbPointsInLayer, layerHeight, nozzle_diameter, radius){
+    let basePath = [];
+    let height = layerHeight;
+    for(let i = 0; i < nbPointsInLayer*3; i+=3){
+        basePath.push(point(path[i], path[i+1]));
+    }
 
-//     start = [position[0] - radius, position[1] - radius, layerHeight*2];
-//     for (let i = 0; i*layerThickness < radius*2; i++){
-//         let line = new Segment(point([start[0]+(i*layerThickness), start[1]],
-//                     point([start[0]+(i*layerThickness), start[1]+radius*2])));
-//         lines.push(line);
-//     }
-//     for(let i = 0; i < lines.length; i++){
-//         intersectPoints.push(intersect(lines[i], baseCircle));
-//     }
-//     return intersectPoints;
-// }
+    let baseCircle = new Polygon(basePath);
+    
+    let diameter = radius*2;
+    let start = [position[0] - diameter, position[1] - diameter, layerHeight*2];
+    let newPoints = [];
 
-// function base(position, nbPointsInLayer, layerHeight, layerThickness, radius){
-//     //Circular base
-//     path = [];
-// }
+    for (let i = 0; i < (diameter*2); i+=nozzle_diameter){
+        let line = new Segment(point([start[0]+(i), start[1]]), point([start[0]+(i), start[1]+(diameter*2)]));
+        let intersectionPoints = (line.intersect(baseCircle).map(pt => [pt.x, pt.y])).flat();
+        if(intersectionPoints.length == 4){
+            if(i % (2*nozzle_diameter) == 0){
+                newPoints.push(intersectionPoints[0], intersectionPoints[1]);
+                newPoints.push(height);
+                newPoints.push(intersectionPoints[2], intersectionPoints[3]);
+                newPoints.push(height);
+            } else{
+                newPoints.push(intersectionPoints[2], intersectionPoints[3]);
+                newPoints.push(height);
+                newPoints.push(intersectionPoints[0], intersectionPoints[1]);
+                newPoints.push(height);
+            }
+        }
+        
+    }
+    return newPoints;
+}
+
+export function base(position, path, nbPointsInLayer, layerHeight, nozzleDiameter, radius){
+    let bottomBase = baseFill(position, path, nbPointsInLayer, layerHeight, nozzleDiameter, radius);
+    let topBase = baseSpiral(position, path, nbPointsInLayer, layerHeight*2, nozzleDiameter, radius);
+    let newPath = bottomBase.concat(topBase);
+    return newPath;
+}
+
+export function addBase(b, path){
+    return b.concat(path);
+}
+
+window.baseSpiral = baseSpiral;
+window.baseFill = baseFill;
+window.base = base;

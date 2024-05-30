@@ -139,9 +139,9 @@ function sinusoidal(amplitude, period, offset, nbPoints, values0, mode) {
   }
   for (var i = 0; i < nbPoints; i++) {
     if (mode == "additive") {
-      values.push(amplitude * Math.pow(Math.sin(period * i + offset[i]), 2) + values0[i]);
+      values.push(amplitude * Math.sin(2 * Math.PI / period * i + offset[i]) + values0[i]);
     } else if (mode == "multiplicative") {
-      values.push(amplitude * Math.pow(Math.sin(period * i + offset[i]), 2) * values0[i]);
+      values.push(amplitude * Math.sin(2 * Math.PI / period * i + offset[i]) * values0[i]);
     }
   }
   return values;
@@ -171,7 +171,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53885" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59102" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

@@ -121,12 +121,20 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
+function radToDeg(r) {
+  return r * 180 / Math.PI;
+}
+function degToRad(d) {
+  return d * Math.PI / 180;
+}
 var path = [];
 var updatedPath = false;
+var t = [0, -100, -500];
+var r = [degToRad(270), degToRad(0), degToRad(0)];
 function updatePath(newPath) {
   updatedPath = true;
   path = newPath;
-  main();
+  main(t, r);
 }
 function createShader(gl, type, source) {
   var shader = gl.createShader(type);
@@ -152,6 +160,8 @@ function createProgram(gl, vertexShader, fragmentShader) {
   gl.deleteProgram(program);
 }
 function main() {
+  var t = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [0, -100, -500];
+  var r = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [degToRad(270), degToRad(0), degToRad(0)];
   // Get A WebGL context
   var canvas = document.querySelector("#canvas");
   var gl = canvas.getContext("webgl");
@@ -181,18 +191,13 @@ function main() {
   // Put geometry data into buffer
   //setGeometry(gl);
   setPath(gl, path);
-  function radToDeg(r) {
-    return r * 180 / Math.PI;
-  }
-  function degToRad(d) {
-    return d * Math.PI / 180;
-  }
   var cameraAngleRadians = degToRad(0);
   var fieldOfViewRadians = degToRad(60);
 
   //console.log(document.getElementById('canvas').width)
-  var translation = [document.getElementById('canvas').width, 500, 0];
-  var rotation = [degToRad(90), degToRad(0), degToRad(0)];
+  //var translation = [document.getElementById('canvas').width, 500, 0];
+  var translation = t;
+  var rotation = r;
   var scale = [1, 1, 1];
   var color = [Math.random(), Math.random(), Math.random(), 1];
   drawScene();
@@ -214,13 +219,14 @@ function main() {
   webglLessonsUI.setupSlider("#y", {
     value: translation[1],
     slide: updatePosition(1),
-    max: gl.canvas.height
+    min: -gl.canvas.height / 2,
+    max: gl.canvas.height / 2
   });
   webglLessonsUI.setupSlider("#z", {
     value: translation[2],
     slide: updatePosition(2),
-    min: -11000,
-    max: 4000
+    min: -1000,
+    max: 0
   });
   // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
   webglLessonsUI.setupSlider("#angleX", {
@@ -275,6 +281,7 @@ function main() {
   function updatePosition(index) {
     return function (event, ui) {
       translation[index] = ui.value;
+      t[index] = ui.value;
       drawScene();
     };
   }
@@ -283,6 +290,7 @@ function main() {
       var angleInDegrees = ui.value;
       var angleInRadians = angleInDegrees * Math.PI / 180;
       rotation[index] = angleInRadians;
+      r[index] = angleInRadians;
       drawScene();
     };
   }
@@ -347,8 +355,8 @@ function main() {
     var right = gl.canvas.clientWidth;
     var bottom = gl.canvas.clientHeight;
     var top = 0;
-    var near = 400;
-    var far = -400;
+    var near = 500;
+    var far = 0;
     // perspective: function(fieldOfViewInRadians, aspect, near, far)
     var matrix = m4.perspective(fieldOfViewRadians, gl.canvas.clientWidth / gl.canvas.clientHeight, near, far);
     // var matrix = m4.orthographic(left, right, bottom, top, near, far);
@@ -581,20 +589,23 @@ function setUpCodeMirror() {
   }
   document.getElementById("b_save").addEventListener("click", saveCode);
   function saveCode() {
-    var filename = saveName.value();
-    var content = myCodeMirror.getValue();
+    // let content = myCodeMirror.getValue();
+    // var content = document.getElementById("textArea").value;
+    var editor = CodeMirror.fromTextArea(document.getElementById("textArea"), {
+      styleActiveLine: true
+    });
+    var content = editor.doc.getValue();
     content = content.replace(/\n/g, "\r\n"); // To retain the Line breaks.
     var blob = new Blob([content], {
       type: "text/plain"
     });
+    var filename = "code.txt";
     var anchor = document.createElement("a");
-    if (filename) {
-      anchor.download = filename + ".txt";
-    } else {
-      anchor.download = "untitled.txt";
-    }
+    anchor.download = filename;
+    anchor.innerHTML = "Download File";
+    window.URL = window.URL || window.webkitURL;
     anchor.href = window.URL.createObjectURL(blob);
-    anchor.target = "_blank";
+    // anchor.target ="_blank";
     anchor.style.display = "none"; // just to be safe!
     document.body.appendChild(anchor);
     anchor.click();
@@ -628,7 +639,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53885" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59102" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
