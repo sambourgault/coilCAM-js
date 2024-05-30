@@ -4,13 +4,13 @@
 <!--<script src="https://greggman.github.io/webgl-lint/webgl-lint.js"></script>
 -->
 <link rel="stylesheet" href="style-interface.css">
-
 <script src="codemirror-5.65.13/lib/codemirror.js"></script>
   <link rel="stylesheet" href="codemirror-5.65.13/lib/codemirror.css">
   <script src="codemirror-5.65.13/mode/javascript/javascript.js"></script>
   <script src = "codemirror-5.65.13/addon/hint/show-hint.js"></script>
   <script src = "codemirror-5.65.13/addon/hint/javascript-hint.js"></script> 
   <link rel="stylesheet" href = "codemirror-5.65.13/addon/hint/show-hint.css">
+
 <body>
 
 <h1>coilCAM-js</h1>
@@ -22,7 +22,31 @@
     <button type="button" id="b_save">save</button>
 
       <div class="codediv" id = 'code1'>
-        <textarea id = "editor"></textarea>
+        <textarea id = "editor">// DEFAULT EXAMPLE
+
+// POTTERBOT CONFIG
+var potterbot_printSpeed = 30;
+var potterbot_nozzleDiameter = 5.0;
+var potterbot_layerHeight = 4.8;
+var potterbot_extrusionMultiplier = 1.0;
+var potterbot_bedSize = [280, 265, 305];
+
+
+// VESSEL PARAMETERS
+var nbLayers = 30;
+var nbPointsInLayer = 6;
+var vesselRadius = 40;
+var position = [0, 0, potterbot_layerHeight*1.5];
+var scalingParameter = sinusoidal(10, 40, 0.3, nbLayers, 0, "");
+var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], []);
+var b = base(position, vessel, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
+var toolpath = b.concat(spiralize(vessel, potterbot_layerHeight));
+updatePath(toolpath);
+
+// GENERATE GCODE
+var gcode_string = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_printSpeed);
+// downloadGCode(gcode_string, "simple_vessel.gcode"); 
+        </textarea>
       </div>
       <div class="codediv" id = 'console1'>
         <textarea id = "console"></textarea>
@@ -126,5 +150,52 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 <script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
 <script src="interface.js"></script>
 
+
+<!-- <script src="coilcam-functions/test.js"></script> -->
+<!-- combine into one file -->
+<!-- visualization! -->
+<!-- load/save for example files from coilCAM -->
+
+<!-- FlattenJS (for Boolean, Base)-->
+<script src="https://cdn.jsdelivr.net/npm/flatten-js@0.6.9/dist/flatten.umd.min.js"></script>
+
+
+<!-- CoilCAM Functions -->
+<script src="coilcam-functions/function-operators/Exponential.js"></script>
+<script src="coilcam-functions/function-operators/Linear.js"></script>
+<script src="coilcam-functions/function-operators/Sinusoidal.js"></script>
+<script src="coilcam-functions/function-operators/Square.js"></script>
+<script src="coilcam-functions/function-operators/Staircase.js"></script>
+<script src="examples_for_esme/test.js"></script>
+
+<script src="coilcam-functions/setup/GCodeGenerator.js"></script>
+<script src="coilcam-functions/setup/Spiralize.js"></script>
+<!-- <script src="coilcam-functions/setup/GCodeGenerator.js" type="module"></script> -->
+<script src="coilcam-functions/setup/ToolpathUnitGenerator.js"></script>
+<!-- <script src="coilcam-functions/setup/Base.js"></script> -->
+<script type="module" src="coilcam-functions/setup/Base.js">
+  import {Base} from './coilcam-functions/setup/Base.js';
+</script>
+<!-- <script src="coilcam-functions/setup/PrinterPresets.js" type="application/javascript"></script> -->
+<script type="module" src="coilcam-functions/setup/Spiralize.js">
+  import {Spiralize} from './coilcam-functions/setup/Spiralize.js';
+</script>
+<script src="coilcam-functions/setup/CenterPrint.js"></script>
+
+
+<script src="coilcam-functions/2D-functions/Linear2D.js"></script>
+<script src="coilcam-functions/2D-functions/Sinusoidal2D.js"></script>
+<script type="module" src="coilcam-functions/boolean/BooleanUnion.js">
+  import {BooleanUnion} from './coilcam-functions/boolean/BooleanUnion.js';
+</script>
+<script type="module" src="coilcam-functions/boolean/BooleanDifference.js">
+  import {BooleanDifference} from './coilcam-functions/boolean/BooleanDifference.js';
+</script>
+<script src="index.js"></script>
+<!-- <script type="application/javascript" src="coilcam-functions/boolean/BooleanUnion.js"></script> -->
+<script type="module" src="coilcam-functions/test.js"></script>
+
 </body>
 </html>
+
+

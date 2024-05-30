@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html>
+<!--<script src="https://greggman.github.io/webgl-lint/webgl-lint.js"></script>
+-->
+<link rel="stylesheet" href="/style-interface.92350a71.css">
+<script src="/codemirror.2020a708.js"></script>
+  <link rel="stylesheet" href="/codemirror.db200c26.css">
+  <script src="/javascript.c558db8e.js"></script>
+  <script src="/show-hint.de28ecf8.js"></script>
+  <script src="/javascript-hint.a3788b35.js"></script> 
+  <link rel="stylesheet" href="/show-hint.2249ad79.css">
+
+<script src="/style-interface.92350a71.js"></script><script src="/codemirror.db200c26.js"></script><script src="/show-hint.2249ad79.js"></script><body>
+
+<h1>coilCAM-js</h1>
+
+<div class="grid-container">
+
+  <div class="grid-child purple">
+    <button type="button" id="b_run">run</button>
+    <button type="button" id="b_save">save</button>
+
+      <div class="codediv" id="code1">
+        <textarea id="editor"></textarea>
+      </div>
+      <div class="codediv" id="console1">
+        <textarea id="console"></textarea>
+      </div>
+
+  </div>
+
+  <div class="grid-child green">
+      <canvas id="canvas"></canvas>
+
+  </div>
+
+  <div class="grid-child blue">
+    <div id="uiContainer">
+      <div id="ui">
+        <div id="x" class="sliders"></div>
+        <div id="y" class="sliders"></div>
+        <div id="z" class="sliders"></div>
+        <div id="angleX" class="sliders"></div>
+        <div id="angleY" class="sliders"></div>
+        <div id="angleZ" class="sliders"></div>
+        <!--<div id="scaleX" class="sliders"></div>
+        <div id="scaleY" class="sliders"></div>
+        <div id="scaleZ" class="sliders"></div>-->
+      </div>
+    </div>
+</div>
+</div>
+
+
+
+
+
+<!-- vertex shader 3D-->
+<script id="vertex-shader-3d" type="x-shader/x-vertex">
+  attribute vec4 a_position;
+  attribute vec4 a_color;
+  
+  uniform mat4 u_matrix;
+  
+  varying vec4 v_color;
+  
+  void main() {
+    // Multiply the position by the matrix.
+    gl_Position = u_matrix * a_position;
+  
+    // Pass the color to the fragment shader.
+    v_color = a_color;
+  }
+  </script>
+
+  <!-- fragment shader 3D -->
+  <script id="fragment-shader-3d" type="x-shader/x-fragment">
+  precision mediump float;
+  
+  // Passed in from the vertex shader.
+  varying vec4 v_color;
+  
+  void main() {
+     gl_FragColor = v_color;
+  }
+  </script>
+
+<!-- vertex shader 2D-->
+<script id="vertex-shader-2d" type="notjs">
+
+  // an attribute will receive data from a buffer
+  attribute vec4 a_position;
+
+  // all shaders have a main function
+  void main() {
+
+    // gl_Position is a special variable a vertex shader
+    // is responsible for setting
+    gl_Position = a_position;
+  }
+
+</script>
+
+<!-- fragment shader 2D -->
+<script id="fragment-shader-2d" type="notjs">
+
+  // fragment shaders don't have a default precision so we need
+  // to pick one. mediump is a good default
+  precision mediump float;
+
+  void main() {
+    // gl_FragColor is a special variable a fragment shader
+    // is responsible for setting
+    gl_FragColor = vec4(0, 0.5, 0, 1); // return redish-purple
+  }
+
+</script><!--
+for most samples webgl-utils only provides shader compiling/linking and
+canvas resizing because why clutter the examples with code that's the same in every sample.
+See https://webglfundamentals.org/webgl/lessons/webgl-boilerplate.html
+and https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
+for webgl-utils, m3, m4, and webgl-lessons-ui.
+-->
+<script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
+<script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
+<script src="/interface.ea8ab421.js"></script>
+
+
+<!-- <script src="coilcam-functions/test.js"></script> -->
+<!-- combine into one file -->
+<!-- visualization! -->
+<!-- load/save for example files from coilCAM -->
+
+<!-- FlattenJS (for Boolean, Base)-->
+<script src="https://cdn.jsdelivr.net/npm/flatten-js@0.6.9/dist/flatten.umd.min.js"></script>
+
+
+<!-- CoilCAM Functions -->
+<script src="/Exponential.8ee39d8a.js"></script>
+<script src="/Linear.de16f138.js"></script>
+<script src="/Sinusoidal.73b7f716.js"></script>
+<script src="/Square.e7f8abf9.js"></script>
+<script src="/Staircase.91743f2e.js"></script>
+<script src="/test.c54c0676.js"></script>
+
+<script src="/GCodeGenerator.55af4b37.js"></script>
+
+<!-- <script src="coilcam-functions/setup/GCodeGenerator.js" type="module"></script> -->
+<script src="/ToolpathUnitGenerator.f936288e.js"></script>
+<script src="/Base.cef09e15.js"></script>
+<!-- <script src="coilcam-functions/setup/PrinterPresets.js" type="application/javascript"></script> -->
+<script src="/Spiralize.4e28c305.js"></script>
+
+
+<script src="/Linear2D.c62a6d9b.js"></script>
+<script src="/Sinusoidal2D.e2b232af.js"></script>
+<script src="/BooleanUnion.93d28fae.js"></script>
+<!-- <script type="application/javascript" src="coilcam-functions/boolean/BooleanUnion.js"></script> -->
+<script type="module" src="/test.34a04592.js"></script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,97 @@
+@import url("https://webglfundamentals.org/webgl/resources/webgl-tutorials.css");
+body {
+  margin: 0;
+  background-color: rgb(235, 235, 235);
+}
+canvas {
+  margin-top: 42px;
+  width: 95%;
+  height: 620px;
+  display: block;
+  border: 0;
+}
+h1{
+  font: Stratos, optional;
+  font-family: 'Stratos';
+  margin: 20px;
+}
+.sliders{
+  font-family: 'Stratos';
+  text-shadow: none;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor:pointer;
+  opacity: 100%;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: #3f3f3f;
+  height: 0.5rem;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  margin-top: 0px; /* Centers thumb on the track */
+  background-color: rgb(164,164,164);
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+button{
+  font-family: 'Stratos';
+  background:rgb(164,164,164);
+  border-color: black;
+  border-style:solid;
+}
+
+.gman-widget-outer{
+  
+}
+
+#uiContainer{
+  display: block;
+  position:relative;
+  top:42px;
+  left: 20px;
+  right: auto;
+  width: 200px;
+  height: 200px;
+}
+
+.grid-container {
+  grid-template-columns: 1fr 1fr 1fr ;
+  grid-gap: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
+.grid-child{
+  width: 0;
+  flex-grow: 1;
+}
+
+
+
+
+button{
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.codediv{
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+textarea{
+  overflow-x: hidden;
+  resize: none;
+  max-width: 90%;
+}
+
+/*# sourceMappingURL=/style-interface.92350a71.css.map */
