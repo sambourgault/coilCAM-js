@@ -173,11 +173,13 @@ function main() {
     if (isDragging) {
       let deltaX = event.clientX - lastX;
       let deltaY = event.clientY - lastY;
-      let deltaZ = event.clientZ - lastZ;
       translation[0] += deltaX;
       translation[1] -= deltaY;
-      t[0] = translation[0];
-      t[1] = translation[1];
+
+      let factor = 1/75; // Rotation sensitivity
+      rotation[0] += deltaY * factor;
+      rotation[2] += deltaX * factor;
+
       drawScene();
       lastX = event.clientX;
       lastY = event.clientY;
@@ -209,7 +211,6 @@ function main() {
 
     // Enable the depth buffer
     gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LESS);
 
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
@@ -249,13 +250,11 @@ function main() {
     // Set the matrix.
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
-    // Draw the base.
+    // Set the color.
     var fColorLocation = gl.getUniformLocation(program, "fColor");
-    gl.uniform4f(fColorLocation, 0.7, 0.7, 0.7, 1.0); // Set uniform variable for color to gray
-    gl.drawArrays(gl.TRIANGLES, 0, 6); //first 6 vertices will be drawn as triangles (base)
     gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
 
-    // Draw the geometry.
+    // Draw the toolpath.
     if(Array.isArray(path[0])){ //multiple vessels
       var primitiveType = gl.LINE_STRIP;
       let path_lengths = path[0].map(array => array.length);
@@ -269,8 +268,20 @@ function main() {
       var primitiveType = gl.LINE_STRIP;
       var offset = 0;
       var count = path.length/3;
-      gl.drawArrays(primitiveType, offset, count);
+      // gl.drawArrays(primitiveType, offset, count);
+      gl.drawArrays(primitiveType, offset+18, count);
+      console.log("count", count);
+      console.log("path", path);
     }
+
+    // Draw the base.
+    gl.uniform4f(fColorLocation, 0.7, 0.7, 0.7, 1.0); // Set uniform variable for color to gray
+    gl.drawArrays(gl.TRIANGLES, 0, 6); //first 6 vertices will be drawn as triangles (base)
+    
+
+    // Draw the guidelines. (inspired by p5.js)
+    gl.uniform4f(fColorLocation, 0.9, 0.9, 0.9, 1.0); // Set uniform variable for color to gray
+    gl.drawArrays(gl.LINE_STRIP, 6, 18); //next 12 vertices will be drawn as lines (base)
     
     
   }
@@ -574,19 +585,46 @@ function addBasePath(){
   let bedXOffset = potterbot_bedSize[0]/2
   let bedYOffset = potterbot_bedSize[1]/2;
   let base_vertices = [
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.4
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2
     
   ]
   return base_vertices;
 }
 
+function addPrinterGuidelines(){
+  let potterbot_bedSize = [280, 265, 305]; //default
+  let bedXOffset = potterbot_bedSize[0]/2
+  let bedYOffset = potterbot_bedSize[1]/2;
+  let printer_guidelines = [
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+
+  ] //12 points total
+  return printer_guidelines;
+}
+
 function setPath(gl, path) {
-  path = addBasePath().concat(path);
+  // path = path.concat(addBasePath());
+  base = addBasePath().concat(addPrinterGuidelines()); //16 extra points
+  path = base.concat(path);
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array(path),
