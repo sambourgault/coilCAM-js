@@ -15,6 +15,7 @@
 
 <h1>coilCAM-js</h1>
 
+
 <div class="grid-container">
 
   <div class="grid-child purple">
@@ -22,31 +23,38 @@
     <button type="button" id="b_save">save</button>
 
       <div class="codediv" id = 'code1'>
-        <textarea id = "editor">// DEFAULT EXAMPLE
-
-// POTTERBOT CONFIG
+        <textarea id = "editor">//POTTERBOT
 var potterbot_printSpeed = 30;
 var potterbot_nozzleDiameter = 5.0;
-var potterbot_layerHeight = 4.8;
-var potterbot_extrusionMultiplier = 1.0;
+var potterbot_layerHeight = 2.5;
 var potterbot_bedSize = [280, 265, 305];
 
+//--Parameters for vessels
+var nbLayers = 17;
+var nbPointsInLayer = 50;
+var radius = 71.4;
+var position = [0.0, 0.0, potterbot_layerHeight*4];
 
-// VESSEL PARAMETERS
-var nbLayers = 30;
-var nbPointsInLayer = 6;
-var vesselRadius = 40;
-var position = [0, 0, potterbot_layerHeight*1.5];
-var scalingParameter = sinusoidal(10, 40, 0.3, nbLayers, 0, "");
-var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], []);
-var b = base(position, vessel, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
-var toolpath = b.concat(spiralize(vessel, potterbot_layerHeight));
+//RADIUS SHAPING PARAMETER
+var rsp = sinusoidal(11.0, 10.0, 1.8, nbPointsInLayer, [], "multiplicative");
+var ssp1 = sinusoidal(2,10.0, 30.0, nbLayers, [], "additive");
+var ssp = linear(1.1,ssp1, nbLayers, [], "additive");
+console.log("ssp", ssp);
+
+// TOOLPATH UNIT GENERATORS
+var vessel_star = toolpathUnitGenerator(position, radius, potterbot_layerHeight, nbLayers, nbPointsInLayer, rsp, ssp, [], [], []);
+var vesselRadius = 80.0;
+var main_vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], [], [], [], []);
+var b = base(position, main_vessel, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
+var unspiralized = b.concat(union(vessel_star, main_vessel));
+var spiralized = spiralize(union(vessel_star, main_vessel), potterbot_layerHeight);
+var toolpath = (b.concat(spiralized));
+<!-- toolpath = centerPrint(toolpath, position, potterbot_bedSize, potterbot_layerHeight); -->
 updatePath(toolpath);
+var gcode = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_printSpeed);
+console.log(checkOverflow(toolpath, potterbot_bedSize, potterbot_layerHeight));
 
-// GENERATE GCODE
-var gcode_string = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_printSpeed);
-// downloadGCode(gcode_string, "simple_vessel.gcode"); 
-        </textarea>
+//downloadGCode(gcode, "dish_esmepuzio_V1");</textarea>
       </div>
       <div class="codediv" id = 'console1'>
         <textarea id = "console"></textarea>
@@ -76,6 +84,15 @@ var gcode_string = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_p
 </div>
 </div>
 
+<!-- load txt -->
+<script>
+  function loadTXT() {
+    let txt = "bla bla";
+    let e = document.getElementById("editor").value;
+    e.value = txt;
+    // document.getElementById("editor").value = "Fifth Avenue, New York City";
+  }
+</script>
 
 
 
@@ -100,14 +117,15 @@ var gcode_string = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_p
 
   <!-- fragment shader 3D -->
   <script  id="fragment-shader-3d" type="x-shader/x-fragment">
-  precision mediump float;
-  
-  // Passed in from the vertex shader.
-  varying vec4 v_color;
-  
-  void main() {
-     gl_FragColor = v_color;
-  }
+    precision mediump float;
+    
+    // Passed in from the vertex shader.
+    varying vec4 v_color;
+    uniform vec4 fColor;
+    
+    void main() {
+      gl_FragColor = fColor;
+    }
   </script>
 
 <!-- vertex shader 2D-->

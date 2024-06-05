@@ -12,7 +12,7 @@ function degToRad(d) {
 let path = [];
 let updatedPath = false;
 var t = [0, -50, -500];
-var r = [degToRad(173), degToRad(0), degToRad(0)];
+var r = [degToRad(-45), degToRad(0), degToRad(0)];
 
 function updatePath(newPath){
   updatedPath = true;
@@ -48,13 +48,14 @@ function createProgram(gl, vertexShader, fragmentShader) {
 }
 
 
-function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]) {
+function main() {
   // Get A WebGL context
   var canvas = document.querySelector("#canvas");
   var gl = canvas.getContext("webgl");
   if (!gl) {
     return;
   }
+  canvas.addEventListener('wheel', handleScroll);
 
   // from webgl tutorials
   // setup GLSL program
@@ -81,6 +82,19 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
 
   var cameraAngleRadians = degToRad(0);
   var fieldOfViewRadians = degToRad(30);
+
+    //better ui for webgl
+  function handleScroll(event) {
+    const zoomSpeed = 0.02;
+    if (event.deltaY < 0) {
+      fieldOfViewRadians -= zoomSpeed;
+    } else { 
+      fieldOfViewRadians += zoomSpeed;
+    }
+    drawScene();
+  }
+  canvas.addEventListener("wheel", handleScroll);
+
 
   //console.log(document.getElementById('canvas').width)
   //var translation = [document.getElementById('canvas').width, 500, 0];
@@ -119,11 +133,6 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     updatedPath = false;
   }
 
-  /*function updatePath(newPath){
-    path = newPath;
-    drawScene();
-  }*/
-
   function updatePosition(index) {
     return function(event, ui) {
       translation[index] = ui.value;
@@ -149,6 +158,40 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     };
   }
 
+  //drag canvas
+  let isDragging = false;
+  let lastX, lastY, lastZ;
+
+  canvas.addEventListener('mousedown', (event) => {
+    isDragging = true;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    lastZ = event.clientZ;
+  });
+
+  canvas.addEventListener('mousemove', (event) => {
+    if (isDragging) {
+      let deltaX = event.clientX - lastX;
+      let deltaY = event.clientY - lastY;
+      let deltaZ = event.clientZ - lastZ;
+      translation[0] += deltaX;
+      translation[1] -= deltaY;
+      t[0] = translation[0];
+      t[1] = translation[1];
+      drawScene();
+      lastX = event.clientX;
+      lastY = event.clientY;
+    }
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    isDragging = false;
+  });
+
 
   // Draw the scene.
   function drawScene() {
@@ -162,10 +205,11 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
 
     // Turn on culling. By default backfacing triangles
     // will be culled.
-    gl.enable(gl.CULL_FACE);
+    // gl.enable(gl.CULL_FACE);
 
     // Enable the depth buffer
     gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LESS);
 
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
@@ -184,23 +228,6 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     var offset = 0;        // start at the beginning of the buffer
     gl.vertexAttribPointer(
         positionLocation, size, type, normalize, stride, offset);
-
-    /*// Turn on the color attribute
-    gl.enableVertexAttribArray(colorLocation);
-
-    // Bind the color buffer.
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-
-    // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-    var size = 3;                 // 3 components per iteration
-    var type = gl.UNSIGNED_BYTE;  // the data is 8bit unsigned values
-    var normalize = true;         // normalize the data (convert from 0-255 to 0-1)
-    var stride = 0;               // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0;               // start at the beginning of the buffer
-    gl.vertexAttribPointer(
-        colorLocation, size, type, normalize, stride, offset);
-      */
-
    
     // Compute the matrices
     // var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
@@ -221,6 +248,12 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
 
     // Set the matrix.
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
+
+    // Draw the base.
+    var fColorLocation = gl.getUniformLocation(program, "fColor");
+    gl.uniform4f(fColorLocation, 0.7, 0.7, 0.7, 1.0); // Set uniform variable for color to gray
+    gl.drawArrays(gl.TRIANGLES, 0, 6); //first 6 vertices will be drawn as triangles (base)
+    gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
 
     // Draw the geometry.
     if(Array.isArray(path[0])){ //multiple vessels
@@ -536,11 +569,28 @@ function setGeometry(gl) {
       gl.STATIC_DRAW);
 }
 
+function addBasePath(){
+  let potterbot_bedSize = [280, 265, 305]; //default
+  let bedXOffset = potterbot_bedSize[0]/2
+  let bedYOffset = potterbot_bedSize[1]/2;
+  let base_vertices = [
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.4,
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.4
+    
+  ]
+  return base_vertices;
+}
+
 function setPath(gl, path) {
+  path = addBasePath().concat(path);
   gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(path),
-      gl.STATIC_DRAW);
+    gl.ARRAY_BUFFER,
+    new Float32Array(path),
+    gl.STATIC_DRAW);
 }
 
 function setUpCodeMirror(){
