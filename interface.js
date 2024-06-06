@@ -169,22 +169,54 @@ function main() {
     lastZ = event.clientZ;
   });
 
-  canvas.addEventListener('mousemove', (event) => {
+  canvas.addEventListener("contextmenu", (event) => { //right click
     if (isDragging) {
       let deltaX = event.clientX - lastX;
       let deltaY = event.clientY - lastY;
       translation[0] += deltaX;
       translation[1] -= deltaY;
+      drawScene();
+      lastX = event.clientX;
+      lastY = event.clientY;
+    }
+  });
 
-      let factor = 1/75; // Rotation sensitivity
-      rotation[0] += deltaY * factor;
-      rotation[2] += deltaX * factor;
+  canvas.addEventListener('mousemove', (event) => {
+    if (isDragging) {
+      let deltaX = event.clientX - lastX;
+      let deltaY = event.clientY - lastY;
+      if (event.shiftKey) { //shift key, move model
+        translation[0] += deltaX;
+        translation[1] -= deltaY;
+      } else{ //rotate model
+        let factor = 1/100; // Rotation sensitivity
+        rotation[0] += deltaY * factor;
+        rotation[2] += deltaX * factor;
+      }
 
       drawScene();
       lastX = event.clientX;
       lastY = event.clientY;
     }
   });
+
+  canvas.addEventListener('contextmenu', (event) => {
+    if (isDragging) {
+      let deltaX = event.clientX - lastX;
+      let deltaY = event.clientY - lastY;
+      translation[0] += deltaX;
+      translation[1] -= deltaY;
+
+      // let factor = 1/75; // Rotation sensitivity
+      // rotation[0] += deltaY * factor;
+      // rotation[2] += deltaX * factor;
+
+      drawScene();
+      lastX = event.clientX;
+      lastY = event.clientY;
+    }
+  });
+
 
   canvas.addEventListener('mouseup', () => {
     isDragging = false;
@@ -270,8 +302,6 @@ function main() {
       var count = path.length/3;
       // gl.drawArrays(primitiveType, offset, count);
       gl.drawArrays(primitiveType, offset+18, count);
-      console.log("count", count);
-      console.log("path", path);
     }
 
     // Draw the base.
