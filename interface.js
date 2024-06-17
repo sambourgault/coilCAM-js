@@ -86,69 +86,16 @@ function main() {
 
   var cameraAngleRadians = degToRad(0);
   var fieldOfViewRadians = degToRad(30);
-
-  
-
-  //console.log(document.getElementById('canvas').width)
-  //var translation = [document.getElementById('canvas').width, 500, 0];
   var translation = t;
   var rotation = r;
   var scale = [1, 1, 1];
   var color = [Math.random(), Math.random(), Math.random(), 1];
 
-  
-
   drawScene();
-
-  // Setup a ui.
-  /*webglLessonsUI.setupSlider("#cameraAngle", {value: radToDeg(cameraAngleRadians), slide: updateCameraAngle, min: -360, max: 360});
-  function updateCameraAngle(event, ui) {
-    cameraAngleRadians = degToRad(ui.value);
-    drawScene();
-  }*/
-
-  // // Setup a ui.
-  // console.log("max:", gl.canvas.height);
-  // webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), min: -gl.canvas.width, max: gl.canvas.width });
-  // webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), min:-gl.canvas.height/2, max: gl.canvas.height/2});
-  // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -1000, max: 0});
-  // // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
-  // webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
-  // webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
-  // webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
-  // webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
-  // webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
-  // webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 10, step: 0.01, precision: 2});
-
   
   if (updatedPath){
     drawScene();
     updatedPath = false;
-  }
-
-  function updatePosition(index) {
-    return function(event, ui) {
-      translation[index] = ui.value;
-      t[index] =  ui.value;
-      drawScene();
-    };
-  }
-
-  function updateRotation(index) {
-    return function(event, ui) {
-      var angleInDegrees = ui.value;
-      var angleInRadians = angleInDegrees * Math.PI / 180;
-      rotation[index] = angleInRadians;
-      r[index] = angleInRadians;
-      drawScene();
-    };
-  }
-
-  function updateScale(index) {
-    return function(event, ui) {
-      scale[index] = ui.value;
-      drawScene();
-    };
   }
 
   //drag canvas
@@ -222,8 +169,7 @@ function main() {
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Turn on culling. By default backfacing triangles
-    // will be culled.
+    // disable culling
     // gl.enable(gl.CULL_FACE);
 
     // Enable the depth buffer
@@ -297,8 +243,6 @@ function main() {
     // Draw the guidelines. (inspired by p5.js)
     gl.uniform4f(fColorLocation, 0.9, 0.9, 0.9, 1.0); // Set uniform variable for color to gray
     gl.drawArrays(gl.LINES, 6, 22); //next 16 vertices will be drawn as lines (base)
-    
-    
   }
 }
 
@@ -657,7 +601,6 @@ function setPath(gl, path) {
 }
 
 function setUpCodeMirror(){
-
   let textArea, textArea2;
   let myCodeMirror;
   let consoleCodeMirror;
@@ -739,5 +682,112 @@ function setUpCodeMirror(){
   }
 }
 
-setUpCodeMirror();
+function buildEditor(){
+  let textArea;
+  let myCodeMirror;
+
+  // code editor: https://www.youtube.com/watch?v=C3fNuqQeUdY&t=1004s
+  //code editor
+  textArea = document.getElementById("editor");
+  textArea.className = 'codemirror_textarea';
+  textArea.style.marginLeft = 20+'px';
+  textArea.style.width = 140+'%';
+  textArea.style.height = 200+'px';
+  textArea.value = '// Write your code here'; //text
+  console.log(getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => console.log(res)));
+  textArea.value = getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => res.toString());
+  
+  getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js')
+  .then(res => {
+    textArea.value = res.toString();
+  })
+  .catch(err => {
+    console.error('Error:', err);
+  });
+  
+
+  container.CodeMirror = CodeMirror(none, {
+    lineNumbers: true,
+    mode: 'javascript',
+    extraKeys: {"Ctrl-Space": "autocomplete"},
+  });
+
+  // // configs (old ver)
+  // myCodeMirror = CodeMirror.fromTextArea(textArea, {
+  //   lineNumbers: true,
+  //   mode: 'javascript',
+  //   extraKeys: {"Ctrl-Space": "autocomplete"},
+  // }); 
+  // return myCodeMirror;
+}
+
+
+
+//using goldenlayout
+function buildLayout(){
+  var config = {
+    content: [{
+        type: 'row',
+        content:[{
+          type: 'column',
+          content:[{
+              type: 'component',
+              componentName: 'editor',
+              componentState: { label: '' },
+          },{
+              type: 'component',
+              componentName: 'console',
+              componentState: { label: 'C (console)' }
+          }]}, {
+          type: 'component',
+          componentName: 'viewer',
+          componentState: { label: 'A (viewer)' }
+      }]
+    }]
+  };
+  var myLayout = new GoldenLayout(config, document.getElementById('golden-layout'));
+
+  myLayout.registerComponent('viewer', function(container, componentState){
+    container.getElement().html('<h2>' + componentState.label + '</h2>');
+  });
+
+
+  
+
+  myLayout.registerComponent('console', function(container, componentState){
+    // Create a new div element for CodeMirror
+    let codeMirrorDiv = document.createElement('div');
+    codeMirrorDiv.id = 'code-mirror-editor'; // Assign an id for easy reference
+    container.getElement().append(codeMirrorDiv); // Append the div to the container
+    
+    // Initialize CodeMirror on the div
+    let myCodeMirror = CodeMirror(codeMirrorDiv, {
+      mode: 'javascript',
+    });
+   });
+
+
+
+
+
+  myLayout.registerComponent('editor', function(container, componentState){
+    // Create a new div element for CodeMirror
+    let codeMirrorDiv = document.createElement('div');
+    codeMirrorDiv.id = 'code-mirror-editor'; // Assign an id for easy reference
+    container.getElement().append(codeMirrorDiv); // Append the div to the container
+    
+    // Initialize CodeMirror on the div
+    let myCodeMirror = CodeMirror(codeMirrorDiv, {
+      lineNumbers: true,
+      mode: 'javascript',
+      extraKeys: {"Ctrl-Space": "autocomplete"},
+      value: componentState.label,
+    });
+  });
+  myLayout.init();
+}
+
+
+buildLayout();
 main();
+setUpCodeMirror();

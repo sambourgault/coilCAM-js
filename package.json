@@ -17,6 +17,7 @@
     "@codemirror/state": "^6.2.0",
     "@codemirror/view": "^6.9.2",
     "@flatten-js/core": "^1.5.1",
+    "jquery": "^3.7.1",
     "parcel-bundler": "^1.12.5"
   },
   "devDependencies": {
