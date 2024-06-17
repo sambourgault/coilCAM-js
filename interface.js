@@ -9,6 +9,12 @@ function degToRad(d) {
   return d * Math.PI / 180;
 }
 
+async function getExampleVessel(){
+  var response = await fetch('example_vessels/CoilCAM_SimpleVessel.js');
+  var data = await response.text();
+  return data;
+}
+
 let path = [];
 let updatedPath = false;
 var t = [0, -50, -500];
@@ -47,7 +53,6 @@ function createProgram(gl, vertexShader, fragmentShader) {
   gl.deleteProgram(program);
 }
 
-
 function main() {
   // Get A WebGL context
   var canvas = document.querySelector("#canvas");
@@ -55,7 +60,6 @@ function main() {
   if (!gl) {
     return;
   }
-  canvas.addEventListener('wheel', handleScroll);
 
   // from webgl tutorials
   // setup GLSL program
@@ -83,18 +87,7 @@ function main() {
   var cameraAngleRadians = degToRad(0);
   var fieldOfViewRadians = degToRad(30);
 
-    //better ui for webgl
-  function handleScroll(event) {
-    const zoomSpeed = 0.02;
-    if (event.deltaY < 0) {
-      fieldOfViewRadians -= zoomSpeed;
-    } else { 
-      fieldOfViewRadians += zoomSpeed;
-    }
-    drawScene();
-  }
-  canvas.addEventListener("wheel", handleScroll);
-
+  
 
   //console.log(document.getElementById('canvas').width)
   //var translation = [document.getElementById('canvas').width, 500, 0];
@@ -114,18 +107,18 @@ function main() {
     drawScene();
   }*/
 
-  // Setup a ui.
-  console.log("max:", gl.canvas.height);
-  webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), min: -gl.canvas.width, max: gl.canvas.width });
-  webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), min:-gl.canvas.height/2, max: gl.canvas.height/2});
-  webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -1000, max: 0});
-  // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
-  webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
-  webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
-  webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
-  webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
-  webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
-  webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 10, step: 0.01, precision: 2});
+  // // Setup a ui.
+  // console.log("max:", gl.canvas.height);
+  // webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), min: -gl.canvas.width, max: gl.canvas.width });
+  // webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), min:-gl.canvas.height/2, max: gl.canvas.height/2});
+  // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -1000, max: 0});
+  // // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
+  // webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
+  // webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
+  // webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
+  // webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
+  // webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
+  // webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 10, step: 0.01, precision: 2});
 
   
   if (updatedPath){
@@ -200,23 +193,15 @@ function main() {
     }
   });
 
-  canvas.addEventListener('contextmenu', (event) => {
-    if (isDragging) {
-      let deltaX = event.clientX - lastX;
-      let deltaY = event.clientY - lastY;
-      translation[0] += deltaX;
-      translation[1] -= deltaY;
-
-      // let factor = 1/75; // Rotation sensitivity
-      // rotation[0] += deltaY * factor;
-      // rotation[2] += deltaX * factor;
-
-      drawScene();
-      lastX = event.clientX;
-      lastY = event.clientY;
+  canvas.addEventListener("wheel", (event) => { //zoom
+    const zoomSpeed = 0.03;
+    if (event.deltaY < 0) {
+      fieldOfViewRadians -= zoomSpeed;
+    } else { 
+      fieldOfViewRadians += zoomSpeed;
     }
+    drawScene();
   });
-
 
   canvas.addEventListener('mouseup', () => {
     isDragging = false;
@@ -301,7 +286,7 @@ function main() {
       var offset = 0;
       var count = path.length/3;
       // gl.drawArrays(primitiveType, offset, count);
-      gl.drawArrays(primitiveType, offset+18, count);
+      gl.drawArrays(primitiveType, offset+22, count);
     }
 
     // Draw the base.
@@ -311,7 +296,7 @@ function main() {
 
     // Draw the guidelines. (inspired by p5.js)
     gl.uniform4f(fColorLocation, 0.9, 0.9, 0.9, 1.0); // Set uniform variable for color to gray
-    gl.drawArrays(gl.LINE_STRIP, 6, 18); //next 12 vertices will be drawn as lines (base)
+    gl.drawArrays(gl.LINES, 6, 22); //next 16 vertices will be drawn as lines (base)
     
     
   }
@@ -630,24 +615,34 @@ function addPrinterGuidelines(){
   let potterbot_bedSize = [280, 265, 305]; //default
   let bedXOffset = potterbot_bedSize[0]/2
   let bedYOffset = potterbot_bedSize[1]/2;
+  let bedZoffset = -0.2;
   let printer_guidelines = [
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
 
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 + potterbot_bedSize[2],
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
 
-  ] //12 points total
+    
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+  ] //16 points total
   return printer_guidelines;
 }
 
@@ -666,30 +661,39 @@ function setUpCodeMirror(){
   let textArea, textArea2;
   let myCodeMirror;
   let consoleCodeMirror;
-  let codeDiv, codeDivHeader, runButton, h2;
-  let codeDiv2, codeDivHeader2, clearButton, h2_2;
-  let saveButton, saveName;
 
   // code editor: https://www.youtube.com/watch?v=C3fNuqQeUdY&t=1004s
   //code editor
   textArea = document.getElementById("editor");
   textArea.className = 'codemirror_textarea';
   textArea.style.marginLeft = 20+'px';
-  textArea.style.width = 90+'%';
+  textArea.style.width = 140+'%';
   textArea.style.height = 200+'px';
+  // textArea.value = '// Write your code here'; //text
+  // console.log(getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => console.log(res)));
+  // textArea.value = getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => res.toString());
+  
+  getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js')
+  .then(res => {
+    textArea.value = res.toString();
+  })
+  .catch(err => {
+    console.error('Error:', err);
+  });
   
   // configs
   myCodeMirror = CodeMirror.fromTextArea(textArea, {
     lineNumbers: true,
     mode: 'javascript',
-    extraKeys: {"Ctrl-Space": "autocomplete"}
+    extraKeys: {"Ctrl-Space": "autocomplete"},
   }); 
+
   
   // code editor console
   textArea2 = document.getElementById("console");
   textArea2.className = 'codemirror_textarea';
   textArea2.style.marginLeft = 20+'px';
-  textArea2.style.width = 90+'%';
+  textArea2.style.width = 140+'%';
   textArea2.style.height = 200+'px';
 
   // configs

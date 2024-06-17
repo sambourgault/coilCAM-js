@@ -3,6 +3,10 @@
 <html>
 <!--<script src="https://greggman.github.io/webgl-lint/webgl-lint.js"></script>
 -->
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js">
+</script>
+
 <link rel="stylesheet" href="style-interface.css">
 <script src="codemirror-5.65.13/lib/codemirror.js"></script>
   <link rel="stylesheet" href="codemirror-5.65.13/lib/codemirror.css">
@@ -13,39 +17,27 @@
 
 <body>
 
-<h1>coilCAM-js</h1>
+<h1>coilCAM-js
+  <button type="button" id="b_run">run</button> 
+  <button type="button">save</button> 
+  <button type="button">upload</button>
+  <div class="dropdown">
+    <button class="dropbutton">examples</button>
+    <div class="dropdown-content">
+      <a href="#">demo vase</a>
+      <a href="#">demo cup</a>
+      <a href="#">demo plate</a>
+    </div>
+  </div>
+  
+</h1>
 
 
 <div class="grid-container">
 
   <div class="grid-child purple">
-    <button type="button" id="b_run">run</button>
-    <button type="button" id="b_save">save</button>
-
       <div class="codediv" id = 'code1'>
-        <textarea id = "editor">// DEFAULT EXAMPLE
-      // POTTERBOT CONFIG
-      var potterbot_printSpeed = 30;
-      var potterbot_nozzleDiameter = 5.0;
-      var potterbot_layerHeight = 4.8;
-      var potterbot_extrusionMultiplier = 1.0;
-      var potterbot_bedSize = [280, 265, 305];
-      
-      
-      // VESSEL PARAMETERS
-      var nbLayers = 30;
-      var nbPointsInLayer = 6;
-      var vesselRadius = 40;
-      var position = [0, 0, potterbot_layerHeight*1.5];
-      var scalingParameter = sinusoidal(10, 40, 0.3, nbLayers, 0, "");
-      var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], []);
-      var b = base(position, vessel, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
-      var toolpath = b.concat(spiralize(vessel, potterbot_layerHeight));
-      updatePath(toolpath);
-      
-      // GENERATE GCODE
-      //var gcode_string = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_printSpeed);
-      // downloadGCode(gcode_string, "simple_vessel.gcode"); </textarea>
+        <textarea id = "editor"></textarea>
       </div>
       <div class="codediv" id = 'console1'>
         <textarea id = "console"></textarea>
@@ -58,7 +50,7 @@
 
   </div>
 
-  <div class="grid-child blue">
+  <!-- <div class="grid-child blue">
     <div id="uiContainer">
       <div id="ui">
         <div id="x" class="sliders"></div>
@@ -67,12 +59,9 @@
         <div id="angleX" class="sliders"></div>
         <div id="angleY" class="sliders"></div>
         <div id="angleZ" class="sliders"></div>
-        <!--<div id="scaleX" class="sliders"></div>
-        <div id="scaleY" class="sliders"></div>
-        <div id="scaleZ" class="sliders"></div>-->
       </div>
     </div>
-</div>
+</div> -->
 </div>
 
 <!-- load txt -->
