@@ -18,14 +18,16 @@ async function getExampleVessel(){
 }
 
 let path = [];
+let basePath = [];
 let updatedPath = false;
-var t = [0, -50, -500];
-var r = [degToRad(-45), degToRad(0), degToRad(0)];
+var initialTranslation = [0, -50, -700];
+var initialRotation = [degToRad(-45), degToRad(0), degToRad(10)];
+var initialFieldOfView = degToRad(40);
 
 function updatePath(newPath){
   updatedPath = true;
   path = newPath;
-  main(t,r);
+  main(initialTranslation,initialRotation, initialFieldOfView);
 }
 
 function createShader(gl, type, source) {
@@ -58,10 +60,12 @@ function createProgram(gl, vertexShader, fragmentShader) {
 function main() {
   // Get A WebGL context
   var canvas = document.querySelector("#canvas");
+  console.log(canvas);
   var gl = canvas.getContext("webgl");
   if (!gl) {
     return;
   }
+  console.log("gl:::", gl);
 
   // from webgl tutorials
   // setup GLSL program
@@ -87,9 +91,10 @@ function main() {
   setPath(gl, path);
 
   var cameraAngleRadians = degToRad(0);
-  var fieldOfViewRadians = degToRad(30);
-  var translation = t;
-  var rotation = r;
+  var fieldOfViewRadians = initialFieldOfView;
+  // var fieldOfViewRadians = degToRad(30);
+  var translation = initialTranslation;
+  var rotation = initialRotation;
   var scale = [1, 1, 1];
   var color = [Math.random(), Math.random(), Math.random(), 1];
 
@@ -117,6 +122,7 @@ function main() {
       let deltaY = event.clientY - lastY;
       translation[0] += deltaX;
       translation[1] -= deltaY;
+      // initialTranslation = translation;
       drawScene();
       lastX = event.clientX;
       lastY = event.clientY;
@@ -149,6 +155,7 @@ function main() {
     } else { 
       fieldOfViewRadians += zoomSpeed;
     }
+    initialFieldOfView = fieldOfViewRadians;
     drawScene();
   });
 
@@ -160,6 +167,7 @@ function main() {
     isDragging = false;
   });
 
+  console.log("gl", gl);
 
   // Draw the scene.
   function drawScene() {
@@ -594,8 +602,8 @@ function addPrinterGuidelines(){
 
 function setPath(gl, path) {
   // path = path.concat(addBasePath());
-  base = addBasePath().concat(addPrinterGuidelines()); //16 extra points
-  path = base.concat(path);
+  basePath = addBasePath().concat(addPrinterGuidelines()); //16 extra points
+  path = basePath.concat(path);
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array(path),
@@ -662,132 +670,27 @@ function setUpCodeMirror(){
     }
   }
 
-  document.getElementById("b_save").addEventListener("click", saveCode);
-  function saveCode(){
-    // let content = myCodeMirror.getValue();
-    // var content = document.getElementById("textArea").value;
-    var editor = CodeMirror.fromTextArea(document.getElementById("textArea"), {styleActiveLine: true});
-    var content = editor.doc.getValue();
-    content = content.replace(/\n/g, "\r\n"); // To retain the Line breaks.
-    let blob = new Blob([content], { type: "text/plain"});
-    let filename = "code.txt";
-    let anchor = document.createElement("a");
-    anchor.download = filename;
-    anchor.innerHTML = "Download File";
-    window.URL = window.URL || window.webkitURL;
-    anchor.href = window.URL.createObjectURL(blob);
-    // anchor.target ="_blank";
-    anchor.style.display = "none"; // just to be safe!
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-  }
+  // document.getElementById("b_save").addEventListener("click", saveCode);
+  // function saveCode(){
+  //   // let content = myCodeMirror.getValue();
+  //   // var content = document.getElementById("textArea").value;
+  //   var editor = CodeMirror.fromTextArea(document.getElementById("textArea"), {styleActiveLine: true});
+  //   var content = editor.doc.getValue();
+  //   content = content.replace(/\n/g, "\r\n"); // To retain the Line breaks.
+  //   let blob = new Blob([content], { type: "text/plain"});
+  //   let filename = "code.txt";
+  //   let anchor = document.createElement("a");
+  //   anchor.download = filename;
+  //   anchor.innerHTML = "Download File";
+  //   window.URL = window.URL || window.webkitURL;
+  //   anchor.href = window.URL.createObjectURL(blob);
+  //   // anchor.target ="_blank";
+  //   anchor.style.display = "none"; // just to be safe!
+  //   document.body.appendChild(anchor);
+  //   anchor.click();
+  //   document.body.removeChild(anchor);
+  // }
 }
-
-// function buildEditor(){
-//   let textArea;
-//   let myCodeMirror;
-
-//   // code editor: https://www.youtube.com/watch?v=C3fNuqQeUdY&t=1004s
-//   //code editor
-//   textArea = document.getElementById("editor");
-//   textArea.className = 'codemirror_textarea';
-//   textArea.style.marginLeft = 20+'px';
-//   textArea.style.width = 140+'%';
-//   textArea.style.height = 200+'px';
-//   textArea.value = '// Write your code here'; //text
-//   console.log(getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => console.log(res)));
-//   textArea.value = getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => res.toString());
-  
-//   getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js')
-//   .then(res => {
-//     textArea.value = res.toString();
-//   })
-//   .catch(err => {
-//     console.error('Error:', err);
-//   });
-  
-
-//   container.CodeMirror = CodeMirror(none, {
-//     lineNumbers: true,
-//     mode: 'javascript',
-//     extraKeys: {"Ctrl-Space": "autocomplete"},
-//   });
-
-//   // // configs (old ver)
-//   // myCodeMirror = CodeMirror.fromTextArea(textArea, {
-//   //   lineNumbers: true,
-//   //   mode: 'javascript',
-//   //   extraKeys: {"Ctrl-Space": "autocomplete"},
-//   // }); 
-//   // return myCodeMirror;
-// }
-
-
-
-// // //using goldenlayout
-// // function buildLayout(){
-// //   var config = {
-// //     content: [{
-// //         type: 'row',
-// //         content:[{
-// //           type: 'column',
-// //           content:[{
-// //               type: 'component',
-// //               componentName: 'editor',
-// //               componentState: { label: '' },
-// //           },{
-// //               type: 'component',
-// //               componentName: 'console',
-// //               componentState: { label: 'C (console)' }
-// //           }]}, {
-// //           type: 'component',
-// //           componentName: 'viewer',
-// //           componentState: { label: 'A (viewer)' }
-// //       }]
-// //     }]
-// //   };
-// //   var myLayout = new GoldenLayout(config, document.getElementById('golden-layout'));
-
-// //   myLayout.registerComponent('viewer', function(container, componentState){
-// //     container.getElement().html('<h2>' + componentState.label + '</h2>');
-// //   });
-
-
-
-
-// //   myLayout.registerComponent('console', function(container, componentState){
-// //     // Create a new div element for CodeMirror
-// //     let codeMirrorDiv = document.createElement('div');
-// //     codeMirrorDiv.id = 'code-mirror-editor'; // Assign an id for easy reference
-// //     container.getElement().append(codeMirrorDiv); // Append the div to the container
-    
-// //     // Initialize CodeMirror on the div
-// //     let myCodeMirror = CodeMirror(codeMirrorDiv, {
-// //       mode: 'javascript',
-// //     });
-// //    });
-
-
-
-
-
-// //   myLayout.registerComponent('editor', function(container, componentState){
-// //     // Create a new div element for CodeMirror
-// //     let codeMirrorDiv = document.createElement('div');
-// //     codeMirrorDiv.id = 'code-mirror-editor'; // Assign an id for easy reference
-// //     container.getElement().append(codeMirrorDiv); // Append the div to the container
-    
-// //     // Initialize CodeMirror on the div
-// //     let myCodeMirror = CodeMirror(codeMirrorDiv, {
-// //       lineNumbers: true,
-// //       mode: 'javascript',
-// //       extraKeys: {"Ctrl-Space": "autocomplete"},
-// //       value: componentState.label,
-// //     });
-// //   });
-// //   myLayout.init();
-// // }
 
 setUpCodeMirror();
 main();
