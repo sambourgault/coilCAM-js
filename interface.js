@@ -1,6 +1,8 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
+// import Split from 'split-grid'
+
 function radToDeg(r) {
   return r * 180 / Math.PI;
 }
@@ -682,112 +684,111 @@ function setUpCodeMirror(){
   }
 }
 
-function buildEditor(){
-  let textArea;
-  let myCodeMirror;
+// function buildEditor(){
+//   let textArea;
+//   let myCodeMirror;
 
-  // code editor: https://www.youtube.com/watch?v=C3fNuqQeUdY&t=1004s
-  //code editor
-  textArea = document.getElementById("editor");
-  textArea.className = 'codemirror_textarea';
-  textArea.style.marginLeft = 20+'px';
-  textArea.style.width = 140+'%';
-  textArea.style.height = 200+'px';
-  textArea.value = '// Write your code here'; //text
-  console.log(getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => console.log(res)));
-  textArea.value = getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => res.toString());
+//   // code editor: https://www.youtube.com/watch?v=C3fNuqQeUdY&t=1004s
+//   //code editor
+//   textArea = document.getElementById("editor");
+//   textArea.className = 'codemirror_textarea';
+//   textArea.style.marginLeft = 20+'px';
+//   textArea.style.width = 140+'%';
+//   textArea.style.height = 200+'px';
+//   textArea.value = '// Write your code here'; //text
+//   console.log(getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => console.log(res)));
+//   textArea.value = getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => res.toString());
   
-  getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js')
-  .then(res => {
-    textArea.value = res.toString();
-  })
-  .catch(err => {
-    console.error('Error:', err);
-  });
-  
-
-  container.CodeMirror = CodeMirror(none, {
-    lineNumbers: true,
-    mode: 'javascript',
-    extraKeys: {"Ctrl-Space": "autocomplete"},
-  });
-
-  // // configs (old ver)
-  // myCodeMirror = CodeMirror.fromTextArea(textArea, {
-  //   lineNumbers: true,
-  //   mode: 'javascript',
-  //   extraKeys: {"Ctrl-Space": "autocomplete"},
-  // }); 
-  // return myCodeMirror;
-}
-
-
-
-//using goldenlayout
-function buildLayout(){
-  var config = {
-    content: [{
-        type: 'row',
-        content:[{
-          type: 'column',
-          content:[{
-              type: 'component',
-              componentName: 'editor',
-              componentState: { label: '' },
-          },{
-              type: 'component',
-              componentName: 'console',
-              componentState: { label: 'C (console)' }
-          }]}, {
-          type: 'component',
-          componentName: 'viewer',
-          componentState: { label: 'A (viewer)' }
-      }]
-    }]
-  };
-  var myLayout = new GoldenLayout(config, document.getElementById('golden-layout'));
-
-  myLayout.registerComponent('viewer', function(container, componentState){
-    container.getElement().html('<h2>' + componentState.label + '</h2>');
-  });
-
-
+//   getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js')
+//   .then(res => {
+//     textArea.value = res.toString();
+//   })
+//   .catch(err => {
+//     console.error('Error:', err);
+//   });
   
 
-  myLayout.registerComponent('console', function(container, componentState){
-    // Create a new div element for CodeMirror
-    let codeMirrorDiv = document.createElement('div');
-    codeMirrorDiv.id = 'code-mirror-editor'; // Assign an id for easy reference
-    container.getElement().append(codeMirrorDiv); // Append the div to the container
+//   container.CodeMirror = CodeMirror(none, {
+//     lineNumbers: true,
+//     mode: 'javascript',
+//     extraKeys: {"Ctrl-Space": "autocomplete"},
+//   });
+
+//   // // configs (old ver)
+//   // myCodeMirror = CodeMirror.fromTextArea(textArea, {
+//   //   lineNumbers: true,
+//   //   mode: 'javascript',
+//   //   extraKeys: {"Ctrl-Space": "autocomplete"},
+//   // }); 
+//   // return myCodeMirror;
+// }
+
+
+
+// // //using goldenlayout
+// // function buildLayout(){
+// //   var config = {
+// //     content: [{
+// //         type: 'row',
+// //         content:[{
+// //           type: 'column',
+// //           content:[{
+// //               type: 'component',
+// //               componentName: 'editor',
+// //               componentState: { label: '' },
+// //           },{
+// //               type: 'component',
+// //               componentName: 'console',
+// //               componentState: { label: 'C (console)' }
+// //           }]}, {
+// //           type: 'component',
+// //           componentName: 'viewer',
+// //           componentState: { label: 'A (viewer)' }
+// //       }]
+// //     }]
+// //   };
+// //   var myLayout = new GoldenLayout(config, document.getElementById('golden-layout'));
+
+// //   myLayout.registerComponent('viewer', function(container, componentState){
+// //     container.getElement().html('<h2>' + componentState.label + '</h2>');
+// //   });
+
+
+
+
+// //   myLayout.registerComponent('console', function(container, componentState){
+// //     // Create a new div element for CodeMirror
+// //     let codeMirrorDiv = document.createElement('div');
+// //     codeMirrorDiv.id = 'code-mirror-editor'; // Assign an id for easy reference
+// //     container.getElement().append(codeMirrorDiv); // Append the div to the container
     
-    // Initialize CodeMirror on the div
-    let myCodeMirror = CodeMirror(codeMirrorDiv, {
-      mode: 'javascript',
-    });
-   });
+// //     // Initialize CodeMirror on the div
+// //     let myCodeMirror = CodeMirror(codeMirrorDiv, {
+// //       mode: 'javascript',
+// //     });
+// //    });
 
 
 
 
 
-  myLayout.registerComponent('editor', function(container, componentState){
-    // Create a new div element for CodeMirror
-    let codeMirrorDiv = document.createElement('div');
-    codeMirrorDiv.id = 'code-mirror-editor'; // Assign an id for easy reference
-    container.getElement().append(codeMirrorDiv); // Append the div to the container
+// //   myLayout.registerComponent('editor', function(container, componentState){
+// //     // Create a new div element for CodeMirror
+// //     let codeMirrorDiv = document.createElement('div');
+// //     codeMirrorDiv.id = 'code-mirror-editor'; // Assign an id for easy reference
+// //     container.getElement().append(codeMirrorDiv); // Append the div to the container
     
-    // Initialize CodeMirror on the div
-    let myCodeMirror = CodeMirror(codeMirrorDiv, {
-      lineNumbers: true,
-      mode: 'javascript',
-      extraKeys: {"Ctrl-Space": "autocomplete"},
-      value: componentState.label,
-    });
-  });
-  myLayout.init();
-}
+// //     // Initialize CodeMirror on the div
+// //     let myCodeMirror = CodeMirror(codeMirrorDiv, {
+// //       lineNumbers: true,
+// //       mode: 'javascript',
+// //       extraKeys: {"Ctrl-Space": "autocomplete"},
+// //       value: componentState.label,
+// //     });
+// //   });
+// //   myLayout.init();
+// // }
 
-
-buildLayout();
-main();
 setUpCodeMirror();
+main();
+buildLayout();

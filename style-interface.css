@@ -1,6 +1,12 @@
 @import url("https://webglfundamentals.org/webgl/resources/webgl-tutorials.css");
+
+html{
+  height: 100%;
+}
 body {
   margin: 0;
+  height: 100%;
+  padding: 0%;
   background-color: rgb(235, 235, 235);
 }
 canvas {
@@ -76,8 +82,6 @@ button{
 }
 
 
-
-
 button{
   margin-left: 20px;
   margin-bottom: 20px;
@@ -134,3 +138,65 @@ textarea{
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropbtn {background-color: #3e8e41;}
+
+
+.CC-header{
+  height: 10%;
+}
+
+.gutter {
+  height: 100%;
+  width: 100%;
+  background: red;
+  cursor: col-resize;
+}
+
+.cell{
+  background-color: teal;
+}
+
+.split {
+  width: 100%;
+  height: 600px;
+  height: 100%;
+  display: flex;
+  background-color: pink;
+  justify-items:center;
+  align-items: center;
+  position: relative;
+}
+
+/* webgl viewer */
+.split-window { 
+  width: 100%;
+  background: purple;
+  height: 100%;
+  padding: 10px;
+}
+.split-editors{
+  background-color: turquoise;
+  width: 100%;
+  height: 100%;
+}
+/* codemirror */
+.split-editor {
+  width: 100%;
+  background: green;
+  height: 100%;
+  padding: 10px;
+}
+.split-console {
+  width: 100%;
+  background: orange;
+  height: 100%;
+  padding: 10px;
+}
+
+/* .CC-header{
+  background-color: #f1f1f1;
+  padding: 20px;
+  text-align: center;
+  font-size: 30px;
+  height: 10%;
+} */
+ 
