@@ -27,15 +27,17 @@ async function getExampleVessel(file){
 }
 
 let path = []; //toolpath for vessel
-let basePath = []; //toolpath for bed
+let referencePath = []; //reference layer (optional)
+let bedPath = []; //toolpath for bed
 let updatedPath = true;
 var initialTranslation = [0, -50, -700];
 var initialRotation = [degToRad(-45), degToRad(0), degToRad(10)];
 var initialFieldOfView = degToRad(40);
 
-function updatePath(newPath){
+function updatePath(newPath, refPath=[]){
   updatedPath = true;
   path = newPath;
+  referencePath = refPath;
   main(initialTranslation,initialRotation, initialFieldOfView);
 }
 
@@ -97,7 +99,7 @@ function main() {
 
   // Put geometry data into buffer
   //setGeometry(gl);
-  setPath(gl, path);
+  setPath(gl, path, referencePath);
 
   var cameraAngleRadians = degToRad(0);
   var fieldOfViewRadians = initialFieldOfView;
@@ -126,6 +128,17 @@ function main() {
     
   });
 
+  //prevent warping in the split window when window resized
+  window.addEventListener("resize", (event) => { 
+    drawScene();
+  });
+  const canvasResizeObserver = new ResizeObserver((entries) => {
+    for (let entry of entries){
+      drawScene();
+    }
+  });
+  canvasResizeObserver.observe(document.getElementById("canvas"));
+  
   canvas.addEventListener("contextmenu", (event) => { //right click
     if (isDragging) {
       let deltaX = event.clientX - lastX;
@@ -231,36 +244,25 @@ function main() {
     // Set the matrix.
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
-    // Set the color.
+    // Set the color/vars.
     var fColorLocation = gl.getUniformLocation(program, "fColor");
+    var primitiveType = gl.LINE_STRIP;
+    var offset = 22;
+
+    // vessel
     gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
+    gl.drawArrays(primitiveType, offset + referencePath.length/3, path.length/3);
 
-    // Draw the toolpath.
-    if(Array.isArray(path[0])){ //multiple vessels
-      var primitiveType = gl.LINE_STRIP;
-      let path_lengths = path[0].map(array => array.length);
-
-      let points_printed = 0;
-      for(let pl of path_lengths){
-        gl.drawArrays(primitiveType, points_printed, pl/3);
-        points_printed += (pl-1)/3;
-      }
-    } else{ //single toolpath
-      var primitiveType = gl.LINE_STRIP;
-      var offset = 0;
-      var count = path.length/3;
-      // gl.drawArrays(primitiveType, offset, count);
-      gl.drawArrays(primitiveType, offset+22, count);
-    }
-
-    gl.lineWidth(5);
+    // reference path
+    gl.uniform4f(fColorLocation, 0.5, 0.6, 1.0, 1.0); // Set reference layer as light blue
+    gl.drawArrays(primitiveType, offset, referencePath.length/3);
  
     // // Draw the guidelines.
-    gl.uniform4f(fColorLocation, 0.9, 0.2, 0.9, 1.0); // Set uniform variable for color to gray
+    gl.uniform4f(fColorLocation, 0.9, 0.9, 0.9, 1.0); // Set bed lines as light gray
     gl.drawArrays(gl.LINES, 6, 16); //next 16 vertices will be drawn as lines (base)
 
        // Draw the base.
-    gl.uniform4f(fColorLocation, 0.7, 0.7, 0.7, 1.0); // Set uniform variable for color to gray
+    gl.uniform4f(fColorLocation, 0.7, 0.7, 0.7, 1.0); // Set bed color as gray
     gl.drawArrays(gl.TRIANGLES, 0, 6); //first 6 vertices will be drawn as triangles (base)
     
   }
@@ -559,7 +561,7 @@ function setGeometry(gl) {
       gl.STATIC_DRAW);
 }
 
-function addBasePath(){
+function addBedPath(){
   let potterbot_bedSize = [280, 265, 305]; //default
   let bedXOffset = potterbot_bedSize[0]/2
   let bedYOffset = potterbot_bedSize[1]/2;
@@ -610,11 +612,19 @@ function addPrinterGuidelines(){
   return printer_guidelines;
 }
 
-function setPath(gl, path) {
+function setPath(gl, path, referencePath) {
   // path = path.concat(addBasePath());
-  basePath = addBasePath().concat(addPrinterGuidelines()); //16 extra points
-  console.log("base path", basePath);
-  path = basePath.concat(path);
+  bedPath = addBedPath().concat(addPrinterGuidelines()); //16 extra points
+  console.log("refpath", referencePath);
+  if(referencePath != undefined){
+    path = bedPath.concat(referencePath).concat(path);
+    console.log('path', path);
+  } else{
+    path = bedPath.concat(path);
+  }
+
+
+  // path = bedPath.concat(path);
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array(path),
@@ -632,7 +642,7 @@ function setUpCodeMirror(){
   textArea.className = 'codemirror_textarea';
 
   // configs
-  var pathToVessel = 'example_vessels/CoilCAM_SimpleVessel.js'; //name of vessel to be loaded as default
+  var pathToVessel = 'example_vessels/current_test.js'; //name of vessel to be loaded as default
   editorCodeMirror = CodeMirror.fromTextArea(textArea, {
     lineNumbers: true,
     mode: 'javascript',
@@ -710,6 +720,7 @@ function setUpCodeMirror(){
   //   anchor.click();
   //   document.body.removeChild(anchor);
   // }
+  
 }
 
 main();
