@@ -1,8 +1,6 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
-// import Split from 'split-grid'
-
 function radToDeg(r) {
   return r * 180 / Math.PI;
 }
@@ -10,16 +8,27 @@ function radToDeg(r) {
 function degToRad(d) {
   return d * Math.PI / 180;
 }
+// async function getExampleVessel() {
+//   const myRequest = new Request('example_vessels/CoilCAM_SimpleVessel.js');
+//   fetch(myRequest).then((response) => response.text());
+//   return response;
+// }
 
-async function getExampleVessel(){
-  var response = await fetch('example_vessels/CoilCAM_SimpleVessel.js');
-  var data = await response.text();
-  return data;
+async function getExampleVessel(file){
+  try{
+    var response = await fetch(file);
+    if(response.ok){
+      var data = await response.text();
+      return data;
+    } 
+  } catch(error){
+    console.error('Error fetching file:', error);
+  }
 }
 
-let path = [];
-let basePath = [];
-let updatedPath = false;
+let path = []; //toolpath for vessel
+let basePath = []; //toolpath for bed
+let updatedPath = true;
 var initialTranslation = [0, -50, -700];
 var initialRotation = [degToRad(-45), degToRad(0), degToRad(10)];
 var initialFieldOfView = degToRad(40);
@@ -61,7 +70,7 @@ function main() {
   // Get A WebGL context
   var canvas = document.querySelector("#canvas");
   console.log(canvas);
-  var gl = canvas.getContext("webgl");
+  var gl = canvas.getContext("webgl", { depth: true });
   if (!gl) {
     return;
   }
@@ -114,6 +123,7 @@ function main() {
     lastX = event.clientX;
     lastY = event.clientY;
     lastZ = event.clientZ;
+    
   });
 
   canvas.addEventListener("contextmenu", (event) => { //right click
@@ -167,8 +177,6 @@ function main() {
     isDragging = false;
   });
 
-  console.log("gl", gl);
-
   // Draw the scene.
   function drawScene() {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
@@ -179,7 +187,7 @@ function main() {
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // disable culling
+    // disable culling so that the base is double-sided
     // gl.enable(gl.CULL_FACE);
 
     // Enable the depth buffer
@@ -245,14 +253,16 @@ function main() {
       gl.drawArrays(primitiveType, offset+22, count);
     }
 
-    // Draw the base.
+    gl.lineWidth(5);
+ 
+    // // Draw the guidelines.
+    gl.uniform4f(fColorLocation, 0.9, 0.2, 0.9, 1.0); // Set uniform variable for color to gray
+    gl.drawArrays(gl.LINES, 6, 16); //next 16 vertices will be drawn as lines (base)
+
+       // Draw the base.
     gl.uniform4f(fColorLocation, 0.7, 0.7, 0.7, 1.0); // Set uniform variable for color to gray
     gl.drawArrays(gl.TRIANGLES, 0, 6); //first 6 vertices will be drawn as triangles (base)
     
-
-    // Draw the guidelines. (inspired by p5.js)
-    gl.uniform4f(fColorLocation, 0.9, 0.9, 0.9, 1.0); // Set uniform variable for color to gray
-    gl.drawArrays(gl.LINES, 6, 22); //next 16 vertices will be drawn as lines (base)
   }
 }
 
@@ -553,15 +563,15 @@ function addBasePath(){
   let potterbot_bedSize = [280, 265, 305]; //default
   let bedXOffset = potterbot_bedSize[0]/2
   let bedYOffset = potterbot_bedSize[1]/2;
+
   let base_vertices = [
     potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
     -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
     potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2
-    
-  ]
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 
+  ] //2 triangles, 6 points total
   return base_vertices;
 }
 
@@ -603,6 +613,7 @@ function addPrinterGuidelines(){
 function setPath(gl, path) {
   // path = path.concat(addBasePath());
   basePath = addBasePath().concat(addPrinterGuidelines()); //16 extra points
+  console.log("base path", basePath);
   path = basePath.concat(path);
   gl.bufferData(
     gl.ARRAY_BUFFER,
@@ -612,35 +623,24 @@ function setPath(gl, path) {
 
 function setUpCodeMirror(){
   let textArea, textArea2;
-  let myCodeMirror;
+  let editorCodeMirror;
   let consoleCodeMirror;
 
   // code editor: https://www.youtube.com/watch?v=C3fNuqQeUdY&t=1004s
   //code editor
   textArea = document.getElementById("editor");
   textArea.className = 'codemirror_textarea';
-  textArea.style.marginLeft = 20+'px';
-  textArea.style.width = 140+'%';
-  textArea.style.height = 200+'px';
-  // textArea.value = '// Write your code here'; //text
-  // console.log(getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => console.log(res)));
-  // textArea.value = getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js').then((res) => res.toString());
-  
-  getExampleVessel('example_vessels/CoilCAM_SimpleVessel.js')
-  .then(res => {
-    textArea.value = res.toString();
-  })
-  .catch(err => {
-    console.error('Error:', err);
-  });
-  
+
   // configs
-  myCodeMirror = CodeMirror.fromTextArea(textArea, {
+  var pathToVessel = 'example_vessels/CoilCAM_SimpleVessel.js'; //name of vessel to be loaded as default
+  editorCodeMirror = CodeMirror.fromTextArea(textArea, {
     lineNumbers: true,
     mode: 'javascript',
     extraKeys: {"Ctrl-Space": "autocomplete"},
   }); 
-
+  editorCodeMirror.setSize("100%", "100%");
+  getExampleVessel(pathToVessel) 
+    .then(text => {console.log("File Contents:", editorCodeMirror.setValue(text))});
   
   // code editor console
   textArea2 = document.getElementById("console");
@@ -654,14 +654,34 @@ function setUpCodeMirror(){
     lineNumbers: true,
     mode: 'javascript'
     //extraKeys: {"Ctrl-Space":"autocomplete"}
-    
   });
+  consoleCodeMirror.setSize("100%", "100%");
 
-  // buttons
+
+  
+  //dropdown menu
+  const exampleVessels={  //list of all examples
+    "example-cup":["example_vessels/CoilCAM_BooleanDemoCupV1.js"], 
+    "example-vase":["example_vessels/CoilCAM_BooleanDemoDish.js"], 
+    "example-plate":["example_vessels/CoilCAM_BumpsDish.js"]
+  };
+
+  for (let buttonID in exampleVessels){
+    (function () {
+    console.log(buttonID);
+    document.getElementById(buttonID).addEventListener("click", function() {
+        let newText = getExampleVessel(exampleVessels[buttonID])
+          .then(text => {console.log("File Contents:", editorCodeMirror.setValue(text))});
+        editorCodeMirror.setValue(getExampleVessel(newText));
+      });
+    }());
+  }
+
+
   document.getElementById("b_run").addEventListener("click", runCode);
 
   function runCode() {
-    const codeToRun = myCodeMirror.getValue();
+    const codeToRun = editorCodeMirror.getValue();
     try {
       consoleCodeMirror.replaceRange(`$ `+eval(`${codeToRun}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
     }
@@ -692,6 +712,5 @@ function setUpCodeMirror(){
   // }
 }
 
-setUpCodeMirror();
 main();
-buildLayout();
+setUpCodeMirror();
