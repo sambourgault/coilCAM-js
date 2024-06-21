@@ -25,6 +25,7 @@ async function getExampleVessel(file){
 let path = []; //toolpath for vessel
 let referencePath = []; //reference layer (optional)
 let bedPath = []; //toolpath for bed
+let triangularizedPath = [];
 let updatedPath = true;
 var initialTranslation = [0, -50, -700];
 var initialRotation = [degToRad(-45), degToRad(0), degToRad(10)];
@@ -249,7 +250,7 @@ function main() {
     console.log("lengths:");
     console.log(referencePath.length);
     console.log(path.length);
-    console.log("size currently:", ((path.length - referencePath.length*1.5)-offset)*1.5);
+    console.log("size currently:", path.length*1.5);
     // vessel
     gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
     gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5);
@@ -650,20 +651,22 @@ function triangularize(path){
 
 function setPath(gl, path, referencePath) {
   console.log("set path called");
+  triangularizedPath = [];
   bedPath = addBedPath().concat(addPrinterGuidelines()); //16 extra points
   // path = triangularize(path);
   // console.log("path length", path.length);
   if(referencePath.length != 0){
     // referencePath = triangularize(referencePath);
-    path = bedPath.concat(triangularize(referencePath)).concat(triangularize(path));
+    triangularizedPath = bedPath.concat(triangularize(referencePath)).concat(triangularize(path));
   } else{
-    path = bedPath.concat(triangularize(path));
+    triangularizedPath = bedPath.concat(triangularize(path));
   }
+  console.log("set path length", triangularizedPath.length);
   
 
   gl.bufferData(
     gl.ARRAY_BUFFER,
-    new Float32Array(path),
+    new Float32Array(triangularizedPath),
     gl.STATIC_DRAW);
 }
 
@@ -686,7 +689,7 @@ function setUpCodeMirror(){
   }); 
   editorCodeMirror.setSize("100%", "100%");
   getExampleVessel(pathToVessel) 
-    .then(text => {console.log("File Contents:", editorCodeMirror.setValue(text))});
+    .then(text => {editorCodeMirror.setValue(text)});
   
   // code editor console
   textArea2 = document.getElementById("console");
@@ -717,11 +720,43 @@ function setUpCodeMirror(){
     console.log(buttonID);
     document.getElementById(buttonID).addEventListener("click", function() {
         let newText = getExampleVessel(exampleVessels[buttonID])
-          .then(text => {console.log("File Contents:", editorCodeMirror.setValue(text))});
+          .then(text => {editorCodeMirror.setValue(text)});
         editorCodeMirror.setValue(getExampleVessel(newText));
       });
     }());
   }
+  
+
+  document.getElementById('b_upload').addEventListener('click', function() {
+    document.getElementById('file_input').click();
+  });
+  
+  document.getElementById('file_input').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+
+      const fileExtension = file.name.split('.').pop();
+      
+      if (fileExtension === 'txt') {
+        const reader = new FileReader();
+      
+        reader.onload = function(e) {
+          const contents = e.target.result;
+          editorCodeMirror.setValue(contents);
+          // You can process the file contents here
+        };
+        
+        reader.onerror = function(e) {
+          console.error('Error reading file:', e);
+        };
+        
+        reader.readAsText(file);
+      } else{
+        consoleCodeMirror.replaceRange(`$ `+(`${"File name must end with .txt"}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+      }
+    }
+  });
+
 
 
   document.getElementById("b_run").addEventListener("click", runCode);
@@ -736,26 +771,15 @@ function setUpCodeMirror(){
     }
   }
 
-  // document.getElementById("b_save").addEventListener("click", saveCode);
-  // function saveCode(){
-  //   // let content = myCodeMirror.getValue();
-  //   // var content = document.getElementById("textArea").value;
-  //   var editor = CodeMirror.fromTextArea(document.getElementById("textArea"), {styleActiveLine: true});
-  //   var content = editor.doc.getValue();
-  //   content = content.replace(/\n/g, "\r\n"); // To retain the Line breaks.
-  //   let blob = new Blob([content], { type: "text/plain"});
-  //   let filename = "code.txt";
-  //   let anchor = document.createElement("a");
-  //   anchor.download = filename;
-  //   anchor.innerHTML = "Download File";
-  //   window.URL = window.URL || window.webkitURL;
-  //   anchor.href = window.URL.createObjectURL(blob);
-  //   // anchor.target ="_blank";
-  //   anchor.style.display = "none"; // just to be safe!
-  //   document.body.appendChild(anchor);
-  //   anchor.click();
-  //   document.body.removeChild(anchor);
-  // }
+  document.getElementById("b_save").addEventListener("click", saveCode);
+  function saveCode(){
+    let textInEditor = editorCodeMirror.getValue();
+    var blob = new Blob([textInEditor], {type: "text/plain"});
+    var anchor = document.createElement("a");
+    anchor.href = URL.createObjectURL(blob);
+    anchor.download = "coilCAM-js.txt";
+    anchor.click();
+  }
   
 }
 

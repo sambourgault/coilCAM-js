@@ -105,5 +105,6 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
             path.push(thsp[(nbLayers*j)+i]);
         }
     }
+    console.log("TUG path length:", path.length);
     return path;
 }

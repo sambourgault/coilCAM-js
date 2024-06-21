@@ -1,4 +1,3 @@
-//copying over from difference.js
 // /* eslint-disable no-unused-vars */
 import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
 const {point, Polygon} = Flatten;
@@ -9,11 +8,11 @@ export function union(path0, path1, by_layer = true){
   let points0 = [];
   let points1 = [];
   let layers = new Set();
-  for(let i = 2; i <= path0.length; i+=3){
-    points0.push(path0.slice(i-2, i+1))
+  for(let i = 2; i <= path0.length; i+=4){
+    points0.push(path0.slice(i-3, i+1))
   }
-  for(let i = 2; i <= path1.length; i+=3){
-    points1.push(path1.slice(i-2, i+1))
+  for(let i = 2; i <= path1.length; i+=4){
+    points1.push(path1.slice(i-3, i+1))
   }
   points0.sort((a, b) => a[2] - b[2]);
   points1.sort((a, b) => a[2] - b[2]);
@@ -50,7 +49,7 @@ export function union(path0, path1, by_layer = true){
       }
       if(by_layer){ //close the shape: push starting point of current shape to end of shape
         shapes[0].push(shapes[0][(total_num_points)], shapes[0][(total_num_points)+1], layer);
-        let num_points = (pairs.length+1)*3;
+        let num_points = (pairs.length+1)*4;
         total_num_points += num_points;
       } else{
         shapeidx += 1;

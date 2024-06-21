@@ -24,10 +24,13 @@
   <h2>coilCAM-js</h2>
   <div class = "CC-header-buttons">
     <button type="button" id="b_run">run</button> 
-    <button type="button">save</button> 
-    <button type="button">upload</button>
+    <button type="button" id="b_save">save</button> 
+     <!-- Hidden file input element -->
+     <input type="file" id="file_input" hidden/>
+     <!-- Label for the file input to act as a button -->
+     <button type="button" id="b_upload">upload</button> 
     <div class="dropdown">
-      <button class="dropdown-examples">examples</button>
+      <button type="button">examples</button>
       <div id="example-dropdown" class="dropdown-content">
         <a id="example-vase">demo vase</a>
         <a id="example-cup">demo cup</a>
