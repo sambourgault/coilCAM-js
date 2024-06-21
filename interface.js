@@ -1,6 +1,7 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
+
 function radToDeg(r) {
   return r * 180 / Math.PI;
 }
@@ -8,11 +9,6 @@ function radToDeg(r) {
 function degToRad(d) {
   return d * Math.PI / 180;
 }
-// async function getExampleVessel() {
-//   const myRequest = new Request('example_vessels/CoilCAM_SimpleVessel.js');
-//   fetch(myRequest).then((response) => response.text());
-//   return response;
-// }
 
 async function getExampleVessel(file){
   try{
@@ -145,7 +141,7 @@ function main() {
       let deltaY = event.clientY - lastY;
       translation[0] += deltaX;
       translation[1] -= deltaY;
-      // initialTranslation = translation;
+      initialTranslation = translation;
       drawScene();
       lastX = event.clientX;
       lastY = event.clientY;
@@ -159,10 +155,12 @@ function main() {
       if (event.shiftKey) { //shift key, move model
         translation[0] += deltaX;
         translation[1] -= deltaY;
+        initialTranslation = translation;
       } else{ //rotate model
         let factor = 1/100; // Rotation sensitivity
         rotation[0] += deltaY * factor;
         rotation[2] += deltaX * factor;
+        initialRotation = rotation;
       }
 
       drawScene();
@@ -234,7 +232,6 @@ function main() {
     var far = 0;
     // perspective: function(fieldOfViewInRadians, aspect, near, far)
     var matrix = m4.perspective(fieldOfViewRadians, gl.canvas.clientWidth / gl.canvas.clientHeight, near, far);
-    // var matrix = m4.orthographic(left, right, bottom, top, near, far);
     matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
     matrix = m4.xRotate(matrix, rotation[0]);
     matrix = m4.yRotate(matrix, rotation[1]);
@@ -249,22 +246,25 @@ function main() {
     var primitiveType = gl.LINE_STRIP;
     var offset = 22;
 
+    console.log("lengths:");
+    console.log(referencePath.length);
+    console.log(path.length);
+    console.log("size currently:", ((path.length - referencePath.length*1.5)-offset)*1.5);
     // vessel
     gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
-    gl.drawArrays(primitiveType, offset + referencePath.length/3, path.length/3);
+    gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5);
 
     // reference path
     gl.uniform4f(fColorLocation, 0.5, 0.6, 1.0, 1.0); // Set reference layer as light blue
-    gl.drawArrays(primitiveType, offset, referencePath.length/3);
- 
+    gl.drawArrays(gl.TRIANGLES, offset, referencePath.length*1.5);
+  
     // // Draw the guidelines.
     gl.uniform4f(fColorLocation, 0.9, 0.9, 0.9, 1.0); // Set bed lines as light gray
     gl.drawArrays(gl.LINES, 6, 16); //next 16 vertices will be drawn as lines (base)
 
-       // Draw the base.
+        // Draw the base.
     gl.uniform4f(fColorLocation, 0.7, 0.7, 0.7, 1.0); // Set bed color as gray
     gl.drawArrays(gl.TRIANGLES, 0, 6); //first 6 vertices will be drawn as triangles (base)
-    
   }
 }
 
@@ -531,35 +531,35 @@ var m4 = {
 
 // Fill the current ARRAY_BUFFER buffer
 // Fill the buffer with the values that define a letter 'F'.
-function setGeometry(gl) {
-  gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([
-          // left column
-            0,   0,  0,
-           30,   0,  0,
-            0, 150,  0,
-            0, 150,  0,
-           30,   0,  0,
-           30, 150,  0,
+// function setGeometry(gl) {
+//   gl.bufferData(
+//       gl.ARRAY_BUFFER,
+//       new Float32Array([
+//           // left column
+//             0,   0,  0,
+//            30,   0,  0,
+//             0, 150,  0,
+//             0, 150,  0,
+//            30,   0,  0,
+//            30, 150,  0,
  
-          // top rung
-           30,   0,  0,
-          100,   0,  0,
-           30,  30,  0,
-           30,  30,  0,
-          100,   0,  0,
-          100,  30,  0,
+//           // top rung
+//            30,   0,  0,
+//           100,   0,  0,
+//            30,  30,  0,
+//            30,  30,  0,
+//           100,   0,  0,
+//           100,  30,  0,
  
-          // middle rung
-           30,  60,  0,
-           67,  60,  0,
-           30,  90,  0,
-           30,  90,  0,
-           67,  60,  0,
-           67,  90,  0]),
-      gl.STATIC_DRAW);
-}
+//           // middle rung
+//            30,  60,  0,
+//            67,  60,  0,
+//            30,  90,  0,
+//            30,  90,  0,
+//            67,  60,  0,
+//            67,  90,  0]),
+//       gl.STATIC_DRAW);
+// }
 
 function addBedPath(){
   let potterbot_bedSize = [280, 265, 305]; //default
@@ -612,19 +612,55 @@ function addPrinterGuidelines(){
   return printer_guidelines;
 }
 
-function setPath(gl, path, referencePath) {
-  // path = path.concat(addBasePath());
-  bedPath = addBedPath().concat(addPrinterGuidelines()); //16 extra points
-  console.log("refpath", referencePath);
-  if(referencePath != undefined){
-    path = bedPath.concat(referencePath).concat(path);
-    console.log('path', path);
-  } else{
-    path = bedPath.concat(path);
+function crossProduct(line1, line2){
+  var magnitude = Math.sqrt(x * x + y * y + z * z);
+  var x = (line1[1] * line2[2] - line1[2] * line2[1]);
+  var y = (line1[2] * line2[0] - line1[0] * line2[2]);
+  var z = (line1[0] * line2[1] - line1[1] * line2[0]);
+  console.log(x, y, z);
+  console.log(magnitude);
+  return [x, y, z];
+}
+
+function triangularize(path){
+  let trianglePath = [];
+  let cameraPos = initialTranslation;
+
+  for(let i = 0; i < path.length;i+=4){
+    //vertical triangles
+    let thicknessP1 = 1.5 + path[i+3];
+    let thicknessP2 = 1.5 + path[i+7];
+
+    let p1 = [path[i], path[i+1], path[i+2]];
+    let p2 = [path[i+4], path[i+5], path[i+6]];
+    // trianglePath.push(crossProduct(p1, cameraPos));
+    // trianglePath.push(crossProduct(p1, cameraPos));
+    // trianglePath.push(crossProduct(p1, cameraPos));
+
+    trianglePath.push(path[i], path[i+1], path[i+2]+thicknessP1);
+    trianglePath.push(path[i], path[i+1], path[i+2]-thicknessP1);
+    trianglePath.push(path[i+4], path[i+5], path[i+6]-thicknessP2);
+
+    trianglePath.push(path[i+4], path[i+5], path[i+6]+thicknessP2);
+    trianglePath.push(path[i+4], path[i+5], path[i+6]-thicknessP2);
+    trianglePath.push(path[i], path[i+1], path[i+2]+thicknessP1);
   }
+  return trianglePath;
+}
 
+function setPath(gl, path, referencePath) {
+  console.log("set path called");
+  bedPath = addBedPath().concat(addPrinterGuidelines()); //16 extra points
+  // path = triangularize(path);
+  // console.log("path length", path.length);
+  if(referencePath.length != 0){
+    // referencePath = triangularize(referencePath);
+    path = bedPath.concat(triangularize(referencePath)).concat(triangularize(path));
+  } else{
+    path = bedPath.concat(triangularize(path));
+  }
+  
 
-  // path = bedPath.concat(path);
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array(path),

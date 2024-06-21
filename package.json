@@ -17,8 +17,10 @@
     "@codemirror/state": "^6.2.0",
     "@codemirror/view": "^6.9.2",
     "@flatten-js/core": "^1.5.1",
+    "extrude-polyline": "^1.0.6",
     "jquery": "^3.7.1",
     "parcel-bundler": "^1.12.5",
+    "polyline-normals": "^2.0.2",
     "split.js": "^1.6.5"
   },
   "devDependencies": {

@@ -9,13 +9,15 @@ var potterbot_bedSize = [280, 265, 305];
 
 
 // VESSEL PARAMETERS
-var nbLayers = 30;
-var nbPointsInLayer = 6;
+var nbLayers = 4;
+var nbPointsInLayer = 5;
 var vesselRadius = 40;
 var position = [0, 0, potterbot_layerHeight*1.5];
 var scalingParameter = sinusoidal(10, 40, 0.3, nbLayers, 0, "");
-var refVessel = toolpathUnitGenerator(position, 100, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], []);
-var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], []);
+var thicknessParameter = sinusoidal(.5, 10, 0.2, nbPointsInLayer, 0, "");
+var refVessel = toolpathUnitGenerator(position, 100, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], [], [thicknessParameter, []]);
+var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], [], [thicknessParameter, []]);
+refVessel = spiralize(refVessel, potterbot_layerHeight);
 var b = base(position, vessel, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
 var toolpath = b.concat(spiralize(vessel, potterbot_layerHeight));
 updatePath(toolpath, refVessel);

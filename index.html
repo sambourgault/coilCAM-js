@@ -54,7 +54,7 @@
 
 <script>
   Split(['.split-editors', '.split-window'], {
-    sizes: [30, 70],
+    sizes: [50, 50],
     maxSize: [Infinity, Infinity],
     direction: 'horizontal',
     cursor: 'row-resize'
@@ -149,7 +149,10 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 -->
 <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
 <script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
-<script src="interface.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/polyline-normals/dist/polyline-normals.min.js"></script>
+<script type="module" src="interface.js">
+  import {Base} from './coilcam-functions/setup/Base.js';
+</script>
 
 
 <!-- <script src="coilcam-functions/test.js"></script> -->
@@ -200,26 +203,4 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 </html>
 
 
-
-
-
-
-
-<!-- 
-<div class="golden-layout" id = "golden-layout">
-  <div class="GL-editor" id = "GL-editor">
-    <textarea id = "editor"></textarea>
-  </div>
-
-  <div class="GL-debug" id = "GL-debug">
-    <div class="codediv" id = 'console1'>
-      <textarea id = "console"></textarea>
-    </div>
-  </div>
-
-  <div class="GL-viewer" id = "GL-viewer">
-      <canvas id="canvas"></canvas>
-  </div>
-  
-</div> -->
 
