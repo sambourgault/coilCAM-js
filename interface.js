@@ -47,7 +47,6 @@ function createShader(gl, type, source) {
     return shader;
   }
 
-  console.log(gl.getShaderInfoLog(shader));
   gl.deleteShader(shader);
 }
 
@@ -61,19 +60,16 @@ function createProgram(gl, vertexShader, fragmentShader) {
     return program;
   }
 
-  console.log(gl.getProgramInfoLog(program));
   gl.deleteProgram(program);
 }
 
 function main() {
   // Get A WebGL context
   var canvas = document.querySelector("#canvas");
-  console.log(canvas);
   var gl = canvas.getContext("webgl", { depth: true });
   if (!gl) {
     return;
   }
-  console.log("gl:::", gl);
 
   // from webgl tutorials
   // setup GLSL program
@@ -247,10 +243,6 @@ function main() {
     var primitiveType = gl.LINE_STRIP;
     var offset = 22;
 
-    console.log("lengths:");
-    console.log(referencePath.length);
-    console.log(path.length);
-    console.log("size currently:", path.length*1.5);
     // vessel
     gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
     gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5);
@@ -650,7 +642,6 @@ function triangularize(path){
 }
 
 function setPath(gl, path, referencePath) {
-  console.log("set path called");
   triangularizedPath = [];
   bedPath = addBedPath().concat(addPrinterGuidelines()); //16 extra points
   // path = triangularize(path);
@@ -661,8 +652,7 @@ function setPath(gl, path, referencePath) {
   } else{
     triangularizedPath = bedPath.concat(triangularize(path));
   }
-  console.log("set path length", triangularizedPath.length);
-  
+
 
   gl.bufferData(
     gl.ARRAY_BUFFER,
@@ -717,7 +707,6 @@ function setUpCodeMirror(){
 
   for (let buttonID in exampleVessels){
     (function () {
-    console.log(buttonID);
     document.getElementById(buttonID).addEventListener("click", function() {
         let newText = getExampleVessel(exampleVessels[buttonID])
           .then(text => {editorCodeMirror.setValue(text)});

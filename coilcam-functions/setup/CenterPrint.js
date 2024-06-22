@@ -2,7 +2,7 @@ function centerPrint(path, position, bedDimensions, layerHeight){
     let bedXOffset = bedDimensions[0]/2 - position[0];
     let bedYOffset = bedDimensions[1]/2 - position[1];
     let bedZOffset = layerHeight - path[2];
-    for (var i = 0; i < path.length; i+=3){
+    for (var i = 0; i < path.length; i+=4){
         path[i] += bedXOffset;
         path[i+1] += bedYOffset;
         path[i+2] += bedZOffset;
@@ -11,7 +11,7 @@ function centerPrint(path, position, bedDimensions, layerHeight){
 }
 
 function checkOverflow(path, bedDimensions, layerHeight){
-    for (var i = 0; i < path.length; i+=3){
+    for (var i = 0; i < path.length; i+=4){
         if(path[i] > bedDimensions[0]){
             var error_str = "x values greater than printer bed dimensions";
             throw new Error(error_str);

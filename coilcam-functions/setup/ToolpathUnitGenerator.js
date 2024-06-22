@@ -14,7 +14,7 @@ function setParameter(input, parameter_name, nbLayers=[], nbPointsInLayer=[]){
         var error_str = "Length of values for parameter " + parameter_name + " is currently " + input.length + ", must be 0, 1 or equal to nbPointsInLayer: " + nbPointsInLayer;
         throw new Error(error_str);
     } else if(parameter_name === "thicknessShapingParameter"){ //should be in range [-1, 1], 0 is default
-        if(input.length === 0){
+        if(input.length === 0 || (input.length[0] === 0 && input.length[1] === 0)){
             return new Array(nbPointsInLayer*nbLayers).fill(0);
         }
         if(input[0].length === 1){
@@ -33,7 +33,6 @@ function setParameter(input, parameter_name, nbLayers=[], nbPointsInLayer=[]){
         }
         if(input[0].length == nbPointsInLayer){
             let arr = [];
-            console.log(nbLayers);
             for(let i = 0; i < nbLayers; i++){
                 for(let j = 0; j < nbPointsInLayer; j++){
                     if(input[1].length == 0){
@@ -105,6 +104,5 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
             path.push(thsp[(nbLayers*j)+i]);
         }
     }
-    console.log("TUG path length:", path.length);
     return path;
 }

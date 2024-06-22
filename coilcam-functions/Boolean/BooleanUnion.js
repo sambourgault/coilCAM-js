@@ -8,12 +8,13 @@ export function union(path0, path1, by_layer = true){
   let points0 = [];
   let points1 = [];
   let layers = new Set();
-  for(let i = 2; i <= path0.length; i+=4){
-    points0.push(path0.slice(i-3, i+1))
+  for(let i = 3; i <= path0.length; i+=4){
+    points0.push(path0.slice(i-3, i))
   }
-  for(let i = 2; i <= path1.length; i+=4){
-    points1.push(path1.slice(i-3, i+1))
+  for(let i = 3; i <= path1.length; i+=4){
+    points1.push(path1.slice(i-3, i))
   }
+  
   points0.sort((a, b) => a[2] - b[2]);
   points1.sort((a, b) => a[2] - b[2]);
   points0.forEach(point => layers.add(point[2]));
