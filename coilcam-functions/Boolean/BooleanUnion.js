@@ -28,6 +28,20 @@ export function union(path0, path1, by_layer = true){
     let polygon0 = new Polygon(layer_points0);
     let polygon1 = new Polygon(layer_points1);
 
+    let thicknesses = new Map(); //store thickness in external data structure
+    for(let i = 0; i < points0.length; i++){
+      if (points0[i][2] == layer){
+        thicknesses.set([points0[i][0], points0[i][1]], points0[i][3]);
+      }
+    }
+    for(let i = 0; i < points1.length/4; i +=4){
+      if (points1[i][2] == layer){
+        thicknesses.set([points1[i][0], points1[i][1]], points1[i][3]);
+      }
+    }
+
+    // console.log([...thicknesses.entries()]);
+
     //to add: tolerance
     let combinedPolygon = unify(polygon0, polygon1);
     let polygonSVG = combinedPolygon.svg(); //convert to svg to rely on flatten-js's even-odd algorithm
@@ -37,19 +51,25 @@ export function union(path0, path1, by_layer = true){
     for (let shape of shapesString){
       let pairs = shape.match(/L-?\d+(\.\d+)?,-?\d+(\.\d+)?/g); //get pairs of points (not starting with M)
       for (let pair of pairs){
+        pair = pair.match(/-?\d+(\.\d+)?/g).map(parseFloat);
+        var thickness = 0;
+        // var thickness = thicknesses.get(pair);//TODO
+        // console.log("search: ", pair.match(/-?\d+(\.\d+)?/g).map(parseFloat));
         if(shapes.length < shapeidx + 1){
           shapes.push([]);
         }
         if(!by_layer){ //push individual vessels to final array
-          shapes[shapeidx].push(...pair.match(/-?\d+(\.\d+)?/g).map(parseFloat)); //push each pair as a float to the shapes arr
+          shapes[shapeidx].push(...pair); //push each pair as a float to the shapes arr
           shapes[shapeidx].push(layer);
+          shapes[shapeidx].push(thickness);
         } else{
-          shapes[0].push(...pair.match(/-?\d+(\.\d+)?/g).map(parseFloat));
+          shapes[0].push(...pair);
           shapes[0].push(layer);
+          shapes[0].push(thickness);
         }
       }
       if(by_layer){ //close the shape: push starting point of current shape to end of shape
-        shapes[0].push(shapes[0][(total_num_points)], shapes[0][(total_num_points)+1], layer);
+        shapes[0].push(shapes[0][(total_num_points)], shapes[0][(total_num_points)+1], layer, thickness);
         let num_points = (pairs.length+1)*4;
         total_num_points += num_points;
       } else{
@@ -59,7 +79,7 @@ export function union(path0, path1, by_layer = true){
     }
   }
   path = shapes.flat();
-  return path;
+  console.log("union path", path);
 }
 
 // export function unionAll(paths, by_layer = True){
