@@ -88,6 +88,7 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
     let srsp = setParameter(scalingRadiusShapingParameter, "scalingRadiusShapingParameter", nbLayers);
     let thsp = setParameter(thicknessShapingParameter, "thicknessShapingParameter", nbLayers, nbPointsInLayer);
     let k = 0; //accounting for case where radsp is a 2D array
+    let ctr = 0;
     for(let j = 0; j < nbLayers; j++){
         if(radsp.length == nbLayers*nbPointsInLayer){
             k++;
@@ -101,8 +102,12 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
             path.push(position[0] + (initialRadius + srsp[j] * radsp[(nbLayers*j*k)+i] + ssp[j]) * Math.cos(angle + (rsp[j] * Math.PI/180)) + tsp[j][0]);
             path.push(position[1] + (initialRadius + srsp[j] * radsp[(nbLayers*j*k)+i] + ssp[j]) * Math.sin(angle + (rsp[j] * Math.PI/180)) + tsp[j][1]);
             path.push(position[2] + layerHeight * j);
-            path.push(thsp[(nbLayers*j)+i]);
+            path.push(thsp[ctr]);
+            ctr+=1;
+            
         }
     }
+    console.log("Toolpath in TUG", path);
+    // return triangularize(path);
     return path;
 }

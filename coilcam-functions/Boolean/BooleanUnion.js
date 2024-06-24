@@ -1,7 +1,7 @@
 // /* eslint-disable no-unused-vars */
 import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
 const {point, Polygon} = Flatten;
-const { subtract, unify} = Flatten.BooleanOperations;
+const {unify} = Flatten.BooleanOperations;
 
 export function union(path0, path1, by_layer = true){
   let path = [];
@@ -9,10 +9,10 @@ export function union(path0, path1, by_layer = true){
   let points1 = [];
   let layers = new Set();
   for(let i = 3; i <= path0.length; i+=4){
-    points0.push(path0.slice(i-3, i))
+    points0.push(path0.slice(i-3, i+1))
   }
   for(let i = 3; i <= path1.length; i+=4){
-    points1.push(path1.slice(i-3, i))
+    points1.push(path1.slice(i-3, i+1))
   }
   
   points0.sort((a, b) => a[2] - b[2]);

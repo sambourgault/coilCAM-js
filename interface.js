@@ -27,7 +27,7 @@ let referencePath = []; //reference layer (optional)
 let bedPath = []; //toolpath for bed
 let triangularizedPath = [];
 let updatedPath = true;
-var initialTranslation = [0, -50, -700];
+let initialTranslation = [0, -50, -700];
 var initialRotation = [degToRad(-45), degToRad(0), degToRad(10)];
 var initialFieldOfView = degToRad(40);
 
@@ -245,7 +245,7 @@ function main() {
 
     // vessel
     gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
-    gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5);
+    gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5 - offset); //correct?
 
     // reference path
     gl.uniform4f(fColorLocation, 0.5, 0.6, 1.0, 1.0); // Set reference layer as light blue
@@ -255,7 +255,7 @@ function main() {
     gl.uniform4f(fColorLocation, 0.9, 0.9, 0.9, 1.0); // Set bed lines as light gray
     gl.drawArrays(gl.LINES, 6, 16); //next 16 vertices will be drawn as lines (base)
 
-        // Draw the base.
+    // Draw the base.
     gl.uniform4f(fColorLocation, 0.7, 0.7, 0.7, 1.0); // Set bed color as gray
     gl.drawArrays(gl.TRIANGLES, 0, 6); //first 6 vertices will be drawn as triangles (base)
   }
@@ -522,37 +522,6 @@ var m4 = {
 
 };
 
-// Fill the current ARRAY_BUFFER buffer
-// Fill the buffer with the values that define a letter 'F'.
-// function setGeometry(gl) {
-//   gl.bufferData(
-//       gl.ARRAY_BUFFER,
-//       new Float32Array([
-//           // left column
-//             0,   0,  0,
-//            30,   0,  0,
-//             0, 150,  0,
-//             0, 150,  0,
-//            30,   0,  0,
-//            30, 150,  0,
- 
-//           // top rung
-//            30,   0,  0,
-//           100,   0,  0,
-//            30,  30,  0,
-//            30,  30,  0,
-//           100,   0,  0,
-//           100,  30,  0,
- 
-//           // middle rung
-//            30,  60,  0,
-//            67,  60,  0,
-//            30,  90,  0,
-//            30,  90,  0,
-//            67,  60,  0,
-//            67,  90,  0]),
-//       gl.STATIC_DRAW);
-// }
 
 function addBedPath(){
   let potterbot_bedSize = [280, 265, 305]; //default
@@ -617,18 +586,13 @@ function crossProduct(line1, line2){
 
 function triangularize(path){
   let trianglePath = [];
-  let cameraPos = initialTranslation;
-
-  for(let i = 0; i < path.length;i+=4){
+  for(let i = 0; i < path.length-4;i+=4){
     //vertical triangles
     let thicknessP1 = 1.5 + path[i+3];
     let thicknessP2 = 1.5 + path[i+7];
 
     let p1 = [path[i], path[i+1], path[i+2]];
     let p2 = [path[i+4], path[i+5], path[i+6]];
-    // trianglePath.push(crossProduct(p1, cameraPos));
-    // trianglePath.push(crossProduct(p1, cameraPos));
-    // trianglePath.push(crossProduct(p1, cameraPos));
 
     trianglePath.push(path[i], path[i+1], path[i+2]+thicknessP1);
     trianglePath.push(path[i], path[i+1], path[i+2]-thicknessP1);
@@ -642,21 +606,19 @@ function triangularize(path){
 }
 
 function setPath(gl, path, referencePath) {
-  triangularizedPath = [];
   bedPath = addBedPath().concat(addPrinterGuidelines()); //16 extra points
-  // path = triangularize(path);
+  let combinedPath = [];
   // console.log("path length", path.length);
   if(referencePath.length != 0){
-    // referencePath = triangularize(referencePath);
-    triangularizedPath = bedPath.concat(triangularize(referencePath)).concat(triangularize(path));
+    // combinedPath = bedPath.concat(referencePath).concat((path));
+    combinedPath = bedPath.concat(triangularize(referencePath)).concat(triangularize(path));
   } else{
-    triangularizedPath = bedPath.concat(triangularize(path));
+    combinedPath = bedPath.concat(triangularize(path));
   }
-
-
+  console.log("set path!!", combinedPath);
   gl.bufferData(
     gl.ARRAY_BUFFER,
-    new Float32Array(triangularizedPath),
+    new Float32Array(combinedPath),
     gl.STATIC_DRAW);
 }
 
@@ -769,6 +731,15 @@ function setUpCodeMirror(){
     anchor.download = "coilCAM-js.txt";
     anchor.click();
   }
+
+  document.getElementById("b_docs").addEventListener("click", newTab);
+  function newTab(){
+    let newTab = document.createElement('a');
+    newTab.href = "https://github.com/sambourgault/coilCAM-docs";
+    newTab.target = "_blank";
+    newTab.click();
+  }
+  
   
 }
 
