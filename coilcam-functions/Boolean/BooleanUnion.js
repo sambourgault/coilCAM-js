@@ -36,11 +36,11 @@ export function union(path0, path1, by_layer = true){
     }
     for(let i = 0; i < points1.length/4; i +=4){
       if (points1[i][2] == layer){
-        thicknesses.set([points1[i][0], points1[i][1]], points1[i][3]);
+        thicknesses.set([[points1[i][0]], points1[i][1]], points1[i][3]);
       }
     }
 
-    // console.log([...thicknesses.entries()]);
+    console.log([...thicknesses.entries()]);
 
     //to add: tolerance
     let combinedPolygon = unify(polygon0, polygon1);
@@ -51,19 +51,20 @@ export function union(path0, path1, by_layer = true){
     for (let shape of shapesString){
       let pairs = shape.match(/L-?\d+(\.\d+)?,-?\d+(\.\d+)?/g); //get pairs of points (not starting with M)
       for (let pair of pairs){
-        pair = pair.match(/-?\d+(\.\d+)?/g).map(parseFloat);
-        var thickness = 0;
-        // var thickness = thicknesses.get(pair);//TODO
+        // pair = pair.match(/-?\d+(\.\d+)?/g).map(parseFloat);
+        // var thickness = thicknesses.get(pair.match(/-?\d+(\.\d+)?/g).map(parseFloat));
+        var thickness = thicknesses.get([300, 300]);
+        console.log(thickness);
         // console.log("search: ", pair.match(/-?\d+(\.\d+)?/g).map(parseFloat));
         if(shapes.length < shapeidx + 1){
           shapes.push([]);
         }
         if(!by_layer){ //push individual vessels to final array
-          shapes[shapeidx].push(...pair); //push each pair as a float to the shapes arr
+          shapes[shapeidx].push(...pair.match(/-?\d+(\.\d+)?/g).map(parseFloat)); //push each pair as a float to the shapes arr
           shapes[shapeidx].push(layer);
           shapes[shapeidx].push(thickness);
         } else{
-          shapes[0].push(...pair);
+          shapes[0].push(...pair.match(/-?\d+(\.\d+)?/g).map(parseFloat));
           shapes[0].push(layer);
           shapes[0].push(thickness);
         }
@@ -80,6 +81,15 @@ export function union(path0, path1, by_layer = true){
   }
   path = shapes.flat();
   console.log("union path", path);
+
+
+  let test = new Map();
+  let key = [300, 300];
+  test.set(key, 2);
+
+  var t = test.get(key);
+  console.log("t", t); // Output: 2
+  return path;
 }
 
 // export function unionAll(paths, by_layer = True){
