@@ -1,6 +1,7 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
+
 function radToDeg(r) {
   return r * 180 / Math.PI;
 }
@@ -9,15 +10,33 @@ function degToRad(d) {
   return d * Math.PI / 180;
 }
 
-let path = [];
-let updatedPath = false;
-var t = [0, -50, -500];
-var r = [degToRad(173), degToRad(0), degToRad(0)];
+async function getExampleVessel(file){
+  try{
+    var response = await fetch(file);
+    if(response.ok){
+      var data = await response.text();
+      return data;
+    } 
+  } catch(error){
+    console.error('Error fetching file:', error);
+  }
+}
 
-function updatePath(newPath){
+let path = []; //toolpath for vessel
+let referencePath = []; //reference layer (optional)
+let bedPath = []; //toolpath for bed
+var potterbot_bedSize = [280, 265, 305];
+let triangularizedPath = [];
+let updatedPath = true;
+let initialTranslation = [0, -50, -700];
+var initialRotation = [degToRad(-45), degToRad(0), degToRad(10)];
+var initialFieldOfView = degToRad(40);
+
+function updatePath(newPath, refPath=[]){
   updatedPath = true;
   path = newPath;
-  main(t,r);
+  referencePath = refPath;
+  main(initialTranslation,initialRotation, initialFieldOfView);
 }
 
 function createShader(gl, type, source) {
@@ -29,7 +48,6 @@ function createShader(gl, type, source) {
     return shader;
   }
 
-  console.log(gl.getShaderInfoLog(shader));
   gl.deleteShader(shader);
 }
 
@@ -43,15 +61,13 @@ function createProgram(gl, vertexShader, fragmentShader) {
     return program;
   }
 
-  console.log(gl.getProgramInfoLog(program));
   gl.deleteProgram(program);
 }
 
-
-function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]) {
+function main() {
   // Get A WebGL context
   var canvas = document.querySelector("#canvas");
-  var gl = canvas.getContext("webgl");
+  var gl = canvas.getContext("webgl", { depth: true });
   if (!gl) {
     return;
   }
@@ -77,78 +93,98 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
 
   // Put geometry data into buffer
   //setGeometry(gl);
-  setPath(gl, path);
+  setPath(gl, path, referencePath);
 
   var cameraAngleRadians = degToRad(0);
-  var fieldOfViewRadians = degToRad(30);
-
-  //console.log(document.getElementById('canvas').width)
-  //var translation = [document.getElementById('canvas').width, 500, 0];
-  var translation = t;
-  var rotation = r;
+  var fieldOfViewRadians = initialFieldOfView;
+  // var fieldOfViewRadians = degToRad(30);
+  var translation = initialTranslation;
+  var rotation = initialRotation;
   var scale = [1, 1, 1];
   var color = [Math.random(), Math.random(), Math.random(), 1];
 
-  
-
   drawScene();
-
-  // Setup a ui.
-  /*webglLessonsUI.setupSlider("#cameraAngle", {value: radToDeg(cameraAngleRadians), slide: updateCameraAngle, min: -360, max: 360});
-  function updateCameraAngle(event, ui) {
-    cameraAngleRadians = degToRad(ui.value);
-    drawScene();
-  }*/
-
-  // Setup a ui.
-  console.log("max:", gl.canvas.height);
-  webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), min: -gl.canvas.width, max: gl.canvas.width });
-  webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), min:-gl.canvas.height/2, max: gl.canvas.height/2});
-  webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), min: -1000, max: 0});
-  // webglLessonsUI.setupSlider("#z", {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
-  webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
-  webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
-  webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
-  webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
-  webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
-  webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 10, step: 0.01, precision: 2});
-
   
   if (updatedPath){
     drawScene();
     updatedPath = false;
   }
 
-  /*function updatePath(newPath){
-    path = newPath;
+  //drag canvas
+  let isDragging = false;
+  let lastX, lastY, lastZ;
+
+  canvas.addEventListener('mousedown', (event) => {
+    isDragging = true;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    lastZ = event.clientZ;
+    
+  });
+
+  //prevent warping in the split window when window resized
+  window.addEventListener("resize", (event) => { 
     drawScene();
-  }*/
-
-  function updatePosition(index) {
-    return function(event, ui) {
-      translation[index] = ui.value;
-      t[index] =  ui.value;
+  });
+  const canvasResizeObserver = new ResizeObserver((entries) => {
+    for (let entry of entries){
       drawScene();
-    };
-  }
-
-  function updateRotation(index) {
-    return function(event, ui) {
-      var angleInDegrees = ui.value;
-      var angleInRadians = angleInDegrees * Math.PI / 180;
-      rotation[index] = angleInRadians;
-      r[index] = angleInRadians;
+    }
+  });
+  canvasResizeObserver.observe(document.getElementById("canvas"));
+  
+  canvas.addEventListener("contextmenu", (event) => { //right click
+    if (isDragging) {
+      let deltaX = event.clientX - lastX;
+      let deltaY = event.clientY - lastY;
+      translation[0] += deltaX;
+      translation[1] -= deltaY;
+      initialTranslation = translation;
       drawScene();
-    };
-  }
+      lastX = event.clientX;
+      lastY = event.clientY;
+    }
+  });
 
-  function updateScale(index) {
-    return function(event, ui) {
-      scale[index] = ui.value;
+  canvas.addEventListener('mousemove', (event) => {
+    if (isDragging) {
+      let deltaX = event.clientX - lastX;
+      let deltaY = event.clientY - lastY;
+      if (event.shiftKey) { //shift key, move model
+        translation[0] += deltaX;
+        translation[1] -= deltaY;
+        initialTranslation = translation;
+      } else{ //rotate model
+        let factor = 1/100; // Rotation sensitivity
+        rotation[0] += deltaY * factor;
+        rotation[2] += deltaX * factor;
+        initialRotation = rotation;
+      }
+
       drawScene();
-    };
-  }
+      lastX = event.clientX;
+      lastY = event.clientY;
+    }
+  });
 
+  canvas.addEventListener("wheel", (event) => { //zoom
+    const zoomSpeed = 0.03;
+    if (event.deltaY < 0) {
+      fieldOfViewRadians -= zoomSpeed;
+    } else { 
+      fieldOfViewRadians += zoomSpeed;
+    }
+    initialFieldOfView = fieldOfViewRadians;
+    drawScene();
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    isDragging = false;
+  });
 
   // Draw the scene.
   function drawScene() {
@@ -160,9 +196,8 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Turn on culling. By default backfacing triangles
-    // will be culled.
-    gl.enable(gl.CULL_FACE);
+    // disable culling so that the base is double-sided
+    // gl.enable(gl.CULL_FACE);
 
     // Enable the depth buffer
     gl.enable(gl.DEPTH_TEST);
@@ -184,23 +219,6 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     var offset = 0;        // start at the beginning of the buffer
     gl.vertexAttribPointer(
         positionLocation, size, type, normalize, stride, offset);
-
-    /*// Turn on the color attribute
-    gl.enableVertexAttribArray(colorLocation);
-
-    // Bind the color buffer.
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-
-    // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-    var size = 3;                 // 3 components per iteration
-    var type = gl.UNSIGNED_BYTE;  // the data is 8bit unsigned values
-    var normalize = true;         // normalize the data (convert from 0-255 to 0-1)
-    var stride = 0;               // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0;               // start at the beginning of the buffer
-    gl.vertexAttribPointer(
-        colorLocation, size, type, normalize, stride, offset);
-      */
-
    
     // Compute the matrices
     // var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
@@ -212,7 +230,6 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     var far = 0;
     // perspective: function(fieldOfViewInRadians, aspect, near, far)
     var matrix = m4.perspective(fieldOfViewRadians, gl.canvas.clientWidth / gl.canvas.clientHeight, near, far);
-    // var matrix = m4.orthographic(left, right, bottom, top, near, far);
     matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
     matrix = m4.xRotate(matrix, rotation[0]);
     matrix = m4.yRotate(matrix, rotation[1]);
@@ -222,24 +239,28 @@ function main(t = [0, -100, -500], r = [degToRad(270), degToRad(0), degToRad(0)]
     // Set the matrix.
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
-    // Draw the geometry.
-    if(Array.isArray(path[0])){ //multiple vessels
-      var primitiveType = gl.LINE_STRIP;
-      let path_lengths = path[0].map(array => array.length);
+    // Set the color/vars.
+    var fColorLocation = gl.getUniformLocation(program, "fColor");
+    var primitiveType = gl.LINE_STRIP;
+    var offset = 22;
 
-      let points_printed = 0;
-      for(let pl of path_lengths){
-        gl.drawArrays(primitiveType, points_printed, pl/3);
-        points_printed += (pl-1)/3;
-      }
-    } else{ //single toolpath
-      var primitiveType = gl.LINE_STRIP;
-      var offset = 0;
-      var count = path.length/3;
-      gl.drawArrays(primitiveType, offset, count);
+    // vessel
+    gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
+    if(path.length > 0){
+      gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5 - offset); //correct?
     }
-    
-    
+
+    // reference path
+    gl.uniform4f(fColorLocation, 0.5, 0.6, 1.0, 1.0); // Set reference layer as light blue
+    gl.drawArrays(gl.TRIANGLES, offset, referencePath.length*1.5);
+  
+    // // Draw the guidelines.
+    gl.uniform4f(fColorLocation, 0.9, 0.9, 0.9, 1.0); // Set bed lines as light gray
+    gl.drawArrays(gl.LINES, 6, 16); //next 16 vertices will be drawn as lines (base)
+
+    // Draw the base.
+    gl.uniform4f(fColorLocation, 0.7, 0.7, 0.7, 1.0); // Set bed color as gray
+    gl.drawArrays(gl.TRIANGLES, 0, 6); //first 6 vertices will be drawn as triangles (base)
   }
 }
 
@@ -504,74 +525,129 @@ var m4 = {
 
 };
 
-// Fill the current ARRAY_BUFFER buffer
-// Fill the buffer with the values that define a letter 'F'.
-function setGeometry(gl) {
-  gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([
-          // left column
-            0,   0,  0,
-           30,   0,  0,
-            0, 150,  0,
-            0, 150,  0,
-           30,   0,  0,
-           30, 150,  0,
- 
-          // top rung
-           30,   0,  0,
-          100,   0,  0,
-           30,  30,  0,
-           30,  30,  0,
-          100,   0,  0,
-          100,  30,  0,
- 
-          // middle rung
-           30,  60,  0,
-           67,  60,  0,
-           30,  90,  0,
-           30,  90,  0,
-           67,  60,  0,
-           67,  90,  0]),
-      gl.STATIC_DRAW);
+
+function addBedPath(){
+  let bedXOffset = potterbot_bedSize[0]/2
+  let bedYOffset = potterbot_bedSize[1]/2;
+
+  let base_vertices = [
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 
+  ] //2 triangles, 6 points total
+  return base_vertices;
 }
 
-function setPath(gl, path) {
+function addPrinterGuidelines(){
+  let bedXOffset = potterbot_bedSize[0]/2
+  let bedYOffset = potterbot_bedSize[1]/2;
+  let bedZoffset = -0.2;
+  let printer_guidelines = [
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+
+  ] //16 points total
+  return printer_guidelines;
+}
+
+function crossProduct(line1, line2){
+  var magnitude = Math.sqrt(x * x + y * y + z * z);
+  var x = (line1[1] * line2[2] - line1[2] * line2[1]);
+  var y = (line1[2] * line2[0] - line1[0] * line2[2]);
+  var z = (line1[0] * line2[1] - line1[1] * line2[0]);
+  console.log(x, y, z);
+  console.log(magnitude);
+  return [x, y, z];
+}
+
+function triangularize(path){
+  let trianglePath = [];
+  for(let i = 0; i < path.length-4;i+=4){
+    //vertical triangles
+    let thicknessP1 = .5 + path[i+3];
+    let thicknessP2 = .5 + path[i+7];
+
+    let p1 = [path[i], path[i+1], path[i+2]];
+    let p2 = [path[i+4], path[i+5], path[i+6]];
+
+    trianglePath.push(path[i], path[i+1], path[i+2]+thicknessP1);
+    trianglePath.push(path[i], path[i+1], path[i+2]-thicknessP1);
+    trianglePath.push(path[i+4], path[i+5], path[i+6]-thicknessP2);
+
+    trianglePath.push(path[i+4], path[i+5], path[i+6]+thicknessP2);
+    trianglePath.push(path[i+4], path[i+5], path[i+6]-thicknessP2);
+    trianglePath.push(path[i], path[i+1], path[i+2]+thicknessP1);
+  }
+  return trianglePath;
+}
+
+function setPath(gl, path, referencePath, bedDimensions) {
+  bedPath = addBedPath(bedDimensions).concat(addPrinterGuidelines(bedDimensions)); //16 extra points
+  let combinedPath = [];
+  // console.log("path length", path.length);
+  if(referencePath.length != 0){
+    // combinedPath = bedPath.concat(referencePath).concat((path));
+    combinedPath = bedPath.concat(triangularize(referencePath)).concat(triangularize(path));
+  } else{
+    combinedPath = bedPath.concat(triangularize(path));
+  }
   gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(path),
-      gl.STATIC_DRAW);
+    gl.ARRAY_BUFFER,
+    new Float32Array(combinedPath),
+    gl.STATIC_DRAW);
 }
 
 function setUpCodeMirror(){
-
   let textArea, textArea2;
-  let myCodeMirror;
+  let editorCodeMirror;
   let consoleCodeMirror;
-  let codeDiv, codeDivHeader, runButton, h2;
-  let codeDiv2, codeDivHeader2, clearButton, h2_2;
-  let saveButton, saveName;
 
   // code editor: https://www.youtube.com/watch?v=C3fNuqQeUdY&t=1004s
   //code editor
   textArea = document.getElementById("editor");
   textArea.className = 'codemirror_textarea';
-  textArea.style.marginLeft = 20+'px';
-  textArea.style.width = 90+'%';
-  textArea.style.height = 200+'px';
-  
+
   // configs
-  myCodeMirror = CodeMirror.fromTextArea(textArea, {
+  var pathToVessel = 'example_vessels/Starting_Vessel.js'; //name of vessel to be loaded as default
+  editorCodeMirror = CodeMirror.fromTextArea(textArea, {
     lineNumbers: true,
     mode: 'javascript',
-    extraKeys: {"Ctrl-Space": "autocomplete"}
+    extraKeys: {"Ctrl-Space": "autocomplete"},
   }); 
+  editorCodeMirror.setSize("100%", "100%");
+  getExampleVessel(pathToVessel) 
+    .then(text => {editorCodeMirror.setValue(text)});
   
   // code editor console
   textArea2 = document.getElementById("console");
   textArea2.className = 'codemirror_textarea';
   textArea2.style.marginLeft = 20+'px';
-  textArea2.style.width = 90+'%';
+  textArea2.style.width = 140+'%';
   textArea2.style.height = 200+'px';
 
   // configs
@@ -579,14 +655,61 @@ function setUpCodeMirror(){
     lineNumbers: true,
     mode: 'javascript'
     //extraKeys: {"Ctrl-Space":"autocomplete"}
-    
+  });
+  consoleCodeMirror.setSize("100%", "100%");
+
+
+  
+  //dropdown menu
+  const exampleVessels={  //list of all examples
+    "example-cup":["example_vessels/CoilCAM_BooleanDemoCupV1.js"], 
+    "example-vase":["example_vessels/CoilCAM_BooleanDemoDish.js"], 
+    "example-plate":["example_vessels/CoilCAM_BumpsDish.js"]
+  };
+
+  for (let buttonID in exampleVessels){
+    (function () {
+    document.getElementById(buttonID).addEventListener("click", function() {
+        let newText = getExampleVessel(exampleVessels[buttonID])
+          .then(text => {editorCodeMirror.setValue(text)});
+        editorCodeMirror.setValue(getExampleVessel(newText));
+      },);
+    }());
+  }
+  
+
+  document.getElementById('b_upload').addEventListener('click', function() {
+    document.getElementById('file_input').click();
+  }, {capture: true});
+  
+  document.getElementById('file_input').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const fileExtension = file.name.split('.').pop();
+      if (fileExtension === 'txt') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const contents = e.target.result;
+          editorCodeMirror.setValue(contents);
+        };
+        
+        reader.onerror = function(e) {
+          console.error('Error reading file:', e);
+        };
+        
+        reader.readAsText(file);
+      } else{
+        consoleCodeMirror.replaceRange(`$ `+(`${"File name must end with .txt"}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+      }
+    }
   });
 
-  // buttons
+
+
   document.getElementById("b_run").addEventListener("click", runCode);
 
   function runCode() {
-    const codeToRun = myCodeMirror.getValue();
+    const codeToRun = editorCodeMirror.getValue();
     try {
       consoleCodeMirror.replaceRange(`$ `+eval(`${codeToRun}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
     }
@@ -595,27 +718,42 @@ function setUpCodeMirror(){
     }
   }
 
-  document.getElementById("b_save").addEventListener("click", saveCode);
+  document.getElementById("b_save").addEventListener("click", saveCode, {capture: true});
   function saveCode(){
-    // let content = myCodeMirror.getValue();
-    // var content = document.getElementById("textArea").value;
-    var editor = CodeMirror.fromTextArea(document.getElementById("textArea"), {styleActiveLine: true});
-    var content = editor.doc.getValue();
-    content = content.replace(/\n/g, "\r\n"); // To retain the Line breaks.
-    let blob = new Blob([content], { type: "text/plain"});
-    let filename = "code.txt";
-    let anchor = document.createElement("a");
-    anchor.download = filename;
-    anchor.innerHTML = "Download File";
-    window.URL = window.URL || window.webkitURL;
-    anchor.href = window.URL.createObjectURL(blob);
-    // anchor.target ="_blank";
-    anchor.style.display = "none"; // just to be safe!
-    document.body.appendChild(anchor);
+    let textInEditor = editorCodeMirror.getValue();
+    var blob = new Blob([textInEditor], {type: "text/plain"});
+    var anchor = document.createElement("a");
+    anchor.href = URL.createObjectURL(blob);
+    anchor.download = "coilCAM-js.txt";
     anchor.click();
-    document.body.removeChild(anchor);
   }
+
+  document.getElementById("b_docs").addEventListener("click", newTab, {capture: true});
+  function newTab(){
+    let newTab = document.createElement('a');
+    newTab.href = "https://github.com/sambourgault/coilCAM-docs";
+    newTab.target = "_blank";
+    newTab.click();
+  }
+
+  document.getElementById("baby_pb").addEventListener("click", function(){changePrinterDims("baby")});
+  document.getElementById("super_pb").addEventListener("click", function(){changePrinterDims("super")});
+  
+  function changePrinterDims(printerType){
+    console.log("click!!!!!");
+    if (printerType == "baby"){
+      console.log("baby");
+      potterbot_bedSize = [280, 265, 305];
+      main(initialTranslation,initialRotation, initialFieldOfView);
+    }
+    if (printerType == "super"){
+      console.log("sop");
+      potterbot_bedSize = [415, 405, 500];
+      main(initialTranslation,initialRotation, initialFieldOfView);
+    }
+  }
+  
 }
 
-setUpCodeMirror();
 main();
+setUpCodeMirror();

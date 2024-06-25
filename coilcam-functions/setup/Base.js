@@ -3,13 +3,33 @@ import Flatten from '../../node_modules/@flatten-js/core/dist/main.mjs';
 const {point, Polygon, Segment} = Flatten;
 const {intersect} = Flatten.BooleanOperations;
 
+// function triangularize(path){
+//     let trianglePath = [];
+//     for(let i = 0; i < path.length-4;i+=4){
+//       //vertical triangles
+//       let thicknessP1 = 1.5 + path[i+3];
+//       let thicknessP2 = 1.5 + path[i+7];
+  
+//       let p1 = [path[i], path[i+1], path[i+2]];
+//       let p2 = [path[i+4], path[i+5], path[i+6]];
+  
+//       trianglePath.push(path[i], path[i+1], path[i+2]+thicknessP1);
+//       trianglePath.push(path[i], path[i+1], path[i+2]-thicknessP1);
+//       trianglePath.push(path[i+4], path[i+5], path[i+6]-thicknessP2);
+  
+//       trianglePath.push(path[i+4], path[i+5], path[i+6]+thicknessP2);
+//       trianglePath.push(path[i+4], path[i+5], path[i+6]-thicknessP2);
+//       trianglePath.push(path[i], path[i+1], path[i+2]+thicknessP1);
+//     }
+//     return trianglePath;
+//   }
 
 export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_diameter, radius, rotate=0){ 
     let basePoints = [];
     let basePath = [];
     let height = layerHeight;
     for(let i = 0; i < nbPointsInLayer; i+=3){
-        basePoints.push(path[i], path[i+1], path[i+2]);
+        basePoints.push(path[i], path[i+1], path[i+2], 0);
     }
 
     let diameter = radius*2;
@@ -24,13 +44,13 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_
         if (angle < 0) { //inwards spiral
             let x = bias + position[0] + spiralRadius * Math.cos(angle-offset);
             let y = bias + position[1] + spiralRadius * Math.sin(angle-offset);
-            basePath.push(x, y, height);
+            basePath.push(x, y, height, 0);
         }
 
         else { //outwards spiral
             let x = bias + position[0] + spiralRadius * Math.sin(angle+Math.PI/2);
             let y = bias + position[1] + spiralRadius * Math.cos(angle+Math.PI/2);
-            basePath.push(x, y, height);
+            basePath.push(x, y, height, 0);
         }
         
     }
@@ -41,7 +61,7 @@ export function baseSpiral(position, path, nbPointsInLayer, layerHeight, nozzle_
 export function baseFill(position, path, nbPointsInLayer, layerHeight, nozzle_diameter, radius){
     let basePath = [];
     let height = layerHeight;
-    for(let i = 0; i < nbPointsInLayer*3; i+=3){
+    for(let i = 0; i < nbPointsInLayer*4; i+=4){
         basePath.push(point(path[i], path[i+1]));
     }
 
@@ -57,17 +77,16 @@ export function baseFill(position, path, nbPointsInLayer, layerHeight, nozzle_di
         if(intersectionPoints.length == 4){
             if(i % (2*nozzle_diameter) == 0){
                 newPoints.push(intersectionPoints[0], intersectionPoints[1]);
-                newPoints.push(height);
+                newPoints.push(height, 0);
                 newPoints.push(intersectionPoints[2], intersectionPoints[3]);
-                newPoints.push(height);
+                newPoints.push(height, 0);
             } else{
                 newPoints.push(intersectionPoints[2], intersectionPoints[3]);
-                newPoints.push(height);
+                newPoints.push(height, 0);
                 newPoints.push(intersectionPoints[0], intersectionPoints[1]);
-                newPoints.push(height);
+                newPoints.push(height, 0);
             }
-        }
-        
+        } 
     }
     return newPoints;
 }
@@ -77,6 +96,8 @@ export function base(position, path, nbPointsInLayer, layerHeight, nozzleDiamete
     let topBase = baseSpiral(position, path, nbPointsInLayer, layerHeight*2, nozzleDiameter, radius);
     let newPath = bottomBase.concat(topBase);
     return newPath;
+    console.log("basepath fill", bottomBase);
+    // return triangularize(baseFill);
 }
 
 export function addBase(b, path){

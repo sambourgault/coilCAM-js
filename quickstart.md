@@ -23,10 +23,10 @@ For this demo, a sinusoidal function was applied to the profile of the vessel us
 
 Next, a linear function was applied to the vessel to add rotation. Try altering the amplitude and offset (the first two parameters) to observe how the vessel changes shape.
 
-# add code here
+## add code here
 
 Next, a spout was added to this vase using the union function. 
-# add demo
+## add demo
 
 Next, the base was added to the vessel through the base function.  The base function accepts six parameters, which are dependent on the parameters of the form it will be attached to.
 * position: The x, y, z coordinates for the center of the form.
@@ -36,7 +36,7 @@ Next, the base was added to the vessel through the base function.  The base func
 * nozzleDiameter: The thickness of the nozzle that will be used to print the toolpath.
 * radius: The radius of the form.
 
-# Preparing to print your form.
+## Preparing to print your form.
 
 Before saving your form as a gcode file, make sure to spiralize and center the toolpath using the spiralize and centerPrint functions. This will ensure that each layer smoothly connects to the next, and that your form is properly centered on the print bed.
 The spiralize function accepts one parameter.
@@ -54,7 +54,7 @@ After you've applied these functions and are satisfied with your vessel, you can
 
 You can copy the GCode string using console.log, or download the GCode string directly to your computer using the downloadGCode function.
 
-# Common issues
+## Common issues
 While there are no limits for the kinds of vessels that can be constructed through CoilCAM, there are a few common mistakes that lead to faulty prints. 
 * Each layer in the toolpath must be able to support the weight of the layers above it. Each layer of the toolpath should stay within 45 degrees of difference of the layer below it.
 * Layer height should be around half of the nozzle diameter.

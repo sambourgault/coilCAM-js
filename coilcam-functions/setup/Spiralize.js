@@ -3,7 +3,7 @@ function spiralize(path){
     var nbPointsInLayer = [];
     var currHeight = path[2];
     var ctr = 0;
-    for(let i = 0; i < path.length; i+=3){
+    for(let i = 0; i < path.length; i+=4){
         if(path[i+2] > currHeight){
             currHeight = path[i+2];
             nbPointsInLayer.push(ctr);
@@ -12,7 +12,6 @@ function spiralize(path){
         ctr++;
     }
     nbPointsInLayer.push(ctr);
-    console.log("nbpl", nbPointsInLayer);
 
     currLayer = 0;
     nPointsIterated = 0;
@@ -20,9 +19,9 @@ function spiralize(path){
     for(let i = 0; i < nbPointsInLayer.length; i++){
         // console.log("npr", nPointsIterated);
         for(let j = 0; j < nbPointsInLayer[i]; j++){
-            points[nPointsIterated + (j*3)+2] += ((j+1)*(layerHeight/(nbPointsInLayer[i])));
+            points[nPointsIterated + (j*4)+2] += ((j+1)*(layerHeight/(nbPointsInLayer[i])));
         }
-        nPointsIterated += nbPointsInLayer[i]*3;
+        nPointsIterated += nbPointsInLayer[i]*4;
     }
     return points;
 }
