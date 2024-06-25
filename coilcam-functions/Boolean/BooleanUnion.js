@@ -51,11 +51,7 @@ export function union(path0, path1, by_layer = true){
     for (let shape of shapesString){
       let pairs = shape.match(/L-?\d+(\.\d+)?,-?\d+(\.\d+)?/g); //get pairs of points (not starting with M)
       for (let pair of pairs){
-        // pair = pair.match(/-?\d+(\.\d+)?/g).map(parseFloat);
-        // var thickness = thicknesses.get(pair.match(/-?\d+(\.\d+)?/g).map(parseFloat));
-        var thickness = thicknesses.get([300, 300]);
-        console.log(thickness);
-        // console.log("search: ", pair.match(/-?\d+(\.\d+)?/g).map(parseFloat));
+        var thickness = thicknesses.has(pair.match(/-?\d+(\.\d+)?/g)); //todo: fix thickness (right now it's defaulting to "false" = 0)
         if(shapes.length < shapeidx + 1){
           shapes.push([]);
         }

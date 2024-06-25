@@ -107,7 +107,5 @@ function toolpathUnitGenerator(position, initialRadius, layerHeight, nbLayers, n
             
         }
     }
-    console.log("Toolpath in TUG", path);
-    // return triangularize(path);
     return path;
 }

@@ -68,6 +68,10 @@ button{
   cursor: pointer; 
 }
 
+
+
+
+
 #uiContainer{
   display: block;
   position:relative;
@@ -167,11 +171,15 @@ h2{
 }
 
 .CC-header-buttons{
-  display: flex;
   gap: .5em;
-  
-  /* float: right; */
+  float: right;
 }
+.CC-header-buttons-right{
+  gap: .5em;
+  color: var(--teal);
+  align-items: right;
+}
+
 
 
 .gutter {
@@ -181,11 +189,15 @@ h2{
   cursor: col-resize;
 }
 
+.b_printer_dims{
+  background: var(--gray);
+}
+
 /* .cell{
   background-color: teal;
 } */
 
-/* button */
+
 .split { 
   width: 100%;
   height: 600px;

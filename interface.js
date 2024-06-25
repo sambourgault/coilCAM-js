@@ -25,6 +25,7 @@ async function getExampleVessel(file){
 let path = []; //toolpath for vessel
 let referencePath = []; //reference layer (optional)
 let bedPath = []; //toolpath for bed
+var potterbot_bedSize = [280, 265, 305];
 let triangularizedPath = [];
 let updatedPath = true;
 let initialTranslation = [0, -50, -700];
@@ -245,7 +246,9 @@ function main() {
 
     // vessel
     gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
-    gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5 - offset); //correct?
+    if(path.length > 0){
+      gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5 - offset); //correct?
+    }
 
     // reference path
     gl.uniform4f(fColorLocation, 0.5, 0.6, 1.0, 1.0); // Set reference layer as light blue
@@ -524,7 +527,6 @@ var m4 = {
 
 
 function addBedPath(){
-  let potterbot_bedSize = [280, 265, 305]; //default
   let bedXOffset = potterbot_bedSize[0]/2
   let bedYOffset = potterbot_bedSize[1]/2;
 
@@ -540,7 +542,6 @@ function addBedPath(){
 }
 
 function addPrinterGuidelines(){
-  let potterbot_bedSize = [280, 265, 305]; //default
   let bedXOffset = potterbot_bedSize[0]/2
   let bedYOffset = potterbot_bedSize[1]/2;
   let bedZoffset = -0.2;
@@ -588,8 +589,8 @@ function triangularize(path){
   let trianglePath = [];
   for(let i = 0; i < path.length-4;i+=4){
     //vertical triangles
-    let thicknessP1 = 1.5 + path[i+3];
-    let thicknessP2 = 1.5 + path[i+7];
+    let thicknessP1 = .5 + path[i+3];
+    let thicknessP2 = .5 + path[i+7];
 
     let p1 = [path[i], path[i+1], path[i+2]];
     let p2 = [path[i+4], path[i+5], path[i+6]];
@@ -605,8 +606,8 @@ function triangularize(path){
   return trianglePath;
 }
 
-function setPath(gl, path, referencePath) {
-  bedPath = addBedPath().concat(addPrinterGuidelines()); //16 extra points
+function setPath(gl, path, referencePath, bedDimensions) {
+  bedPath = addBedPath(bedDimensions).concat(addPrinterGuidelines(bedDimensions)); //16 extra points
   let combinedPath = [];
   // console.log("path length", path.length);
   if(referencePath.length != 0){
@@ -615,7 +616,6 @@ function setPath(gl, path, referencePath) {
   } else{
     combinedPath = bedPath.concat(triangularize(path));
   }
-  console.log("set path!!", combinedPath);
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array(combinedPath),
@@ -633,7 +633,7 @@ function setUpCodeMirror(){
   textArea.className = 'codemirror_textarea';
 
   // configs
-  var pathToVessel = 'example_vessels/current_test.js'; //name of vessel to be loaded as default
+  var pathToVessel = 'example_vessels/Starting_Vessel.js'; //name of vessel to be loaded as default
   editorCodeMirror = CodeMirror.fromTextArea(textArea, {
     lineNumbers: true,
     mode: 'javascript',
@@ -673,28 +673,24 @@ function setUpCodeMirror(){
         let newText = getExampleVessel(exampleVessels[buttonID])
           .then(text => {editorCodeMirror.setValue(text)});
         editorCodeMirror.setValue(getExampleVessel(newText));
-      });
+      },);
     }());
   }
   
 
   document.getElementById('b_upload').addEventListener('click', function() {
     document.getElementById('file_input').click();
-  });
+  }, {capture: true});
   
   document.getElementById('file_input').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
-
       const fileExtension = file.name.split('.').pop();
-      
       if (fileExtension === 'txt') {
         const reader = new FileReader();
-      
         reader.onload = function(e) {
           const contents = e.target.result;
           editorCodeMirror.setValue(contents);
-          // You can process the file contents here
         };
         
         reader.onerror = function(e) {
@@ -722,7 +718,7 @@ function setUpCodeMirror(){
     }
   }
 
-  document.getElementById("b_save").addEventListener("click", saveCode);
+  document.getElementById("b_save").addEventListener("click", saveCode, {capture: true});
   function saveCode(){
     let textInEditor = editorCodeMirror.getValue();
     var blob = new Blob([textInEditor], {type: "text/plain"});
@@ -732,14 +728,30 @@ function setUpCodeMirror(){
     anchor.click();
   }
 
-  document.getElementById("b_docs").addEventListener("click", newTab);
+  document.getElementById("b_docs").addEventListener("click", newTab, {capture: true});
   function newTab(){
     let newTab = document.createElement('a');
     newTab.href = "https://github.com/sambourgault/coilCAM-docs";
     newTab.target = "_blank";
     newTab.click();
   }
+
+  document.getElementById("baby_pb").addEventListener("click", function(){changePrinterDims("baby")});
+  document.getElementById("super_pb").addEventListener("click", function(){changePrinterDims("super")});
   
+  function changePrinterDims(printerType){
+    console.log("click!!!!!");
+    if (printerType == "baby"){
+      console.log("baby");
+      potterbot_bedSize = [280, 265, 305];
+      main(initialTranslation,initialRotation, initialFieldOfView);
+    }
+    if (printerType == "super"){
+      console.log("sop");
+      potterbot_bedSize = [415, 405, 500];
+      main(initialTranslation,initialRotation, initialFieldOfView);
+    }
+  }
   
 }
 
