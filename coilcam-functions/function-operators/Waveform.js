@@ -1,4 +1,4 @@
-import {fs} from 'fs';
+// import {fs} from 'fs';
 
 function waveform(filepath, nbPoints, offset, heightRange, widthRange){
     const values = [];

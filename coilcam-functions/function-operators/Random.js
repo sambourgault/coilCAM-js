@@ -73,6 +73,10 @@ function randomBumps(heightRange, widthRange, scatterRange, nbPoints, offset, mo
     if(mode !== modes){
         mode = "square";
     }
-    
+
+    if(!Array.isArray(heightRange)){heightRange = [heightRange]}; //convert single value to 1x1 array
+    if(!Array.isArray(widthRange)){widthRange = [widthRange]};
+    if(!Array.isArray(scatterRange)){scatterRange = [scatterRange]};
+
     return append(heightRange, widthRange, scatterRange, nbPoints, offset, mode);
 }

@@ -679,10 +679,10 @@ function setUpCodeMirror(){
   
 
   document.getElementById('b_upload').addEventListener('click', function() {
-    document.getElementById('file_input').click();
+    document.getElementById('file_input').click(); //won't trigger when page loads
   }, {capture: true});
   
-  document.getElementById('file_input').addEventListener('change', function(event) {
+  document.getElementById('file_input').addEventListener('change', function(event) { //changes codemirror editor
     const file = event.target.files[0];
     if (file) {
       const fileExtension = file.name.split('.').pop();
@@ -705,9 +705,11 @@ function setUpCodeMirror(){
   });
 
 
+  
+
+
 
   document.getElementById("b_run").addEventListener("click", runCode);
-
   function runCode() {
     const codeToRun = editorCodeMirror.getValue();
     try {
@@ -740,19 +742,99 @@ function setUpCodeMirror(){
   document.getElementById("super_pb").addEventListener("click", function(){changePrinterDims("super")});
   
   function changePrinterDims(printerType){
-    console.log("click!!!!!");
     if (printerType == "baby"){
-      console.log("baby");
       potterbot_bedSize = [280, 265, 305];
       main(initialTranslation,initialRotation, initialFieldOfView);
     }
     if (printerType == "super"){
-      console.log("sop");
       potterbot_bedSize = [415, 405, 500];
       main(initialTranslation,initialRotation, initialFieldOfView);
     }
   }
+
+
+
+  //Upload data
+  document.getElementById('b_upload_files').addEventListener('click', function(){
+    document.getElementById('upload_data').click();
+  }, {capture: true});
+  document.getElementById('upload_data').addEventListener('change', handleFiles);
+
+  function handleFiles(event){ //adds file to sidebar
+    const file = event.target.files[0];
+    if (file) {
+      const fileExtension = file.name.split('.').pop();
+      let validExtensions = ['txt', 'wav', 'json', 'csv']; //arbitrary, can be expanded
+      if (validExtensions.includes(fileExtension)) { 
+        var contents;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          contents = e.target.result;
+        };
+        
+        reader.onerror = function(e) {
+          console.error('Error reading file:', e);
+        };
+
+        reader.readAsText(file);
+        localStorage.setItem(file.name, contents);
+
+        //add new button to dropbox area
+        const newButton = document.createElement('uploaded_file_button');
+        newButton.textContent = file.name;
+        newButton.classList.add('dynamic-button');
+
+        //event listener to display file in new window on click
+        newButton.addEventListener('click', function() {
+          const dataBlob = new Blob([contents], { type: 'text/plain' });
+          var dataFile = new File([dataBlob], file.name, {type: "text/plain"});
+          const dataUrl = URL.createObjectURL(dataFile);
+          window.open(dataUrl);
+        });
+        document.getElementById('dropbox').appendChild(newButton);
+
+      } else{
+        consoleCodeMirror.replaceRange(`$ `+(`${"Uploaded file name must end with: "+validExtensions.join(" ")}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+      }
+    }
+    else{console.log("no file");}
+  }
   
+
+  //drag + drop functionality, untested
+  let dropbox = document.getElementById("dropbox");
+  dropbox.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropbox.classList.add('dragging');
+  });
+  dropbox.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropbox.classList.remove('dragging');
+  });
+  dropbox.addEventListener("dragenter", function(e){
+    e.stopPropagation();
+    e.preventDefault();
+  });
+  dropbox.addEventListener("drop", function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    dropbox.classList.remove('dragging');
+    // handleFiles();
+    handleFiles({ target: { files: files } });
+  });
+
+
+  
+  document.getElementById('dropbox').appendChild(newButton);
+
+  
+
+
 }
 
 main();

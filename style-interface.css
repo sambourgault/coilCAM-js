@@ -243,11 +243,14 @@ h2{
   height: 40em;
 }
 
-/* .CC-header{
-  background-color: #f1f1f1;
+#drop_zone {
+  border: 2px dashed #ccc;
   padding: 20px;
   text-align: center;
-  font-size: 30px;
-  height: 10%;
-} */
+}
+
+.uploaded_file_button{
+  padding: 2em 2em;
+  background-color: var(--off-white);
+}
  
