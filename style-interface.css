@@ -58,6 +58,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 button{
+  font-size: 1em;
   font-family: var(--font);
   background:var(--orange);
   /* border-color: black; */
@@ -66,6 +67,12 @@ button{
   padding: .2em .5em;
   color: white;
   cursor: pointer; 
+}
+
+.upload-button{
+  position: absolute;
+  top:10px;
+  right:10px;
 }
 
 
@@ -95,9 +102,6 @@ button{
 }
 
 
-button{
-  font-size: 1em;
-}
 
 .codediv{
   margin-left: 20px;
@@ -233,6 +237,10 @@ h2{
   background: gray;
   height: 100%;
   padding: 0px;
+}
+.files-group {
+  background-color: gray;
+  height: 40em;
 }
 
 /* .CC-header{

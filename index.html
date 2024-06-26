@@ -49,6 +49,12 @@
 </div>
 
 <div class="split">
+  <div class="split-files">
+    <button type="upload-button" id="b_upload_files">upload files</button> 
+    <div class="files-group">
+    </div>
+    <div id="file-area"></div>
+  </div>
   <div class="cell split-editors">
     <div class="cell split-editor">
       <textarea id = "editor"></textarea>
@@ -64,9 +70,10 @@
 
 
 <script>
-  Split(['.split-editors', '.split-window'], {
-    sizes: [50, 50],
+  Split(['.split-files', '.split-editors', '.split-window'], {
+    sizes: [10, 40, 50],
     maxSize: [Infinity, Infinity],
+    minSize: 10,
     direction: 'horizontal',
     cursor: 'row-resize'
   });
@@ -181,6 +188,11 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 <script src="coilcam-functions/function-operators/Sinusoidal.js"></script>
 <script src="coilcam-functions/function-operators/Square.js"></script>
 <script src="coilcam-functions/function-operators/Staircase.js"></script>
+<script src="coilcam-functions/function-operators/Random.js"></script>
+<script type="module" src="coilcam-functions/function-operators/Waveform.js">
+  import {Waveform} from './coilcam-functions/function-operators/Waveform.js';
+</script>
+
 <script src="examples_for_esme/test.js"></script>
 
 <script src="coilcam-functions/setup/GCodeGenerator.js"></script>

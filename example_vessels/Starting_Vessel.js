@@ -26,4 +26,5 @@ updatePath(toolpath, refVessel);
 
 // GENERATE GCODE
 var gcode_string = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_printSpeed);
+console.log(gcode_string);
 // downloadGCode(gcode_string, "simple_vessel.gcode"); 
