@@ -763,9 +763,11 @@ function setUpCodeMirror(){
   function handleFiles(event){ //adds file to sidebar
     const file = event.target.files[0];
     if (file) {
-      const fileExtension = file.name.split('.').pop();
+      var fileExtension = file.name.split('.').pop();
+      console.log("extension", fileExtension);
       let validExtensions = ['txt', 'wav', 'json', 'csv']; //arbitrary, can be expanded
       if (validExtensions.includes(fileExtension)) { 
+        console.log("accepted");
         var contents;
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -777,7 +779,11 @@ function setUpCodeMirror(){
         };
 
         reader.readAsText(file);
+
+        
         localStorage.setItem(file.name, contents);
+      
+        
 
         //add new button to dropbox area
         const newButton = document.createElement('uploaded_file_button');
@@ -787,21 +793,31 @@ function setUpCodeMirror(){
         //event listener to display file in new window on click
         newButton.addEventListener('click', function() {
           const dataBlob = new Blob([contents], { type: 'text/plain' });
-          var dataFile = new File([dataBlob], file.name, {type: "text/plain"});
+          var dataFile = new File([dataBlob], file.name+"\n", {type: "text/plain"});
           const dataUrl = URL.createObjectURL(dataFile);
           window.open(dataUrl);
         });
         document.getElementById('dropbox').appendChild(newButton);
 
-      } else{
-        consoleCodeMirror.replaceRange(`$ `+(`${"Uploaded file name must end with: "+validExtensions.join(" ")}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+        // //add trash button to new button
+        // const trashButton = document.createElement('trashButton');
+        // newButton.textContent = "X";
+        // trashButton.classList.add('trash-button');
+
+        // //event listener to display file in new window on click
+        // trashButton.addEventListener('click', function() {
+        //   console.log("throw out file");
+        // });
+        // document.getElementById('uploaded_file_button').appendChild(trashButton);
+      }
+      else{
+        consoleCodeMirror.replaceRange(`$ `+(`${"File name must end with: "+validExtensions.join(" ")}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
       }
     }
-    else{console.log("no file");}
   }
   
 
-  //drag + drop functionality, untested
+  //drag + drop functionality
   let dropbox = document.getElementById("dropbox");
   dropbox.addEventListener('dragover', function(e) {
     e.preventDefault();

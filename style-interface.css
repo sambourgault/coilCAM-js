@@ -2,6 +2,8 @@
 
 :root {
   --gray: #1c1c1c;
+  --file-gray:#525252;
+  --file-gray-hover:#666666;
   --orange: #bd7b55;
   --teal: #92afa6;
   --off-white: #e5e8ce;
@@ -238,9 +240,19 @@ h2{
   height: 100%;
   padding: 0px;
 }
+
+.split-files{
+  width:100%;
+  height:100%;
+  background-color: black;
+}
 .files-group {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
   background-color: gray;
-  height: 40em;
+  width: 100%;
+  gap: .2em;
+  height: 100%;
 }
 
 #drop_zone {
@@ -249,8 +261,37 @@ h2{
   text-align: center;
 }
 
-.uploaded_file_button{
-  padding: 2em 2em;
-  background-color: var(--off-white);
+
+.dynamic-button{
+  border: none;
+  gap: 2em;
+  color: white;
+  box-sizing: border-box;
+  text-align: left;
+  padding: .4em .4em;
+  text-decoration: none;
+  width: 100%;
+  /* height: 2em; */
+  font-size: 16px;
+  background-color: var(--file-gray);
 }
- 
+
+.dynamic-button:hover{
+  border: none;
+  gap: 2em;
+  color: white;
+  box-sizing: border-box;
+  text-align: left;
+  padding: .4em .4em;
+  text-decoration: none;
+  width: 100%;
+  /* height: 2em; */
+  font-size: 16px;
+  background-color: var(--file-gray-hover);
+  cursor:pointer;
+}
+
+.trash-button{
+  text-align: right;
+}
+

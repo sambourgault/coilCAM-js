@@ -1,5 +1,8 @@
 // DEFAULT EXAMPLE
 
+// waveform('potterbot-1.txt', 100, 0, 100, 100);
+
+
 // POTTERBOT CONFIG
 var potterbot_printSpeed = 30;
 var potterbot_nozzleDiameter = 5.0;
