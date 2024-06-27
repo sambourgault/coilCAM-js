@@ -4,6 +4,7 @@
   --gray: #1c1c1c;
   --file-gray:#525252;
   --file-gray-hover:#666666;
+  --file-light-gray: #8e8e8e;
   --orange: #bd7b55;
   --teal: #92afa6;
   --off-white: #e5e8ce;
@@ -247,6 +248,7 @@ h2{
   background-color: black;
 }
 .files-group {
+  white-space: initial;
   display: flex;
   flex-direction: column; /* Stack children vertically */
   background-color: gray;
@@ -268,39 +270,46 @@ h2{
   color: white;
   box-sizing: border-box;
   text-align: left;
-  padding: .4em .4em;
+  padding: .01em .4em;
   text-decoration: none;
   width: 100%;
+  align-items: center;
   /* height: 2em; */
   font-size: 16px;
-  background-color: var(--file-gray);
+  /* background-color: var(--file-gray); */
 }
 
-.dynamic-button:hover{
+.trash-button{
+  text-align: right;
+  font-size: 1.7em;
+  color: var(--file-light-gray);
+}
+
+.trash-button:hover{
+  color: white;
+}
+
+.uploaded-file-div{
+  white-space: initial;
+  direction: column;
+  background-color: var(--file-gray);
+  width: 100%;
+  padding: .1em .4em;
+}
+
+
+.uploaded-file-div:hover{
   border: none;
   gap: 2em;
   color: white;
   box-sizing: border-box;
   text-align: left;
-  padding: .4em .4em;
+  padding: .1em .4em;
   text-decoration: none;
   width: 100%;
   /* height: 2em; */
   font-size: 16px;
   background-color: var(--file-gray-hover);
   cursor:pointer;
-}
-
-.trash-button{
-  text-align: right;
-}
-
-.uploaded-file-div{
-  display: flex;
-  flex-direction: column;
-  background-color: pink;
-  width: 100%;
-  height: 3em;
-  
 }
 

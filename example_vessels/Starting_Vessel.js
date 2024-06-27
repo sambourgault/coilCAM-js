@@ -1,6 +1,6 @@
 // DEFAULT EXAMPLE
 
-waveform('coilCAM_test.wav', 100, 0, 100, 100);
+waveform('sing-test.mid', 100, 0, 100, 100);
 
 
 // // POTTERBOT CONFIG

@@ -658,7 +658,9 @@ function setUpCodeMirror(){
   });
   consoleCodeMirror.setSize("100%", "100%");
 
-
+  function printErrorToCodeMirror(errorString){
+    consoleCodeMirror.replaceRange(`$ `+(errorString)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+  }
   
   //dropdown menu
   const exampleVessels={  //list of all examples
@@ -682,7 +684,8 @@ function setUpCodeMirror(){
     document.getElementById('file_input').click(); //won't trigger when page loads
   }, {capture: true});
   
-  document.getElementById('file_input').addEventListener('change', function(event) { //changes codemirror editor
+  //changes codemirror editor based on uploaded file
+  document.getElementById('file_input').addEventListener('change', function(event) { 
     const file = event.target.files[0];
     if (file) {
       const fileExtension = file.name.split('.').pop();
@@ -752,7 +755,7 @@ function setUpCodeMirror(){
     }
   }
 
-
+  
 
   //Upload data
   document.getElementById('b_upload_files').addEventListener('click', function(){
@@ -777,28 +780,30 @@ function setUpCodeMirror(){
     
     //add trash button to new button to throw out unnecessary files
     const trashButton = document.createElement('trashButton');
-    trashButton.textContent = "X";
+    trashButton.textContent = '\u{2612}';
     trashButton.classList.add('trash-button');
 
-    //event listener to display file in new window on click
+    
+    //event listener to remove file from localstorage
+    let divName = 'uploaded-file-div_'+filename.split('.')[0]+filename.split('.')[1];
     trashButton.addEventListener('click', function() {
       console.log("throw out file", filename);
       localStorage.removeItem(filename);
-      let divName = 'uploaded-file-div'+filename;
       parent = document.getElementById(divName);
       while (parent.firstChild) {
         parent.removeChild(parent.firstChild);
       }
-      this.remove(divName);
+      document.getElementById('dropbox').removeChild(parent);
     });
 
     let parentElement = document.createElement('div');
-    let divName = 'uploaded-file-div'+filename;
     parentElement.id = divName;
+    parentElement.className = 'uploaded-file-div';
     parentElement.classList.add('div');
     document.getElementById('dropbox').appendChild(parentElement);
-    document.getElementById(divName).appendChild(newButton)
+    
     document.getElementById(divName).appendChild(trashButton);
+    document.getElementById(divName).appendChild(newButton);
   }
 
   function handleFiles(event){ //adds file to sidebar
@@ -807,7 +812,7 @@ function setUpCodeMirror(){
       var fileExtension = file.name.split('.').pop();
       if(localStorage.getItem(file.name) === null){ //file has unique name
         console.log("extension", fileExtension);
-        let validExtensions = ['txt', 'wav', 'json', 'csv', 'mp3']; //arbitrary, can be expanded
+        let validExtensions = ['txt', 'wav', 'json', 'csv', 'mp3', 'mid']; //arbitrary, can be expanded
         if (validExtensions.includes(fileExtension)) { 
           var contents;
           const reader = new FileReader();
@@ -819,29 +824,34 @@ function setUpCodeMirror(){
             console.error('Error reading file:', e);
           };
 
-          if(fileExtension == 'txt' || fileExtension == 'csv' || fileExtension == 'json'){
+          if(fileExtension == 'txt' || fileExtension == 'csv' || fileExtension == 'json' ){
             reader.readAsText(file); //keep original contents
-            localStorage.setItem(file.name, contents);
-          }
-          if(fileExtension == 'wav' || fileExtension == 'mp3'){ //store as base64
+          } else if(fileExtension == 'wav' || fileExtension == 'mp3'|| fileExtension == 'mid'){ //store as base64
             reader.readAsDataURL(file);
-            reader.onload = function () {
-              contents = reader.result;
-              localStorage.setItem(file.name, contents);
-              // console.log("output", reader.result);
-            };
           }
-
-          addFileAsButton(file.name, contents);
+          reader.onload = function () {
+              contents = reader.result;
+            try{
+              localStorage.setItem(file.name, contents);
+              addFileAsButton(file.name, contents);
+            }catch(err){
+              if(err.name === "QuotaExceededError"){
+                printErrorToCodeMirror("File exceeds size limits.");
+              }
+            }
+          };
         }
         else{
-          consoleCodeMirror.replaceRange(`$ `+(`${"File name must end with: "+validExtensions.join(" ")}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+          printErrorToCodeMirror("File name must end with: "+validExtensions.join(" "));
         }
       }
+      else{
+        printErrorToCodeMirror("The file "+file.name+" already exists in localStorage.");
+      }
     } else{
-      console.log("File already exists in localStorage.");
-      throw new Error("File already exists in localStorage.");
+      printErrorToCodeMirror("Error uploading file."); 
     }
+    
   }
   
 
@@ -875,7 +885,6 @@ function setUpCodeMirror(){
     console.log("localstorage files");
     for(let i = 0; i < localStorage.length; i++) {
       addFileAsButton(localStorage.key(i), localStorage.getItem(localStorage.key(i)));
-      // console.log(i + ' = ' + localStorage[i]);
     }
   })
   
