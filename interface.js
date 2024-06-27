@@ -760,59 +760,87 @@ function setUpCodeMirror(){
   }, {capture: true});
   document.getElementById('upload_data').addEventListener('change', handleFiles);
 
+  function addFileAsButton(filename, contents){ //add file to lefthand toolbar
+    //add new button to dropbox area
+    const newButton = document.createElement('uploaded_file_button');
+    newButton.textContent = filename;
+    newButton.classList.add('dynamic-button');
+
+    //TOFIX: event listener to display file in new window on click
+    newButton.addEventListener('click', function() {
+      const dataBlob = new Blob([contents], { type: 'text/plain' });
+      var dataFile = new File([dataBlob], filename, {type: "text/plain"});
+      const dataUrl = URL.createObjectURL(dataFile);
+      window.open(dataUrl);
+    });
+    
+    
+    //add trash button to new button to throw out unnecessary files
+    const trashButton = document.createElement('trashButton');
+    trashButton.textContent = "X";
+    trashButton.classList.add('trash-button');
+
+    //event listener to display file in new window on click
+    trashButton.addEventListener('click', function() {
+      console.log("throw out file", filename);
+      localStorage.removeItem(filename);
+      let divName = 'uploaded-file-div'+filename;
+      parent = document.getElementById(divName);
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+      this.remove(divName);
+    });
+
+    let parentElement = document.createElement('div');
+    let divName = 'uploaded-file-div'+filename;
+    parentElement.id = divName;
+    parentElement.classList.add('div');
+    document.getElementById('dropbox').appendChild(parentElement);
+    document.getElementById(divName).appendChild(newButton)
+    document.getElementById(divName).appendChild(trashButton);
+  }
+
   function handleFiles(event){ //adds file to sidebar
     const file = event.target.files[0];
     if (file) {
       var fileExtension = file.name.split('.').pop();
-      console.log("extension", fileExtension);
-      let validExtensions = ['txt', 'wav', 'json', 'csv']; //arbitrary, can be expanded
-      if (validExtensions.includes(fileExtension)) { 
-        console.log("accepted");
-        var contents;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          contents = e.target.result;
-        };
-        
-        reader.onerror = function(e) {
-          console.error('Error reading file:', e);
-        };
+      if(localStorage.getItem(file.name) === null){ //file has unique name
+        console.log("extension", fileExtension);
+        let validExtensions = ['txt', 'wav', 'json', 'csv', 'mp3']; //arbitrary, can be expanded
+        if (validExtensions.includes(fileExtension)) { 
+          var contents;
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            contents = e.target.result;
+          };
+          
+          reader.onerror = function(e) {
+            console.error('Error reading file:', e);
+          };
 
-        reader.readAsText(file);
+          if(fileExtension == 'txt' || fileExtension == 'csv' || fileExtension == 'json'){
+            reader.readAsText(file); //keep original contents
+            localStorage.setItem(file.name, contents);
+          }
+          if(fileExtension == 'wav' || fileExtension == 'mp3'){ //store as base64
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+              contents = reader.result;
+              localStorage.setItem(file.name, contents);
+              // console.log("output", reader.result);
+            };
+          }
 
-        
-        localStorage.setItem(file.name, contents);
-      
-        
-
-        //add new button to dropbox area
-        const newButton = document.createElement('uploaded_file_button');
-        newButton.textContent = file.name;
-        newButton.classList.add('dynamic-button');
-
-        //event listener to display file in new window on click
-        newButton.addEventListener('click', function() {
-          const dataBlob = new Blob([contents], { type: 'text/plain' });
-          var dataFile = new File([dataBlob], file.name+"\n", {type: "text/plain"});
-          const dataUrl = URL.createObjectURL(dataFile);
-          window.open(dataUrl);
-        });
-        document.getElementById('dropbox').appendChild(newButton);
-
-        // //add trash button to new button
-        // const trashButton = document.createElement('trashButton');
-        // newButton.textContent = "X";
-        // trashButton.classList.add('trash-button');
-
-        // //event listener to display file in new window on click
-        // trashButton.addEventListener('click', function() {
-        //   console.log("throw out file");
-        // });
-        // document.getElementById('uploaded_file_button').appendChild(trashButton);
+          addFileAsButton(file.name, contents);
+        }
+        else{
+          consoleCodeMirror.replaceRange(`$ `+(`${"File name must end with: "+validExtensions.join(" ")}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+        }
       }
-      else{
-        consoleCodeMirror.replaceRange(`$ `+(`${"File name must end with: "+validExtensions.join(" ")}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
-      }
+    } else{
+      console.log("File already exists in localStorage.");
+      throw new Error("File already exists in localStorage.");
     }
   }
   
@@ -836,20 +864,21 @@ function setUpCodeMirror(){
   dropbox.addEventListener("drop", function(e) {
     e.stopPropagation();
     e.preventDefault();
-  
     const dt = e.dataTransfer;
     const files = dt.files;
     dropbox.classList.remove('dragging');
-    // handleFiles();
     handleFiles({ target: { files: files } });
   });
 
-
+  //load all files from localstorage on page load
+  document.addEventListener('DOMContentLoaded', function(e){
+    console.log("localstorage files");
+    for(let i = 0; i < localStorage.length; i++) {
+      addFileAsButton(localStorage.key(i), localStorage.getItem(localStorage.key(i)));
+      // console.log(i + ' = ' + localStorage[i]);
+    }
+  })
   
-  document.getElementById('dropbox').appendChild(newButton);
-
-  
-
 
 }
 

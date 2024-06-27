@@ -295,3 +295,12 @@ h2{
   text-align: right;
 }
 
+.uploaded-file-div{
+  display: flex;
+  flex-direction: column;
+  background-color: pink;
+  width: 100%;
+  height: 3em;
+  
+}
+
