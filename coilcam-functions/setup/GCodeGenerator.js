@@ -1,12 +1,15 @@
 //Helper functions for generateGCode
-function extrude(nozzleDiameter, layerHeight, segmentLen){
+function extrude(nozzleDiameter, layerHeight, segmentLen, thickness){
     let points = [];
     let extrusion_multiplier = (nozzleDiameter/1.91)**2; //extrusion multiplier for correct filament thickness
     let totalExtruded = 0;
+    let thicknessConstant = 0.25; //thickness is normalized between -1 and 1 
     points.push(0);
+    console.log("T", thickness);
     for(var i = 0; i < segmentLen.length; i++){
         var newPoint = (segmentLen[i]*layerHeight/nozzleDiameter) * (4/Math.PI + layerHeight/nozzleDiameter);
-        points.push(((newPoint + totalExtruded) * extrusion_multiplier).toFixed(4));
+        // newPoint += (newPoint * thickness[i] * thicknessConstant);
+        points.push(((newPoint + totalExtruded) * extrusion_multiplier).toFixed(3));
         totalExtruded += newPoint;
     }
     // E = SegmentLen*LayerHeight/NozzleWidth * (4/math.pi + LayerHeight/NozzleWidth)
@@ -23,20 +26,24 @@ function generateGCode(path, nozzleDiameter, printSpeed){ //main function
     let printSpeeds = [10000]; //First move should be 10000
     let segmentLen = [];
     
-    for(var i = 0; i < path.length - 3; i+=3){
-        segmentLen.push(euclideanDist(path.slice(i, i+3), path.slice(i+3, i+6))); //path is array of #s, not points
+    for(var i = 0; i < path.length - 4; i+=4){
+        segmentLen.push(euclideanDist(path.slice(i, i+4), path.slice(i+4, i+8))); //path is array of #s, not points
         printSpeeds.push(Math.floor(printSpeed*60));
     };
-    let extr = extrude(nozzleDiameter, layerHeight, segmentLen);
+    let thicknesses = path.filter((_, index) => (index + 1) % 4 === 0);
+    console.log(thicknesses.length);
+    let extr = extrude(nozzleDiameter, layerHeight, segmentLen, thicknesses);
     
     let startGcodePrefix = ";;; START GCODE ;;;\nM82 ;absolute extrusion mode\nG28 ;Home\nG1 X207.5 Y202.5 Z20 F10000 ;Move X and Y to center, Z to 20mm high\nG1 E2000 F20000 ; !!Prime Extruder\nG92 E0\n;;; ======\n";
     let endGcodePostfix = ";;; === END GCODE ===\nM83 ;Set to Relative Extrusion Mode\nG28 Z ;Home Z\n; === DEPRESSURIZE ===\nG91\nG91\nG1 E-200 F4000\nG90\nG90\n";
     let gcode = startGcodePrefix;
-    for(var i = 0; i < (path.length / 3); i++){ //path is an array of ints, not represented as tuples
-        x = round2pt(path[(i*3)]);
-        y = round2pt(path[(i*3)+1]);
-        z = round2pt(path[(i*3)+2]);
-        gcode += "G1 F" + printSpeeds[i]+ " X"+ x +" Y" + y + " Z" + z + " E" + extr[i] +"\n";
+    let ctr = 0;
+    for(var i = 0; i < (path.length); i+=4){ //path is an array of ints, not represented as tuples
+        x = round2pt(path[i]);
+        y = round2pt(path[i+1]);
+        z = round2pt(path[i+2]);
+        gcode += "G1 F" + printSpeeds[ctr]+ " X"+ x +" Y" + y + " Z" + z + " E" + extr[ctr] +"\n";
+        ctr++; 
     }
     gcode += endGcodePostfix;
     return gcode;

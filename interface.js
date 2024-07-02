@@ -25,15 +25,18 @@ async function getExampleVessel(file){
 let path = []; //toolpath for vessel
 let referencePath = []; //reference layer (optional)
 let bedPath = []; //toolpath for bed
-var potterbot_bedSize = [280, 265, 305];
+var bedDimensions = [280, 265, 305];
 let triangularizedPath = [];
 let updatedPath = true;
+let editingParameter = false; //for editing toolpath
+let numEditPoints = 0;
 let initialTranslation = [0, -50, -700];
 var initialRotation = [degToRad(-45), degToRad(0), degToRad(10)];
 var initialFieldOfView = degToRad(40);
 
 function updatePath(newPath, refPath=[]){
   updatedPath = true;
+  editingParameter = false;
   path = newPath;
   referencePath = refPath;
   main(initialTranslation,initialRotation, initialFieldOfView);
@@ -244,10 +247,14 @@ function main() {
     var primitiveType = gl.LINE_STRIP;
     var offset = 22;
 
+    
     // vessel
     gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
     if(path.length > 0){
-      gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5 - offset); //correct?
+      if(editingParameter){
+        gl.drawArrays(gl.QUADS,path.length*1.5 - offset - (numEditPoints*editingParameter));
+      }
+      gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5 - offset - (numEditPoints*editingParameter));
     }
 
     // reference path
@@ -527,49 +534,49 @@ var m4 = {
 
 
 function addBedPath(){
-  let bedXOffset = potterbot_bedSize[0]/2
-  let bedYOffset = potterbot_bedSize[1]/2;
+  let bedXOffset = bedDimensions[0]/2
+  let bedYOffset = bedDimensions[1]/2;
 
   let base_vertices = [
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, -0.2,
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, -0.2,
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, -0.2,
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, -0.2,
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, -0.2,
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, -0.2 
   ] //2 triangles, 6 points total
   return base_vertices;
 }
 
 function addPrinterGuidelines(){
-  let bedXOffset = potterbot_bedSize[0]/2
-  let bedYOffset = potterbot_bedSize[1]/2;
+  let bedXOffset = bedDimensions[0]/2
+  let bedYOffset = bedDimensions[1]/2;
   let bedZoffset = -0.2;
   let printer_guidelines = [
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset,
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset,
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset,
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset,
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
     
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
   ] //16 points total
   return printer_guidelines;
@@ -606,16 +613,33 @@ function triangularize(path){
   return trianglePath;
 }
 
-function setPath(gl, path, referencePath, bedDimensions) {
+// function addEditPoints(parameterPath){ //diamond shape
+//   let points = [];
+//   let thickness = 3;
+//   for(let i = 0; i < parameterPath.length; i+=4){
+//     points.push(parameterPath[i], parameterPath[i+1], path[i+2]-thickness);
+//     points.push(parameterPath[i]+thickness, parameterPath[i+1], path[i+2]);
+//     points.push(parameterPath[i], parameterPath[i+1], path[i+2]+thickness);
+//     points.push(parameterPath[i], parameterPath[i+1], path[i+2]-thickness);
+//     points.push(parameterPath[i]-thickness, parameterPath[i+1], path[i+2]);
+//     points.push(parameterPath[i], parameterPath[i+1], path[i+2]+thickness);
+//   }
+//   numEditPoints = points.length;
+//   return points;
+// }
+
+function setPath(gl, path, referencePath, parameterPath) {
   bedPath = addBedPath(bedDimensions).concat(addPrinterGuidelines(bedDimensions)); //16 extra points
   let combinedPath = [];
-  // console.log("path length", path.length);
   if(referencePath.length != 0){
-    // combinedPath = bedPath.concat(referencePath).concat((path));
     combinedPath = bedPath.concat(triangularize(referencePath)).concat(triangularize(path));
   } else{
     combinedPath = bedPath.concat(triangularize(path));
   }
+  // if(editingParameter){ //display points that can be grabbed/edited
+  //   combinedPath = combinedPath.concat(addEditPoints(parameterPath));
+  // }
+  
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array(combinedPath),
@@ -658,7 +682,9 @@ function setUpCodeMirror(){
   });
   consoleCodeMirror.setSize("100%", "100%");
 
-
+  function printErrorToCodeMirror(errorString){
+    consoleCodeMirror.replaceRange(`$ `+(errorString)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+  }
   
   //dropdown menu
   const exampleVessels={  //list of all examples
@@ -679,10 +705,11 @@ function setUpCodeMirror(){
   
 
   document.getElementById('b_upload').addEventListener('click', function() {
-    document.getElementById('file_input').click();
+    document.getElementById('file_input').click(); //won't trigger when page loads
   }, {capture: true});
   
-  document.getElementById('file_input').addEventListener('change', function(event) {
+  //changes codemirror editor based on uploaded file
+  document.getElementById('file_input').addEventListener('change', function(event) { 
     const file = event.target.files[0];
     if (file) {
       const fileExtension = file.name.split('.').pop();
@@ -705,9 +732,11 @@ function setUpCodeMirror(){
   });
 
 
+  
+
+
 
   document.getElementById("b_run").addEventListener("click", runCode);
-
   function runCode() {
     const codeToRun = editorCodeMirror.getValue();
     try {
@@ -740,19 +769,150 @@ function setUpCodeMirror(){
   document.getElementById("super_pb").addEventListener("click", function(){changePrinterDims("super")});
   
   function changePrinterDims(printerType){
-    console.log("click!!!!!");
     if (printerType == "baby"){
-      console.log("baby");
-      potterbot_bedSize = [280, 265, 305];
+      bedDimensions = [280, 265, 305];
       main(initialTranslation,initialRotation, initialFieldOfView);
     }
     if (printerType == "super"){
-      console.log("sop");
-      potterbot_bedSize = [415, 405, 500];
+      bedDimensions = [415, 405, 500];
       main(initialTranslation,initialRotation, initialFieldOfView);
     }
   }
+
   
+
+  //Upload data
+  document.getElementById('b_upload_files').addEventListener('click', function(){
+    document.getElementById('upload_data').click();
+  }, {capture: true});
+  document.getElementById('upload_data').addEventListener('change', handleFiles);
+
+  function addFileAsButton(filename, contents){ //add file to lefthand toolbar
+    //add new button to dropbox area
+    const newButton = document.createElement('uploaded_file_button');
+    newButton.textContent = filename;
+    newButton.classList.add('dynamic-button');
+
+    //TOFIX: event listener to display file in new window on click
+    newButton.addEventListener('click', function() {
+      const dataBlob = new Blob([contents], { type: 'text/plain' });
+      var dataFile = new File([dataBlob], filename, {type: "text/plain"});
+      const dataUrl = URL.createObjectURL(dataFile);
+      window.open(dataUrl);
+    });
+    
+    
+    //add trash button to new button to throw out unnecessary files
+    const trashButton = document.createElement('trashButton');
+    trashButton.textContent = '\u{2612}';
+    trashButton.classList.add('trash-button');
+
+    
+    //event listener to remove file from localstorage
+    let divName = 'uploaded-file-div_'+filename.split('.')[0]+filename.split('.')[1];
+    trashButton.addEventListener('click', function() {
+      console.log("throw out file", filename);
+      localStorage.removeItem(filename);
+      parent = document.getElementById(divName);
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+      document.getElementById('dropbox').removeChild(parent);
+    });
+
+    let parentElement = document.createElement('div');
+    parentElement.id = divName;
+    parentElement.className = 'uploaded-file-div';
+    parentElement.classList.add('div');
+    document.getElementById('dropbox').appendChild(parentElement);
+    
+    document.getElementById(divName).appendChild(trashButton);
+    document.getElementById(divName).appendChild(newButton);
+  }
+
+  function handleFiles(event){ //adds file to sidebar
+    const file = event.target.files[0];
+    if (file) {
+      var fileExtension = file.name.split('.').pop();
+      if(localStorage.getItem(file.name) === null){ //file has unique name
+        console.log("extension", fileExtension);
+        let validExtensions = ['txt', 'wav', 'json', 'csv', 'mp3', 'mid']; //arbitrary, can be expanded
+        if (validExtensions.includes(fileExtension)) { 
+          var contents;
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            contents = e.target.result;
+          };
+          
+          reader.onerror = function(e) {
+            console.error('Error reading file:', e);
+          };
+
+          if(fileExtension == 'txt' || fileExtension == 'csv' || fileExtension == 'json' ){
+            reader.readAsText(file); //keep original contents
+          } else if(fileExtension == 'wav' || fileExtension == 'mp3'|| fileExtension == 'mid'){ //store as base64
+            reader.readAsDataURL(file);
+          }
+          reader.onload = function () {
+              contents = (reader.result);
+            try{
+              localStorage.setItem(file.name, contents);
+              addFileAsButton(file.name, contents);
+            }catch(err){
+              if(err.name === "QuotaExceededError"){
+                printErrorToCodeMirror("File exceeds size limits.");
+              }
+            }
+          };
+        }
+        else{
+          printErrorToCodeMirror("File name must end with: "+validExtensions.join(" "));
+        }
+      }
+      else{
+        printErrorToCodeMirror("The file "+file.name+" already exists in localStorage.");
+      }
+    } else{
+      printErrorToCodeMirror("Error uploading file."); 
+    }
+    
+  }
+  
+
+  //drag + drop functionality
+  let dropbox = document.getElementById("dropbox");
+  dropbox.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropbox.classList.add('dragging');
+  });
+  dropbox.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropbox.classList.remove('dragging');
+  });
+  dropbox.addEventListener("dragenter", function(e){
+    e.stopPropagation();
+    e.preventDefault();
+  });
+  dropbox.addEventListener("drop", function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    dropbox.classList.remove('dragging');
+    handleFiles({ target: { files: files } });
+  });
+
+  //load all files from localstorage on page load
+  document.addEventListener('DOMContentLoaded', function(e){
+    console.log("localstorage files");
+    for(let i = 0; i < localStorage.length; i++) {
+      addFileAsButton(localStorage.key(i), localStorage.getItem(localStorage.key(i)));
+    }
+  })
+  
+
 }
 
 main();

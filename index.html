@@ -37,9 +37,9 @@
     </div>
     <button type="button" id="b_docs">documentation</button> 
   </div>
-  <div class = "CC-header-buttons-right">
+  <div class = "CC-header-buttons">
     <div class="dropdown">
-      <button type="button" id="b_printer_dims">printer dimensions</button> 
+      <button type="printer-button" id="b_printer_dims">printer dimensions</button> 
       <div id="example-dropdown" class="dropdown-content">
         <a id="baby_pb">baby potterbot</a>
         <a id="super_pb">super potterbot</a>
@@ -49,6 +49,12 @@
 </div>
 
 <div class="split">
+  <div class="split-files">
+    <input type="file" id="upload_data" hidden/>
+    <button type="upload-button" id="b_upload_files">upload files</button> 
+    <div class="files-group" id="dropbox">
+    </div>
+  </div>
   <div class="cell split-editors">
     <div class="cell split-editor">
       <textarea id = "editor"></textarea>
@@ -64,9 +70,10 @@
 
 
 <script>
-  Split(['.split-editors', '.split-window'], {
-    sizes: [50, 50],
+  Split(['.split-files', '.split-editors', '.split-window'], {
+    sizes: [10, 40, 50],
     maxSize: [Infinity, Infinity],
+    minSize: 10,
     direction: 'horizontal',
     cursor: 'row-resize'
   });
@@ -181,13 +188,17 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 <script src="coilcam-functions/function-operators/Sinusoidal.js"></script>
 <script src="coilcam-functions/function-operators/Square.js"></script>
 <script src="coilcam-functions/function-operators/Staircase.js"></script>
+<script src="coilcam-functions/function-operators/Random.js"></script>
+<script type="module" src="coilcam-functions/function-operators/Waveform.js">
+  import {Waveform} from './coilcam-functions/function-operators/Waveform.js';
+</script>
+
 <script src="examples_for_esme/test.js"></script>
 
 <script src="coilcam-functions/setup/GCodeGenerator.js"></script>
 <script src="coilcam-functions/setup/Spiralize.js"></script>
-<!-- <script src="coilcam-functions/setup/GCodeGenerator.js" type="module"></script> -->
 <script src="coilcam-functions/setup/ToolpathUnitGenerator.js"></script>
-<!-- <script src="coilcam-functions/setup/Base.js"></script> -->
+<script src="coilcam-functions/setup/ShowCurve.js"></script>
 <script type="module" src="coilcam-functions/setup/Base.js">
   import {Base} from './coilcam-functions/setup/Base.js';
 </script>

@@ -2,12 +2,16 @@
 
 :root {
   --gray: #1c1c1c;
+  --file-gray:#525252;
+  --file-gray-hover:#666666;
+  --file-light-gray: #8e8e8e;
   --orange: #bd7b55;
+  --light-orange: #db936a;
   --teal: #92afa6;
-  --off-white: #e5e8ce;
+  --off-white: #dfdfdf;
   --pink: #c1696c;
   /* --font: 'Stratos' */
-  --font: 'Verdana'
+  --font: 'Stratos', 'Verdana'
 }
 html{
   height: 100%;
@@ -58,6 +62,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 button{
+  font-size: 1em;
   font-family: var(--font);
   background:var(--orange);
   /* border-color: black; */
@@ -66,6 +71,30 @@ button{
   padding: .2em .5em;
   color: white;
   cursor: pointer; 
+}
+
+button:hover{
+  background:var(--light-orange);
+  cursor: pointer; 
+}
+
+.printer-button{
+  font-size: 1em;
+  font-family: var(--font);
+  background:var(--teal);
+  /* border-color: black; */
+  border: 0px;
+  border-style:solid;
+  padding: .2em .5em;
+  color: white;
+  cursor: pointer; 
+  align-items: right;
+}
+
+.upload-button{
+  position: absolute;
+  top:10px;
+  right:10px;
 }
 
 
@@ -95,9 +124,6 @@ button{
 }
 
 
-button{
-  font-size: 1em;
-}
 
 .codediv{
   margin-left: 20px;
@@ -156,6 +182,7 @@ h2{
   margin: 0px;
   padding: 0px;
   font-family: var(--font);
+  font-size: 1.3em;
   color: white;
 }
 
@@ -166,19 +193,15 @@ h2{
   /* height: 10%; */
   flex-direction: row;
   display: flex;
-  padding: 1em;
-  gap: 1em;
+  padding: .5em;
+  gap: .5em;
 }
 
 .CC-header-buttons{
   gap: .5em;
   float: right;
 }
-.CC-header-buttons-right{
-  gap: .5em;
-  color: var(--teal);
-  align-items: right;
-}
+
 
 
 
@@ -212,7 +235,7 @@ h2{
 /* webgl viewer */
 .split-window { 
   width: 100%;
-  background: teal;
+  background: var(--file-gray);
   height: 100%;
   padding: 10px;
 }
@@ -230,16 +253,82 @@ h2{
 }
 .split-console {
   width: 100%;
-  background: gray;
+  background: black;
   height: 100%;
   padding: 0px;
 }
 
-/* .CC-header{
-  background-color: #f1f1f1;
+.split-files{
+  width:100%;
+  height:100%;
+  background-color: black;
+}
+.files-group {
+  white-space: initial;
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  background-color: var(--file-light-gray);
+  width: 100%;
+  gap: .2em;
+  height: 100%;
+  padding: .2em;
+}
+
+#drop_zone {
+  border: 2px dashed #ccc;
   padding: 20px;
   text-align: center;
-  font-size: 30px;
-  height: 10%;
-} */
- 
+}
+
+
+.dynamic-button{
+  border: none;
+  gap: 2em;
+  color: white;
+  box-sizing: border-box;
+  text-align: left;
+  padding: 0em .4em;
+  text-decoration: none;
+  width: 100%;
+  align-items: center;
+  /* height: 2em; */
+  font-size: 16px;
+  /* background-color: var(--file-gray); */
+}
+
+.trash-button{
+  text-align: right;
+  font-size: 1.7em;
+  color: var(--file-light-gray);
+}
+
+.trash-button:hover{
+  color: white;
+}
+
+.uploaded-file-div{
+  white-space: initial;
+  direction: column;
+  background-color: var(--file-gray);
+  width: 100%;
+  padding: .1em .4em;
+}
+
+
+.uploaded-file-div:hover{
+  border: none;
+  gap: 2em;
+  color: white;
+  box-sizing: border-box;
+  text-align: left;
+  padding: .1em .4em;
+  text-decoration: none;
+  width: 100%;
+  /* height: 2em; */
+  font-size: 16px;
+  background-color: var(--file-gray-hover);
+  cursor:pointer;
+}
+
+
+
