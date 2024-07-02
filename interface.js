@@ -25,15 +25,18 @@ async function getExampleVessel(file){
 let path = []; //toolpath for vessel
 let referencePath = []; //reference layer (optional)
 let bedPath = []; //toolpath for bed
-var potterbot_bedSize = [280, 265, 305];
+var bedDimensions = [280, 265, 305];
 let triangularizedPath = [];
 let updatedPath = true;
+let editingParameter = false; //for editing toolpath
+let numEditPoints = 0;
 let initialTranslation = [0, -50, -700];
 var initialRotation = [degToRad(-45), degToRad(0), degToRad(10)];
 var initialFieldOfView = degToRad(40);
 
 function updatePath(newPath, refPath=[]){
   updatedPath = true;
+  editingParameter = false;
   path = newPath;
   referencePath = refPath;
   main(initialTranslation,initialRotation, initialFieldOfView);
@@ -244,10 +247,14 @@ function main() {
     var primitiveType = gl.LINE_STRIP;
     var offset = 22;
 
+    
     // vessel
     gl.uniform4f(fColorLocation, 0.0, 0.0, 0.0, 1.0); // Set toolpath color to black
     if(path.length > 0){
-      gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5 - offset); //correct?
+      if(editingParameter){
+        gl.drawArrays(gl.QUADS,path.length*1.5 - offset - (numEditPoints*editingParameter));
+      }
+      gl.drawArrays(gl.TRIANGLES, offset + referencePath.length*1.5, path.length*1.5 - offset - (numEditPoints*editingParameter));
     }
 
     // reference path
@@ -527,49 +534,49 @@ var m4 = {
 
 
 function addBedPath(){
-  let bedXOffset = potterbot_bedSize[0]/2
-  let bedYOffset = potterbot_bedSize[1]/2;
+  let bedXOffset = bedDimensions[0]/2
+  let bedYOffset = bedDimensions[1]/2;
 
   let base_vertices = [
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2,
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, -0.2 
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, -0.2,
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, -0.2,
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, -0.2,
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, -0.2,
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, -0.2,
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, -0.2 
   ] //2 triangles, 6 points total
   return base_vertices;
 }
 
 function addPrinterGuidelines(){
-  let bedXOffset = potterbot_bedSize[0]/2
-  let bedYOffset = potterbot_bedSize[1]/2;
+  let bedXOffset = bedDimensions[0]/2
+  let bedYOffset = bedDimensions[1]/2;
   let bedZoffset = -0.2;
   let printer_guidelines = [
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset,
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset,
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset,
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset,
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset,
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
     
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    -potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    -bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
-    potterbot_bedSize[0]*.5 + bedXOffset, -potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
-    potterbot_bedSize[0]*.5 + bedXOffset, potterbot_bedSize[1]*.5 + bedYOffset, bedZoffset + potterbot_bedSize[2],
+    bedDimensions[0]*.5 + bedXOffset, -bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
+    bedDimensions[0]*.5 + bedXOffset, bedDimensions[1]*.5 + bedYOffset, bedZoffset + bedDimensions[2],
 
   ] //16 points total
   return printer_guidelines;
@@ -606,16 +613,33 @@ function triangularize(path){
   return trianglePath;
 }
 
-function setPath(gl, path, referencePath, bedDimensions) {
+// function addEditPoints(parameterPath){ //diamond shape
+//   let points = [];
+//   let thickness = 3;
+//   for(let i = 0; i < parameterPath.length; i+=4){
+//     points.push(parameterPath[i], parameterPath[i+1], path[i+2]-thickness);
+//     points.push(parameterPath[i]+thickness, parameterPath[i+1], path[i+2]);
+//     points.push(parameterPath[i], parameterPath[i+1], path[i+2]+thickness);
+//     points.push(parameterPath[i], parameterPath[i+1], path[i+2]-thickness);
+//     points.push(parameterPath[i]-thickness, parameterPath[i+1], path[i+2]);
+//     points.push(parameterPath[i], parameterPath[i+1], path[i+2]+thickness);
+//   }
+//   numEditPoints = points.length;
+//   return points;
+// }
+
+function setPath(gl, path, referencePath, parameterPath) {
   bedPath = addBedPath(bedDimensions).concat(addPrinterGuidelines(bedDimensions)); //16 extra points
   let combinedPath = [];
-  // console.log("path length", path.length);
   if(referencePath.length != 0){
-    // combinedPath = bedPath.concat(referencePath).concat((path));
     combinedPath = bedPath.concat(triangularize(referencePath)).concat(triangularize(path));
   } else{
     combinedPath = bedPath.concat(triangularize(path));
   }
+  // if(editingParameter){ //display points that can be grabbed/edited
+  //   combinedPath = combinedPath.concat(addEditPoints(parameterPath));
+  // }
+  
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array(combinedPath),
@@ -746,11 +770,11 @@ function setUpCodeMirror(){
   
   function changePrinterDims(printerType){
     if (printerType == "baby"){
-      potterbot_bedSize = [280, 265, 305];
+      bedDimensions = [280, 265, 305];
       main(initialTranslation,initialRotation, initialFieldOfView);
     }
     if (printerType == "super"){
-      potterbot_bedSize = [415, 405, 500];
+      bedDimensions = [415, 405, 500];
       main(initialTranslation,initialRotation, initialFieldOfView);
     }
   }
@@ -830,7 +854,7 @@ function setUpCodeMirror(){
             reader.readAsDataURL(file);
           }
           reader.onload = function () {
-              contents = reader.result;
+              contents = (reader.result);
             try{
               localStorage.setItem(file.name, contents);
               addFileAsButton(file.name, contents);

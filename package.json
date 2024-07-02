@@ -21,7 +21,8 @@
     "jquery": "^3.7.1",
     "parcel-bundler": "^1.12.5",
     "polyline-normals": "^2.0.2",
-    "split.js": "^1.6.5"
+    "split.js": "^1.6.5",
+    "wavesurfer": "^1.3.4"
   },
   "devDependencies": {
     "parcel": "^2.12.0"
