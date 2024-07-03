@@ -661,8 +661,20 @@ function setUpCodeMirror(){
   editorCodeMirror = CodeMirror.fromTextArea(textArea, {
     lineNumbers: true,
     mode: 'javascript',
-    extraKeys: {"Ctrl-Space": "autocomplete"},
+    lineWrapping: true,
   }); 
+  window.onload = function() { //shortcut to comment out line
+    editorCodeMirror.setOption("extraKeys", {"Cmd-/":function(cm) {
+      let cursor = cm.getCursor();
+      let lineNumber = cursor.line;
+      let currentLine = cm.getLine(lineNumber);
+      if(currentLine.startsWith("//")){
+        editorCodeMirror.replaceRange(currentLine.slice(2), CodeMirror.Pos(lineNumber, 0), CodeMirror.Pos(lineNumber), 0);
+      } else{
+        editorCodeMirror.replaceRange("//"+currentLine, CodeMirror.Pos(lineNumber, 0), CodeMirror.Pos(lineNumber), 0);
+      }
+    }},);}
+
   editorCodeMirror.setSize("100%", "100%");
   getExampleVessel(pathToVessel) 
     .then(text => {editorCodeMirror.setValue(text)});
@@ -677,7 +689,9 @@ function setUpCodeMirror(){
   // configs
   consoleCodeMirror = CodeMirror.fromTextArea(textArea2, {
     lineNumbers: true,
-    mode: 'javascript'
+    mode: 'javascript',
+    lineWrapping: true,
+    
     //extraKeys: {"Ctrl-Space":"autocomplete"}
   });
   consoleCodeMirror.setSize("100%", "100%");
