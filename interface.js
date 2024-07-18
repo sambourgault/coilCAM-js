@@ -1,6 +1,7 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
+import { vertexShader3D, fragmentShader3D } from './shaders/canvas-shaders.js';
 
 function radToDeg(r) {
   return r * 180 / Math.PI;
@@ -67,17 +68,23 @@ function createProgram(gl, vertexShader, fragmentShader) {
   gl.deleteProgram(program);
 }
 
+
 function main() {
   // Get A WebGL context
+  
   var canvas = document.querySelector("#canvas");
   var gl = canvas.getContext("webgl", { depth: true });
   if (!gl) {
     return;
   }
+  
 
   // from webgl tutorials
   // setup GLSL program
-  var program = webglUtils.createProgramFromScripts(gl, ["vertex-shader-3d", "fragment-shader-3d"]);
+  // get vertex shaders from shader library
+  var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShader3D);
+  var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShader3D);
+  var program = createProgram(gl, vertexShader, fragmentShader);
 
   // look up where the vertex data needs to go.
   var positionLocation = gl.getAttribLocation(program, "a_position");

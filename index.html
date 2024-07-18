@@ -15,61 +15,79 @@
 
 <link rel="stylesheet" href="style-interface.css">
 <script src="codemirror-5.65.13/lib/codemirror.js"></script>
-  <link rel="stylesheet" href="codemirror-5.65.13/lib/codemirror.css">
-  <script src="codemirror-5.65.13/mode/javascript/javascript.js"></script>
-  <script src = "codemirror-5.65.13/addon/hint/show-hint.js"></script>
-  <script src = "codemirror-5.65.13/addon/hint/javascript-hint.js"></script> 
-  <script src = "codemirror-5.65.13/addon/comment/comment.js"></script>
-  <link rel="stylesheet" href = "codemirror-5.65.13/addon/hint/show-hint.css">
+<link rel="stylesheet" href="codemirror-5.65.13/lib/codemirror.css">
+<script src="codemirror-5.65.13/mode/javascript/javascript.js"></script>
+<script src = "codemirror-5.65.13/addon/hint/show-hint.js"></script>
+<script src = "codemirror-5.65.13/addon/hint/javascript-hint.js"></script> 
+<script src = "codemirror-5.65.13/addon/comment/comment.js"></script>
+<link rel="stylesheet" href = "codemirror-5.65.13/addon/hint/show-hint.css">
+
+<head>
+  <script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const url = new URL (window.location.href);
+      const params = url.searchParams;
+      const layoutType = params.get('layout');
+      console.log(layoutType);
+      if(layoutType == simple){
+        window.location.href = 'editor-simple';
+      }
+    });
+
+    const vesselName = params.get('example'); //TODO: change name?
+    var pathToVessel = "";
+  </script>
+</head>
 
 <body>
 
-
-<div class = "CC-header">
-  <h2>coilCAM-js</h2>
-  <div class = "CC-header-buttons">
-    <button type="button" id="b_run">run</button> 
-    <button type="button" id="b_save">save</button> 
-     <input type="file" id="file_input" hidden/>
-     <button type="button" id="b_upload">upload</button> 
-    <div class="dropdown">
-      <button type="button">examples</button>
-      <div id="example-dropdown" class="dropdown-content">
-        <a id="example-vase">demo vase</a>
-        <a id="example-cup">demo cup</a>
-        <a id="example-plate">demo plate</a>
+<div class = "page" id="layout">
+  <div class = "CC-header">
+    <h2>coilCAM-js</h2>
+    <div class = "CC-header-buttons">
+      <button type="button" id="b_run">run</button> 
+      <button type="button" id="b_save">save</button> 
+      <input type="file" id="file_input" hidden/>
+      <button type="button" id="b_upload">upload</button> 
+      <div class="dropdown">
+        <button type="button">examples</button>
+        <div id="example-dropdown" class="dropdown-content">
+          <a id="example-vase">demo vase</a>
+          <a id="example-cup">demo cup</a>
+          <a id="example-plate">demo plate</a>
+        </div>
+      </div>
+      <button type="button" id="b_docs">documentation</button> 
+    </div>
+    <div class = "CC-header-buttons">
+      <div class="dropdown">
+        <button type="printer-button" id="b_printer_dims">printer dimensions</button> 
+        <div id="example-dropdown" class="dropdown-content">
+          <a id="baby_pb">baby potterbot</a>
+          <a id="super_pb">super potterbot</a>
+        </div>
       </div>
     </div>
-    <button type="button" id="b_docs">documentation</button> 
   </div>
-  <div class = "CC-header-buttons">
-    <div class="dropdown">
-      <button type="printer-button" id="b_printer_dims">printer dimensions</button> 
-      <div id="example-dropdown" class="dropdown-content">
-        <a id="baby_pb">baby potterbot</a>
-        <a id="super_pb">super potterbot</a>
+
+  <div class="split">
+    <div class="cell split-files">
+      <input type="file" id="upload_data" hidden/>
+      <button type="upload-button" id="b_upload_files">upload files</button> 
+      <div class="files-group" id="dropbox">
       </div>
     </div>
-  </div>
-</div>
-
-<div class="split">
-  <div class="split-files">
-    <input type="file" id="upload_data" hidden/>
-    <button type="upload-button" id="b_upload_files">upload files</button> 
-    <div class="files-group" id="dropbox">
+    <div class="cell split-editors">
+      <div class="cell split-editor">
+        <textarea id = "editor"></textarea>
+      </div>
+      <div class="cell split-console">
+          <textarea id = "console"></textarea>
+      </div> 
     </div>
-  </div>
-  <div class="cell split-editors">
-    <div class="cell split-editor">
-      <textarea id = "editor"></textarea>
+    <div class="split-window">
+      <canvas id="canvas"></canvas>
     </div>
-    <div class="split-console">
-        <textarea id = "console"></textarea>
-    </div> 
-  </div>
-  <div class="split-window">
-    <canvas id="canvas"></canvas>
   </div>
 </div>
 
@@ -90,80 +108,7 @@
   );
 </script>
 
-<!-- load txt -->
-<script>
-  function loadTXT() {
-    let txt = "bla bla";
-    let e = document.getElementById("editor").value;
-    e.value = txt;
-    // document.getElementById("editor").value = "Fifth Avenue, New York City";
-  }
-</script>
-
-
-
-
-<!-- vertex shader 3D-->
-<script  id="vertex-shader-3d" type="x-shader/x-vertex">
-  attribute vec4 a_position;
-  attribute vec4 a_color;
-  
-  uniform mat4 u_matrix;
-  
-  varying vec4 v_color;
-  
-  void main() {
-    // Multiply the position by the matrix.
-    gl_Position = u_matrix * a_position;
-  
-    // Pass the color to the fragment shader.
-    v_color = a_color;
-  }
-  </script>
-
-  <!-- fragment shader 3D -->
-  <script  id="fragment-shader-3d" type="x-shader/x-fragment">
-    precision mediump float;
-    
-    // Passed in from the vertex shader.
-    varying vec4 v_color;
-    uniform vec4 fColor;
-    
-    void main() {
-      gl_FragColor = fColor;
-    }
-  </script>
-
-<!-- vertex shader 2D-->
-<script  id="vertex-shader-2d" type="notjs">
-
-  // an attribute will receive data from a buffer
-  attribute vec4 a_position;
-
-  // all shaders have a main function
-  void main() {
-
-    // gl_Position is a special variable a vertex shader
-    // is responsible for setting
-    gl_Position = a_position;
-  }
-
-</script>
-
-<!-- fragment shader 2D -->
-<script  id="fragment-shader-2d" type="notjs">
-
-  // fragment shaders don't have a default precision so we need
-  // to pick one. mediump is a good default
-  precision mediump float;
-
-  void main() {
-    // gl_FragColor is a special variable a fragment shader
-    // is responsible for setting
-    gl_FragColor = vec4(0, 0.5, 0, 1); // return redish-purple
-  }
-
-</script><!--
+<!--
 for most samples webgl-utils only provides shader compiling/linking and
 canvas resizing because why clutter the examples with code that's the same in every sample.
 See https://webglfundamentals.org/webgl/lessons/webgl-boilerplate.html

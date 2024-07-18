@@ -330,5 +330,6 @@ h2{
   cursor:pointer;
 }
 
-
-
+.page{
+  height:100vh
+}
