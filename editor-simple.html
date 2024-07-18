@@ -1,11 +1,31 @@
-
 <!DOCTYPE html>
 <html>
-<!--<script src="https://greggman.github.io/webgl-lint/webgl-lint.js"></script>
--->
 
 <!-- Resizing windows -->
 <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
+
+<!-- FlattenJS (for Boolean, Base)-->
+<script src="https://cdn.jsdelivr.net/npm/flatten-js@0.6.9/dist/flatten.umd.min.js"></script>
+
+<!-- CoilCAM library -->
+<script src="https://unpkg.com/coilcam-js@1.0.39/dist/module.js"></script>
+
+<!-- UI + updatePath functionality (for online editor) -->
+<script type="module" src="interface.js"></script>
+
+<script> //test CoilCAM library
+  // Wait for the document to load
+  console.log('TEST CC LIBRARY IN CONSOLE ON LOAD');
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("test start");
+    var linear2DOperator = linear2D(0.4, 1, 0.3, 0, 30, 0, "");
+
+    var toolpath = toolpathUnitGenerator([0, 0, 0], 30, 3, 30, 50, [], [], [], linear2DOperator, [], []);
+    // updatePath(spiralize(toolpath, 3));
+
+    console.log("test done");
+  });
+</script>
 
 <!-- Flatten-js for boolean operations -->
 <script src='https://unpkg.com/@flatten-js/core'></script>
@@ -20,7 +40,7 @@
   <script src="codemirror-5.65.13/mode/javascript/javascript.js"></script>
   <script src = "codemirror-5.65.13/addon/hint/show-hint.js"></script>
   <script src = "codemirror-5.65.13/addon/hint/javascript-hint.js"></script> 
-  <script src = "codemirror-5.65.13/addon/comment/comment.js"></script>
+  <!-- <script src = "codemirror-5.65.13/addon/comment/comment.js"></script> -->
   <link rel="stylesheet" href = "codemirror-5.65.13/addon/hint/show-hint.css">
 <body>
 
@@ -58,6 +78,9 @@
     <canvas id="canvas"></canvas>
   </div>
 </div>
+
+
+
 
 
 <script>
@@ -161,57 +184,6 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
 <script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/polyline-normals/dist/polyline-normals.min.js"></script>
-<script type="module" src="interface.js">
-  import {Base} from './coilcam-functions/setup/Base.js';
-</script>
-<script type="module" src="interface.js">
-  import {BooleanUnion} from './coilcam-functions/boolean/BooleanUnion.js';
-</script>
-<script type="module" src="interface.js">
-  import {BooleanDifference} from './coilcam-functions/boolean/BooleanDifference.js';
-</script>
-
-
-<!-- FlattenJS (for Boolean, Base)-->
-<script src="https://cdn.jsdelivr.net/npm/flatten-js@0.6.9/dist/flatten.umd.min.js"></script>
-
-
-<!-- CoilCAM Functions -->
-<script src="coilcam-functions/function-operators/Exponential.js"></script>
-<script src="coilcam-functions/function-operators/Linear.js"></script>
-<script src="coilcam-functions/function-operators/Sinusoidal.js"></script>
-<script src="coilcam-functions/function-operators/Square.js"></script>
-<script src="coilcam-functions/function-operators/Staircase.js"></script>
-<script src="coilcam-functions/function-operators/Random.js"></script>
-<script type="module" src="coilcam-functions/function-operators/Waveform.js">
-  import {Waveform} from './coilcam-functions/function-operators/Waveform.js';
-</script>
-
-<script src="coilcam-functions/setup/GCodeGenerator.js"></script>
-<script src="coilcam-functions/setup/Spiralize.js"></script>
-<script src="coilcam-functions/setup/ToolpathUnitGenerator.js"></script>
-<script src="coilcam-functions/setup/ShowCurve.js"></script>
-<script type="module" src="coilcam-functions/setup/Base.js">
-  import {Base} from './coilcam-functions/setup/Base.js';
-</script>
-<!-- <script src="coilcam-functions/setup/PrinterPresets.js" type="application/javascript"></script> -->
-<script type="module" src="coilcam-functions/setup/Spiralize.js">
-  import {Spiralize} from './coilcam-functions/setup/Spiralize.js';
-</script>
-<script src="coilcam-functions/setup/CenterPrint.js"></script>
-
-
-<script src="coilcam-functions/2D-functions/Linear2D.js"></script>
-<script src="coilcam-functions/2D-functions/Sinusoidal2D.js"></script>
-<script type="module" src="coilcam-functions/boolean/BooleanUnion.js">
-  import {BooleanUnion} from './coilcam-functions/boolean/BooleanUnion.js';
-</script>
-<script type="module" src="coilcam-functions/boolean/BooleanDifference.js">
-  import {BooleanDifference} from './coilcam-functions/boolean/BooleanDifference.js';
-</script>
-<script src="index.js"></script>
-<!-- <script type="application/javascript" src="coilcam-functions/boolean/BooleanUnion.js"></script> -->
-<script type="module" src="coilcam-functions/test.js"></script>
 
 </body>
 </html>

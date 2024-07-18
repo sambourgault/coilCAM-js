@@ -21,6 +21,7 @@ async function getExampleVessel(file){
   } catch(error){
     console.error('Error fetching file:', error);
   }
+  return null;
 }
 
 let path = []; //toolpath for vessel
@@ -81,11 +82,11 @@ function main() {
 
   // from webgl tutorials
   // setup GLSL program
-  // get vertex shaders from shader library
+  // var program = webglUtils.createProgramFromScripts(gl, ["vertex-shader-3d", "fragment-shader-3d"]);
+  
   var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShader3D);
   var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShader3D);
   var program = createProgram(gl, vertexShader, fragmentShader);
-
   // look up where the vertex data needs to go.
   var positionLocation = gl.getAttribLocation(program, "a_position");
 
@@ -663,8 +664,29 @@ function setUpCodeMirror(){
   textArea = document.getElementById("editor");
   textArea.className = 'codemirror_textarea';
 
-  // configs
-  var pathToVessel = 'example_vessels/Starting_Vessel.js'; //name of vessel to be loaded as default
+  // set default codemirror text content
+  var defaultPathToVessel = 'example_vessels/Default_Vessel.js';
+  getExampleVessel(defaultPathToVessel) 
+  .then(text => {editorCodeMirror.setValue(text)});
+  
+  // Check URL parameters for example vessel to load in
+  // since there are no buttons in the simple viewer
+  const currentUrl = window.location.href;
+  const url = new URL (currentUrl);
+  const params = url.searchParams;
+  console.log("params", params);
+  const folder = params.get('folder'); //specifies folder
+  const vesselName = params.get('example'); //specifies name of file 
+
+  if(vesselName !== null && folder !== null){
+    var pathToVessel = folder+'/'+vesselName+'.js'; //from URL parameters
+    getExampleVessel(pathToVessel).then(text => {
+      if(text !== null){
+        editorCodeMirror.setValue(text)
+      }
+    });
+  }
+
   editorCodeMirror = CodeMirror.fromTextArea(textArea, {
     lineNumbers: true,
     mode: 'javascript',
@@ -683,8 +705,6 @@ function setUpCodeMirror(){
     }},);}
 
   editorCodeMirror.setSize("100%", "100%");
-  getExampleVessel(pathToVessel) 
-    .then(text => {editorCodeMirror.setValue(text)});
   
   // code editor console
   textArea2 = document.getElementById("console");

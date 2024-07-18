@@ -42,22 +42,22 @@ console.log(gcode_string);
 
 
 
-// let wave = waveform('coilCAM_test.wav');
+// // let wave = waveform('coilCAM_test.wav');
 
-// POTTERBOT CONFIG
-var potterbot_printSpeed = 30;
-var potterbot_nozzleDiameter = 5.0;
-var potterbot_layerHeight = 4.8;
-var potterbot_extrusionMultiplier = 1.0;
-var bedDimensions = [280, 265, 305];
-// VESSEL PARAMETERS
-var nbLayers = 40;
-var nbPointsInLayer = 53;
-var vesselRadius = 35;
-var position = [0, 0, potterbot_layerHeight*1.5];
-var scalingParameter = sinusoidal(10, 60, 20, nbLayers, 0, "");
+// // POTTERBOT CONFIG
+// var potterbot_printSpeed = 30;
+// var potterbot_nozzleDiameter = 5.0;
+// var potterbot_layerHeight = 4.8;
+// var potterbot_extrusionMultiplier = 1.0;
+// var bedDimensions = [280, 265, 305];
+// // VESSEL PARAMETERS
+// var nbLayers = 40;
+// var nbPointsInLayer = 53;
+// var vesselRadius = 35;
+// var position = [0, 0, potterbot_layerHeight*1.5];
+// var scalingParameter = sinusoidal(10, 60, 20, nbLayers, 0, "");
 
-updatePath(showCurve(scalingParameter, false, position, vesselRadius, potterbot_layerHeight, nbPointsInLayer, nbPointsInLayer));
+// updatePath(showCurve(scalingParameter, false, position, vesselRadius, potterbot_layerHeight, nbPointsInLayer, nbPointsInLayer));
 
 
 
