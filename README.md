@@ -1,6 +1,6 @@
 # coilCAM-js
 
-![example coilcam objects](/img/coilcam_cool_stuff.png)
+![example coilcam objects](/assets/images/coilcam_cool_stuff.png)
 
 ## Description
 
@@ -16,7 +16,7 @@ A javascript version of the coilCAM system for clay 3D printing, enabling the us
 
 ## System Interface
 
-![screenshot of coilCAM-js](/img/interface.png)
+![screenshot of coilCAM-js](/assets/images/interface.png)
 </p>
 <p align = "center">
 Fig.1 - A screenshot of the CoilCAM.js interface.

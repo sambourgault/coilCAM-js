@@ -665,7 +665,7 @@ function setUpCodeMirror(){
   textArea.className = 'codemirror_textarea';
 
   // set default codemirror text content
-  var defaultPathToVessel = 'example_vessels/Default_Vessel.js';
+  var defaultPathToVessel = 'examples/DefaultVessel.js';
   getExampleVessel(defaultPathToVessel) 
   .then(text => {editorCodeMirror.setValue(text)});
   
@@ -728,10 +728,10 @@ function setUpCodeMirror(){
   }
   
   //dropdown menu
-  const exampleVessels={  //list of all examples
-    "example-cup":["example_vessels/CoilCAM_BooleanDemoCupV1.js"], 
-    "example-vase":["example_vessels/CoilCAM_BooleanDemoDish.js"], 
-    "example-plate":["example_vessels/CoilCAM_BumpsDish.js"]
+  const exampleVessels={ //add examples here
+    "example-cup":["examples/BooleanUnionCup.js"], 
+    "example-vase":["examples/SimpleVase.js"], 
+    "example-plate":["examples/BooleanUnionDish.js"]
   };
 
   for (let buttonID in exampleVessels){
