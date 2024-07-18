@@ -675,11 +675,12 @@ function setUpCodeMirror(){
   const url = new URL (currentUrl);
   const params = url.searchParams;
   console.log("params", params);
-  const folder = params.get('folder'); //specifies folder
-  const vesselName = params.get('example'); //specifies name of file 
+  var folder = params.get('folder'); //specifies folder
+  var vesselName = params.get('example'); //specifies name of file 
 
-  if(vesselName !== null && folder !== null){
-    var pathToVessel = folder+'/'+vesselName+'.js'; //from URL parameters
+  if(vesselName !== null){
+    if(folder == null){ folder = ""; }
+    var pathToVessel = "examples/" + folder+'/'+vesselName+'.js'; //from URL parameters
     getExampleVessel(pathToVessel).then(text => {
       if(text !== null){
         editorCodeMirror.setValue(text)
