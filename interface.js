@@ -780,6 +780,7 @@ function setUpCodeMirror(){
 
   document.getElementById("b_run").addEventListener("click", runCode);
   function runCode() {
+    console.log('run');
     const codeToRun = editorCodeMirror.getValue();
     try {
       consoleCodeMirror.replaceRange(`$ `+eval(`${codeToRun}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
