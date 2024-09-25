@@ -27,7 +27,8 @@
 <!-- CoilCAM library -->
 <!-- <script src="https://unpkg.com/coilcam-js@1.0.39/dist/module.js"></script> -->
 <!-- CoilCAM library (includes Flatten-js for union + difference + base functions) -->
-<script src="https://unpkg.com/coilcam@latest/dist/module.js"></script>
+<script src="https://unpkg.com/coilcam@1.0.29/dist/module.js"></script>
+<!-- <script src="https://unpkg.com/coilcam@latest/dist/module.js"></script> -->
 
 <!-- Resizing windows (Split-js)-->
 <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
@@ -42,11 +43,13 @@
 
 <script> //test CoilCAM library
   // Wait for the document to load
-  console.log('TEST COILCAM LIBRARY IN CONSOLE ON LOAD');
   document.addEventListener("DOMContentLoaded", () => {
-    var linear2DOperator = linear2D(0.4, 1, 0.3, 0, 30, 0, "");
-    var toolpath = toolpathUnitGenerator([0, 0, 0], 30, 3, 30, 50, [], [], [], linear2DOperator, [], []);
-    console.log("TEST COMPLETE");
+    try{
+      var linear2DOperator = linear2D(0.4, 1, 0.3, 0, 30, 0, "");
+      var toolpath = toolpathUnitGenerator([0, 0, 0], 30, 3, 30, 50, [], [], [], linear2DOperator, [], []);
+    } catch{
+      console.log("CoilCAM library test failed.");
+    }
   });
 </script>
 

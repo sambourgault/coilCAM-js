@@ -1,5 +1,3 @@
-// Default Example
-
 // POTTERBOT CONFIGURATION
 var potterbot_printSpeed = 30;
 var potterbot_nozzleDiameter = 5.0;
@@ -22,6 +20,8 @@ var toolpath = b.concat(spiralize(vessel, potterbot_layerHeight));
 toolpath = centerPrint(toolpath, position, potterbot_bedSize, potterbot_layerHeight);
 updatePath(toolpath);
 
-// // GENERATE GCODE
+// GENERATE GCODE
 var gcode = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_printSpeed);
-// // downloadGCode(gcode, "CC_default_vessel.gcode"); 
+
+// SAVE GCODE
+// downloadGCode(gcode, "CC_default_vessel.gcode"); 
