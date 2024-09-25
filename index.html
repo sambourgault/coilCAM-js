@@ -1,34 +1,13 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <!-- REDIRECT TO simple-editor-index.html if URL param = simple -->
-    <!-- simple editor is used to embed in hugo documentation -->
-    <!-- Example URL params: index.html/?interface=simple&folder=tutorial-functions&example=functions_union-->
-    <script type="module">
-      (function() {
-          const currentUrl = window.location.href;
-          const url = new URL (currentUrl);
-          const params = url.searchParams;
-          var interfaceType = params.get('interface');
-
-          if (interfaceType === 'simple') { // keep other URL parameters but redirect to simple-editor-index
-              params.delete('interface');
-              const newUrl = new URL('/simple-editor-index.html', window.location.origin);
-              newUrl.search = params.toString(); // add existing parameters to new URL
-              window.location.href = newUrl.href;
-          }
-      })();
-    </script>
-  </head>
-
 
 <!-- LIBRARIES / IMPORTS -->
  
 <!-- CoilCAM library -->
 <!-- <script src="https://unpkg.com/coilcam-js@1.0.39/dist/module.js"></script> -->
 <!-- CoilCAM library (includes Flatten-js for union + difference + base functions) -->
-<script src="https://unpkg.com/coilcam@1.0.29/dist/module.js"></script>
-<!-- <script src="https://unpkg.com/coilcam@latest/dist/module.js"></script> -->
+<!-- <script src="https://unpkg.com/coilcam@1.0.29/dist/module.js"></script> -->
+<script src="https://unpkg.com/coilcam@1.0.32/dist/module.js"></script>
 
 <!-- Resizing windows (Split-js)-->
 <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
@@ -38,7 +17,7 @@
 
 <!-- testing -->
 <script type="module" src="tug.js"></script>
-<script type="module" src="myunion.js"></script>
+<script type="module" src="mystaircase.js"></script>
 
 
 <script> //test CoilCAM library
