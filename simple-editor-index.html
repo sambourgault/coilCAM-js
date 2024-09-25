@@ -1,5 +1,27 @@
 <!DOCTYPE html>
 <html>
+<!-- SIMPLE EDITOR FOR HUGO DOCS -->
+
+<head>
+  <!-- REDIRECT TO simple-editor-index.html if URL param = simple -->
+  <!-- simple editor is used to embed in hugo documentation -->
+  <!-- Example URL params: index.html/?interface=simple&folder=tutorial-functions&example=functions_union-->
+  <script type="module">
+    (function() {
+        const currentUrl = window.location.href;
+        const url = new URL (currentUrl);
+        const params = url.searchParams;
+        var interfaceType = params.get('example');
+
+        if (interfaceType === 'simple') { // keep other URL parameters but redirect to simple-editor-index
+            params.delete('interface');
+            const newUrl = new URL('/simple-editor-index.html', window.location.origin);
+            newUrl.search = params.toString(); // add existing parameters to new URL
+            window.location.href = newUrl.href;
+        }
+    })();
+  </script>
+</head>
 
 <!-- LIBRARIES / IMPORTS -->
 <!-- CoilCAM library (includes Flatten-js for union + difference + base functions) -->
@@ -18,65 +40,48 @@
 <script src="codemirror-5.65.13/mode/javascript/javascript.js"></script>
 <script src = "codemirror-5.65.13/addon/hint/show-hint.js"></script>
 <script src = "codemirror-5.65.13/addon/hint/javascript-hint.js"></script> 
-<!-- <script src = "codemirror-5.65.13/addon/comment/comment.js"></script> -->
 <link rel="stylesheet" href = "codemirror-5.65.13/addon/hint/show-hint.css">
 
-<!-- WebGL -->
-<script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
-<script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/polyline-normals/dist/polyline-normals.min.js"></script>
-
 <body>
-  <div class="split">
-    <div class="cell split-editors">
-      <div class="buttons-div">
-        <button type="button" id="b_run">&#x25B6;</button> 
-        <!-- <button type="button" id="b_save">&#x25B6;</button>  -->
-        <button type="button" id="b_site" font-size=30px>&#x2398;</button> 
-  
-        <!-- FOR TESTING PURPOSES -->
-        <!-- <div class="dropdown">
-          <button type="button">examples</button>
-          <div id="example-dropdown" class="dropdown-content">
-            <a id="example-vase">demo vase</a>
-            <a id="example-cup">demo cup</a>
-            <a id="example-plate">demo plate</a>
-          </div>
-        </div> -->
+  <div class = "page" id="layout">
+    <div class = "CC-header">
+      <div class = "CC-header-buttons">
+        <button type="button" id="b_run">run</button> 
+        <button type="button" id="b_save">save</button> 
       </div>
-      <div class="cell split-editor">
-        <div class="codemirror-window">
+    </div>
+
+    <div class="split">
+      <div class="cell split-editors">
+        <div class="cell split-editor">
           <textarea id = "editor"></textarea>
         </div>
+        <div class="cell split-console">
+            <textarea id = "console"></textarea>
+        </div> 
       </div>
-      <div class="split-console">
-        <div class="codemirror-window">
-          <textarea id = "console"></textarea>
-        </div>
-      </div> 
-    </div>
-    <div class="cell split-window">
-      <canvas id="canvas"></canvas>
+      <div class="split-window">
+        <!-- TODO: ToolpathViewer should be exported with the rest of the CoilCAM library -->
+        <!-- For now, embed local file as iframe -->
+        <iframe src="./toolpathViewer/ToolpathViewer.html" id="TPVcontainer" width="100%" height="100%"></iframe>
+      </div>
     </div>
   </div>
-  
+
   <script>
     Split(['.split-editors', '.split-window'], {
-      sizes: [40, 60],
+      sizes: [50, 50],
       maxSize: [Infinity, Infinity],
-      minSize: [40, 100],
+      minSize: 10,
       direction: 'horizontal',
       cursor: 'row-resize'
     });
     Split(['.split-editor', '.split-console'], {
-      sizes: [80, 20],
-      maxSize: [Infinity, Infinity],
-      minSize: 10,
+      sizes: [70, 30],
       direction: 'vertical',
       cursor: 'col-resize'
     }
     );
   </script>
-
 </body>
 </html>

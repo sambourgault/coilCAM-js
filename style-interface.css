@@ -1,12 +1,12 @@
 @import url("https://webglfundamentals.org/webgl/resources/webgl-tutorials.css");
 
 :root {
-  --gray: #1c1c1c;
+  --gray: #2d2d2d;
   --file-gray:#525252;
   --file-gray-hover:#666666;
   --file-light-gray: #8e8e8e;
-  --orange: #bd7b55;
-  --light-orange: #db936a;
+  --button-dark: #000000;
+  --button-light: #db936a;
   --teal: #92afa6;
   --off-white: #dfdfdf;
   --pink: #c1696c;
@@ -64,19 +64,23 @@ input[type="range"]::-webkit-slider-thumb {
 button{
   font-size: 1em;
   font-family: var(--font);
-  background:var(--orange);
+  background:var(--button-dark);
   /* border-color: black; */
   border: 0px;
   border-style:solid;
   padding: .2em .5em;
-  color: white;
+  color: var(--off-white);
   cursor: pointer; 
+  transition: .6s;
 }
 
 button:hover{
-  background:var(--light-orange);
+  /* background:var(--button-light); */
+  color:white;
+  text-decoration: underline solid white;
   cursor: pointer; 
 }
+
 
 .printer-button{
   font-size: 1em;
@@ -188,7 +192,7 @@ h2{
 
 .CC-header{
   /* overflow: hidden; */
-  background-color: var(--gray);
+  background-color: black;
   font-family:'Times New Roman', Times, serif;
   /* height: 10%; */
   flex-direction: row;
@@ -208,7 +212,7 @@ h2{
 .gutter {
   height: 100%;
   width: 100%;
-  background: var(--gray);
+  background: black;
   cursor: col-resize;
 }
 
@@ -235,7 +239,7 @@ h2{
 /* webgl viewer */
 .split-window { 
   width: 100%;
-  background: var(--file-gray);
+  background: var(--gray);
   height: 100%;
   /* padding: 10px; */
 }
@@ -267,7 +271,7 @@ h2{
   white-space: initial;
   display: flex;
   flex-direction: column; /* Stack children vertically */
-  background-color: var(--file-light-gray);
+  background-color: var(--gray);
   width: 100%;
   gap: .2em;
   height: 100%;
@@ -315,7 +319,7 @@ h2{
 .uploaded-file-div{
   white-space: initial;
   direction: column;
-  background-color: var(--file-gray);
+  background-color: var(--gray);
   width: 100%;
   padding: .1em .4em;
 }

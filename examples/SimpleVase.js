@@ -16,7 +16,7 @@ var scalingParameter = sinusoidal(10, 60, 20, nbLayers, 0, "");
 var thicknessParameter = sinusoidal(1, 5, 0, nbPointsInLayer, 0, "");
 
 // BUILD VESSEL
-var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], [], [thicknessParameter, []]);
+var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], [], thicknessParameter, []);
 var b = base(position, vessel, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
 var toolpath = addBase(b, spiralize(vessel, potterbot_layerHeight));
 toolpath = centerPrint(toolpath, position, potterbot_bedSize, potterbot_layerHeight);
