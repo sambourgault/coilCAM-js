@@ -24,12 +24,12 @@ body {
   padding: 0px;
   background-color: rgb(235, 235, 235);
 }
-canvas {
+/* canvas {
   width: 100%;
   height: 100%;
   display: block;
   border: 0;
-}
+} */
 body {
   touch-action: pan-x pan-y;
 }
@@ -237,7 +237,7 @@ h2{
   width: 100%;
   background: var(--file-gray);
   height: 100%;
-  padding: 10px;
+  /* padding: 10px; */
 }
 .split-editors{
   background-color: gray;
@@ -274,11 +274,17 @@ h2{
   padding: .2em;
 }
 
-#drop_zone {
+.TPVcontainer {
+  width: 100%;
+  height: 100%;
+  display: block
+}
+
+/* #drop_zone {
   border: 2px dashed #ccc;
   padding: 20px;
   text-align: center;
-}
+} */
 
 
 .dynamic-button{

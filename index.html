@@ -1,7 +1,31 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <!-- REDIRECT TO simple-editor-index.html if URL param = simple -->
+    <!-- simple editor is used to embed in hugo documentation -->
+    <!-- Example URL params: index.html/?interface=simple&folder=tutorial-functions&example=functions_union-->
+    <script type="module">
+      (function() {
+          const currentUrl = window.location.href;
+          const url = new URL (currentUrl);
+          const params = url.searchParams;
+          var interfaceType = params.get('interface');
+
+          if (interfaceType === 'simple') { // keep other URL parameters but redirect to simple-editor-index
+              params.delete('interface');
+              const newUrl = new URL('/simple-editor-index.html', window.location.origin);
+              newUrl.search = params.toString(); // add existing parameters to new URL
+              window.location.href = newUrl.href;
+          }
+      })();
+    </script>
+  </head>
+
 
 <!-- LIBRARIES / IMPORTS -->
+ 
+<!-- CoilCAM library -->
+<!-- <script src="https://unpkg.com/coilcam-js@1.0.39/dist/module.js"></script> -->
 <!-- CoilCAM library (includes Flatten-js for union + difference + base functions) -->
 <script src="https://unpkg.com/coilcam@latest/dist/module.js"></script>
 
@@ -11,6 +35,18 @@
 <!-- UI + updatePath functionality (for online editor) -->
 <script type="module" src="interface.js"></script>
 
+<script> //test CoilCAM library
+  // Wait for the document to load
+  console.log('TEST COILCAM LIBRARY IN CONSOLE ON LOAD');
+  document.addEventListener("DOMContentLoaded", () => {
+    var linear2DOperator = linear2D(0.4, 1, 0.3, 0, 30, 0, "");
+    var toolpath = toolpathUnitGenerator([0, 0, 0], 30, 3, 30, 50, [], [], [], linear2DOperator, [], []);
+    console.log("TEST COMPLETE");
+  });
+</script>
+
+
+
 <!-- CodeMirror -->
 <link rel="stylesheet" href="style-interface.css">
 <script src="codemirror-5.65.13/lib/codemirror.js"></script>
@@ -18,13 +54,7 @@
 <script src="codemirror-5.65.13/mode/javascript/javascript.js"></script>
 <script src = "codemirror-5.65.13/addon/hint/show-hint.js"></script>
 <script src = "codemirror-5.65.13/addon/hint/javascript-hint.js"></script> 
-<script src = "codemirror-5.65.13/addon/comment/comment.js"></script>
 <link rel="stylesheet" href = "codemirror-5.65.13/addon/hint/show-hint.css">
-
-<!-- WebGL -->
-<script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
-<script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/polyline-normals/dist/polyline-normals.min.js"></script>
 
 <body>
   <div class = "page" id="layout">
@@ -72,15 +102,16 @@
         </div> 
       </div>
       <div class="split-window">
-        <canvas id="canvas"></canvas>
+        <!-- TODO: ToolpathViewer should be exported with the rest of the CoilCAM library -->
+        <!-- For now, embed local file as iframe -->
+        <iframe src="./toolpathViewer/ToolpathViewer.html" id="TPVcontainer" width="100%" height="100%"></iframe>
       </div>
     </div>
   </div>
 
-
   <script>
     Split(['.split-files', '.split-editors', '.split-window'], {
-      sizes: [10, 40, 50],
+      sizes: [10, 45, 45],
       maxSize: [Infinity, Infinity],
       minSize: 10,
       direction: 'horizontal',
