@@ -2,27 +2,6 @@
 <html>
 <!-- SIMPLE EDITOR FOR HUGO DOCS -->
 
-<head>
-  <!-- REDIRECT TO simple-editor-index.html if URL param = simple -->
-  <!-- simple editor is used to embed in hugo documentation -->
-  <!-- Example URL params: index.html/?interface=simple&folder=tutorial-functions&example=functions_union-->
-  <script type="module">
-    (function() {
-        const currentUrl = window.location.href;
-        const url = new URL (currentUrl);
-        const params = url.searchParams;
-        var interfaceType = params.get('example');
-
-        if (interfaceType === 'simple') { // keep other URL parameters but redirect to simple-editor-index
-            params.delete('interface');
-            const newUrl = new URL('/simple-editor-index.html', window.location.origin);
-            newUrl.search = params.toString(); // add existing parameters to new URL
-            window.location.href = newUrl.href;
-        }
-    })();
-  </script>
-</head>
-
 <!-- LIBRARIES / IMPORTS -->
 <!-- CoilCAM library (includes Flatten-js for union + difference + base functions) -->
 <script src="https://unpkg.com/coilcam@latest/dist/module.js"></script>
