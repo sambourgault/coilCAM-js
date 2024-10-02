@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import {TransformControls} from 'three/addons/controls/TransformControls.js'
+// import {TransformControls} from 'three/addons/controls/TransformControls.js'
+import {DragControls} from 'three/addons/controls/DragControls.js';
 // Radius editor for dynamic toolchains
 // Use an embedded iframe to view/edit SVG path using Threejs
 // TODO: drag points, make code cleaner :~)
@@ -26,31 +27,42 @@ document.body.appendChild(renderer.domElement);
 // https://stackoverflow.com/questions/47682260/three-js-draw-where-mouse-clicks-but-entirely-parallel-to-camera-orientation
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
-let transformControl = new TransformControls(camera, renderer.domElement);
-transformControl.showZ = false;
-const gizmo = transformControl._gizmo.gizmo;
-console.log(gizmo.translate);
-for (let c in gizmo.translate.children){
-    const gizmoMesh =  gizmo.translate.children[c];
-    if(gizmoMesh.name != 'XY'){
-        gizmoMesh.visible = false;
-        gizmo.translate.children[c].layers.disable(0);
-    }
-}
-// const xyTransformControlAxis = gizmo.translate.getObjectByName('XY');
-// console.log(xyTransformControlAxis);
-// xyTransformControlAxis.visible= true;
-// xyTransformControlAxis.layers.enable(0);
-// xyTransformControlAxis.set = xyTransformControlAxis.parent.position;
+
+// // let transformControl = new TransformControls(camera, renderer.domElement);
+// transformControl.showZ = false;
+
+// //editing default look of transformcontrols 
+// //tofix: remove white lines
+// const gizmo = transformControl._gizmo.gizmo;
+// console.log(gizmo.translate);
+// const pointGeometry = new THREE.CircleGeometry( .05, 32 ); 
+// const axisTriangle = {
+//     a: new THREE.Vector3(1, 1, 0),
+//     b: new THREE.Vector3(-1, 1, 0),
+//     c: new THREE.Vector3(0, 2, 0),
+// }
+// const arrowGeometry = new THREE.Triangle(axisTriangle.a, axisTriangle.b,axisTriangle.c);
+
+// for (let c in gizmo.translate.children){
+//     const gizmoMesh =  gizmo.translate.children[c]; 
+
+//     if(gizmoMesh.name == 'XY'){
+
+//         gizmoMesh.geometry = pointGeometry;
+//         console.log(gizmoMesh.geometry);
+//     }
+//     // if(gizmoMesh.name == 'Y'){
+//     //     console.log(gizmoMesh.geometry);
+//     //     gizmoMesh.geometry = arrowGeometry;
+//     // }
+//     if(gizmoMesh.name != 'XY'&& gizmoMesh.name != 'Y' && gizmoMesh.name != 'X'){
+//         gizmoMesh.visible = false;
+//         gizmo.translate.children[c].layers.disable(0);
+//     }
+// }
 
 
-//  ['X','Y', 'Z', 'X','Y', 'Z', 'X','Y', 'Z', 'XY', 'YZ', 'XZ'].forEach(axis => {
-//    const obj = gizmo.translate.getObjectByName(axis);
-//    obj.visible = false;
-//    obj.layers.disable(0);
-//  });
-// transformControl.addEventListener('change', animate);
-scene.add(transformControl.getHelper());
+// scene.add(transformControl.getHelper());
 
 
 var circleGroup = new THREE.Group();
@@ -58,6 +70,7 @@ circleGroup.name = "circleGroup";
 const circleGeometry = new THREE.CircleGeometry( 3, 32 ); //tofix: proportional to radius
 const circleMaterial = new THREE.MeshToonMaterial( { color: 0xb7afa6 } ); 
 const circleHighlightMaterial = new THREE.MeshToonMaterial( { color: 0xbc33ef } ); 
+const lineMaterial = new THREE.LineBasicMaterial( { color: 0xbf472e } ); 
 
 var path = []; // store points in path syntax (x, y, z, t)
 var vec3Points = []; // store points in vec3 syntax
@@ -88,8 +101,8 @@ function initializePath(radius, nbPointsInLayer, position=[0, 0, 0]){ //code rep
 
     //draw lines from vec3
     const lineGroup = new THREE.BufferGeometry().setFromPoints(vec3Points);
-    var lineMaterial = new THREE.LineBasicMaterial( { color: 0xbf472e } ); 
     const lines = new THREE.Line(lineGroup, lineMaterial);
+    lines.name = "lines";
     scene.add(lines);
     scene.add(circleGroup);
 }
@@ -101,96 +114,40 @@ scene.add(directionalLight);
 initializePath(10, 9); //test
 
 
-let highlighted;
-let dragPoint;
+
 function animate() {
 	renderer.render( scene, camera );
-
-    // const intersects = raycaster.intersectObjects(circleGroup.children, true);
-    
-    // if (intersects.length > 0){
-    //     let obj = intersects[0].object;
-    //     if(obj !== transformControl.object){
-    //         transformControl.attach(object);
-    //     }
-    //     // let obj = intersects[0].object;
-    //     // obj.material = circleHighlightMaterial;
-    //     // highlighted = obj;
-    //     // dragPoint = circleMap.get(highlighted);
-    // }
-    // else if (highlighted){
-    //     highlighted.material = circleMaterial;
-    //     highlighted = null;
-    //     dragPoint = null;
-    // }
 }
 
-
-// // // on click, drag around point
-// window.addEventListener("pointermove", function(event){
-//     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-//     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-// });
-
-// window.addEventListener("resize", function(){
-//     camera.aspect = window.innerWidth / window.innerHeight;
-//     camera.updateProjectionMatrix();
-//     renderer.setSize(window.innerWidth, window.innerHeight);
-// });
-
-
-
-let mouseDownCoord;
-let dragging;
-window.addEventListener("mousedown", function(){
-    mouseDownCoord = new THREE.Vector3(mouse.x, mouse.y, 0);
-    dragging = true;
-})
-
-window.addEventListener("mousemove", function(event){
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(circleGroup.children, true);
-    if (intersects.length > 0){
-        let obj = intersects[0].object;
-        if(obj !== transformControl.object){
-            transformControl.attach(obj);
-        }
-        // let obj = intersects[0].object;
-        // obj.material = circleHighlightMaterial;
-        // highlighted = obj;
-        // dragPoint = circleMap.get(highlighted);
-    }
-
-    // if(dragging){
-    //     let mouseCoord = new THREE.Vector3(mouse.x, mouse.y, 0);
-    //     let mouseToPt = new THREE.Vector3().subVectors(dragging, mouseCoord)
-    //     let offset = new THREE.Vector3().subVectors(mouseCoord, mouseDownCoord);
-    //     // let offset = new THREE.Vector3().subVectors(mouseCoord, mouseDownCoord);
-    //     dragPoint.add(mouseToPt).add(offset);
-    //     highlighted.position.add(offset);
-    // }
-})
-
-window.addEventListener("mouseup", function(){
-    if(dragging){
-        transformControl.detach();
-        animate();
-        dragging = false;
-    }
+window.addEventListener("resize", function(){
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+//dragging points
+let mouseStart;
+const controls = new DragControls(circleGroup.children, camera, renderer.domElement);
+controls.addEventListener( 'dragstart', function ( event ) {
+    mouseStart = new THREE.Vector3(mouse.x, mouse.y, 0);
+    console.log(event.object);
+	event.object.material = circleHighlightMaterial;
+} );
 
+controls.addEventListener('drag', function(event){
+    let offset = new THREE.Vector3().sub(mouseStart, new THREE.Vector3(mouse.x, mouse.y, 0));
+    const point = circleMap.get(event.object);
+    point.set = offset;
+    console.log(vec3Points);
+    //   //draw lines from vec3
+    // var l = scene.getObjectByName("lines");
+    // const lineGroup = new THREE.BufferGeometry().setFromPoints(vec3Points);
+    // l = new THREE.Line(lineGroup, lineMaterial);
+})
 
-
-
-
-
-
-
-
-
+controls.addEventListener( 'dragend', function ( event ) {
+	event.object.material = circleMaterial;
+});
 
 
 
