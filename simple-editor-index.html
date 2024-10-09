@@ -39,7 +39,7 @@
         <!-- TODO: ToolpathViewer should be exported with the rest of the CoilCAM library -->
         <!-- For now, embed local file as iframe -->
          <!-- <iframe src="./toolpathViewer/ToolpathViewer.html" id="TPVcontainer" width="80%" height="80%" allow="fullscreen"></iframe> -->
-        <iframe src="./toolpathViewer/ToolpathViewer.html" id="TPVcontainer" width="100%" height="100%" allow="fullscreen"></iframe>
+        <iframe src="./toolpathViewer/ToolpathViewer.html" id="vieweriFrame" width="100%" height="100%" allow="fullscreen"></iframe>
       </div>
     </div>
   </div>
@@ -50,12 +50,12 @@
       maxSize: [Infinity, Infinity],
       minSize: 10,
       direction: 'horizontal',
-      cursor: 'row-resize'
+      cursor: 'col-resize'
     });
     Split(['.split-editor', '.split-console'], {
-      sizes: [70, 30],
+      sizes: [85, 15],
       direction: 'vertical',
-      cursor: 'col-resize'
+      cursor: 'row-resize'
     }
     );
   </script>
