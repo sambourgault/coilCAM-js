@@ -16,14 +16,14 @@ async function getExampleVessel(file){
 
 var viewerType = "tpv"; //control which viewer type is currently on screen
 
-let path = []; //toolpath for vessel
-let referencePath = []; //reference layer (optional)
-let bedPath = []; //toolpath for bed
-var bedDimensions = [280, 265, 305];
+// let path = []; //toolpath for vessel
+// let referencePath = []; //reference layer (optional)
+// let bedPath = []; //toolpath for bed
+// var bedDimensions = [280, 265, 305];
 
 //Call in codemirror to change the toolpath in the threejs toolpath viewer
 function updatePath(newPath, refPath=[]){
-  var iframe = document.getElementById("vieweriFrame");
+  var iframe = document.getElementById("toolpathVieweriFrame");
   if(newPath !== null){
       iframe.contentWindow.state.path = newPath;
   }
@@ -34,7 +34,7 @@ function updatePath(newPath, refPath=[]){
 
 //Call in codemirror to initialize points in layerViewer
 function updateLayer(radius, nbPointsInLayer, pos=[0, 0, 0]){
-  var iframe = document.getElementById("vieweriFrame");
+  var iframe = document.getElementById("layerVieweriFrame");
   if(radius != null && nbPointsInLayer != null){
     iframe.contentWindow.state.radius = radius;
     iframe.contentWindow.state.nbPointsInLayer = nbPointsInLayer;
@@ -43,7 +43,7 @@ function updateLayer(radius, nbPointsInLayer, pos=[0, 0, 0]){
 }
 
 function setBedDimensions(printerType){
-  var iframe = document.getElementById("vieweriFrame");
+  var iframe = document.getElementById("toolpathVieweriFrame");
   if (printerType == "baby"){
     iframe.contentWindow.state.bedDimensions = [280, 265, 305];
   }
@@ -187,7 +187,6 @@ function setUpCodeMirror(){
 
   document.getElementById("b_run").addEventListener("click", runCode);
   function runCode() {
-    console.log('run');
     const codeToRun = editorCodeMirror.getValue();
     try {
       consoleCodeMirror.replaceRange(`$ `+eval(`${codeToRun}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
@@ -364,12 +363,13 @@ function setUpCodeMirror(){
   //Switch between viewers
 
   document.getElementById("b_tpv").addEventListener("click", function(event){
-    document.getElementById("vieweriFrame").src = "./toolpathViewer/ToolpathViewer.html"; 
+    document.getElementById("layerVieweriFrame").setAttribute("hidden", "hidden");
+    document.getElementById("toolpathVieweriFrame").removeAttribute("hidden");
   });
 
   document.getElementById("b_layerviewer").addEventListener("click", function(event){
-    document.getElementById("vieweriFrame").src = "./layerViewer/LayerViewer.html"; 
-    console.log("lv clicked");
+    document.getElementById("toolpathVieweriFrame").setAttribute("hidden", "hidden");
+    document.getElementById("layerVieweriFrame").removeAttribute("hidden");
   });
 }
 

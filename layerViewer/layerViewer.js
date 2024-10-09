@@ -8,7 +8,7 @@ var global_state = { // can add optional svg using file I/O
     svgPath: "",
     radius: 0.0,
     nbPointsInLayer: 0,
-    path: [] //return
+    path: [] //return this
 };
 window.state = global_state;
 let defaultRadius = 0;
@@ -50,10 +50,29 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
 directionalLight.position.z = 3
 scene.add(directionalLight);
 let vec3Points = [];
+let defaultVec3Points = []; //save starting vec3
+
+
+let euclideanDist = (p1, p2) => Math.sqrt((p1.x-p2.x)**2 + (p1.y-p2.y)**2 + (p1.z-p2.z)**2);
+
+function calculateOffsets(){ //radial and angular offset
+    let radialOffset = [];
+    let angularOffset = [];
+    for(let i = 0; i < defaultVec3Points.length; i++){
+        radialOffset.push(euclideanDist(defaultVec3Points[i], vec3Points[i]));
+        // let v1 = new THREE.Vector3().subVectors(defaultVec3Points[i], new THREE.Vector3(position[0], position[1], position[2])); // Vector from position to pt1
+        // let v2 = new THREE.Vector3().subVectors(vec3Points[i], defaultVec3Points[i]);      // Vector from pt1 to pt2
+        // angularOffset.push(v1.angleTo(v2));
+        angularOffset.push(vec3Points[i].angleTo(defaultVec3Points[i]));
+    }
+    window.state.path = [radialOffset, angularOffset];
+}
+
 
 function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurposed from ToolpathUnitGenerator
     //Make three-js group for adding draggable circle points
     position = pos;
+    position[2] = 0;
     for(let i = 0; i < nbPointsInLayer; i++){
         //calculate default position
         let angle = 2 * i * Math.PI / nbPointsInLayer;
@@ -63,7 +82,7 @@ function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurpos
             z: 0,
             t: 0
         }
-        state.path.push(point); // store path in toolpath notation
+        // state.path.push(point); // store path in toolpath notation
         //add draggable circle per point
         const circle = new THREE.Mesh(circleGeometry, circleMaterial ); 
         circle.position.set(point.x, point.y, point.z + zOffset);
@@ -72,10 +91,12 @@ function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurpos
     //draw lines from vec3
     vec3Points = [];
     circleGroup.traverse(function(c){
-        if(!(c.position.x == position[0] && c.position.y == position[1] && c.position.z == position[2])){
+        if(!(c.position.x == position[0] && c.position.y == position[1] && c.position.z == 0)){
             vec3Points.push(c.position);
         } 
     })
+    defaultVec3Points = vec3Points.map(vec => vec.clone());
+    calculateOffsets();
     vec3Points.push(vec3Points[0]);
 
     const lineGroup = new THREE.BufferGeometry().setFromPoints(vec3Points);
@@ -85,7 +106,7 @@ function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurpos
     scene.add(lines);
 }
 
-// values change
+// input values change
 function refreshPath(){
     while (circleGroup.children.length)
     {
@@ -123,9 +144,9 @@ controls.addEventListener( 'dragstart', function ( event ) {
 controls.addEventListener('drag', function(event){
     var lines = scene.getObjectByName("lines");
     scene.remove(lines);
-    let vec3Points = [];
+    vec3Points = [];
     circleGroup.traverse(function(c){
-        if(!(c.position.x == position[0] && c.position.y == position[1] && c.position.z == position[2])){
+        if(!(c.position.x == position[0] && c.position.y == position[1] && c.position.z == 0)){
             vec3Points.push(c.position);
         } 
     })
@@ -139,7 +160,7 @@ controls.addEventListener('drag', function(event){
 
 controls.addEventListener( 'dragend', function ( event ) {
 	event.object.material = circleMaterial;
-    window.state.path = vec3Points;
+    calculateOffsets();
 });
 
 
@@ -177,3 +198,5 @@ controls.addEventListener( 'dragend', function ( event ) {
     // - Something like svgToRadius(radius, nbPointsInLayer, center=[0, 0])
     // - layerviewer should also be able to take in an SVG as a starting point
     // - Add function to display layerViewer as a popup or extra tab
+
+// Currently, the codemirror interface gets back the values on run
