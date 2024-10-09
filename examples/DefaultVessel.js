@@ -23,5 +23,7 @@ updatePath(toolpath);
 // GENERATE GCODE
 var gcode = generateGCode(toolpath, potterbot_nozzleDiameter, potterbot_printSpeed);
 
-// SAVE GCODE
+// // SAVE GCODE
 // downloadGCode(gcode, "CC_default_vessel.gcode"); 
+
+// // STARTING VESSEL

@@ -16,12 +16,9 @@
 <script type="module" src="interface.js"></script>
 
 <!-- testing -->
-<script type="module" src="tug.js"></script>
-<script type="module" src="mystaircase.js"></script>
+<script type="module" src="testFunctions.js"></script>
 
-
-<script> //test CoilCAM library
-  // Wait for the document to load
+<script> //test CoilCAM library on load
   document.addEventListener("DOMContentLoaded", () => {
     try{
       var linear2DOperator = linear2D(0.4, 1, 0.3, 0, 30, 0, "");
@@ -31,8 +28,6 @@
     }
   });
 </script>
-
-
 
 <!-- CodeMirror -->
 <link rel="stylesheet" href="style-interface.css">
@@ -88,10 +83,18 @@
         </div> 
       </div>
       <div class="split-window">
+        <div class = "viewer-buttons">
+          <!-- Control visibility of toolpath -->
+          <button type="button" id="b_tpv">TPV</button> 
+          <button type="button" id="b_layerviewer">Layer</button> 
+          <!-- <button type="button" id="b_profileviewer">Profile</button>  -->
+        </div>
         <!-- TODO: ToolpathViewer should be exported with the rest of the CoilCAM library -->
         <!-- For now, embed local file as iframe -->
-        <iframe src="./toolpathViewer/ToolpathViewer.html" id="TPVcontainer" width="100%" height="100%"></iframe>
+        <iframe src="./layerViewer/LayerViewer.html" id="vieweriFrame" width="100%" height="100%"></iframe>
+        <!-- <iframe src="./toolpathViewer/ToolpathViewer.html" id="vieweriFrame" width="100%" height="100%"></iframe> -->
       </div>
+
     </div>
   </div>
 

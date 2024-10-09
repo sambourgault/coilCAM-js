@@ -8,8 +8,11 @@ var global_state = { // can add optional svg using file I/O
     svgPath: "",
     radius: 0.0,
     nbPointsInLayer: 0,
+    path: [] //return
 };
 window.state = global_state;
+let defaultRadius = 0;
+let defaultNbPointsInLayer = 0;
 
 // Build Scene
 const scene = new THREE.Scene();
@@ -37,13 +40,16 @@ scene.add(crossVertical);
 
 var circleGroup = new THREE.Group();
 circleGroup.name = "circleGroup";
-const circleGeometry = new THREE.CircleGeometry( 3, 32 ); //tofix: proportional to radius
+const circleGeometry = new THREE.CircleGeometry( 1, 32 ); //tofix: proportional to radius
 const circleMaterial = new THREE.MeshToonMaterial( { color: 0xb7afa6 } ); 
 const circleHighlightMaterial = new THREE.MeshToonMaterial( { color: 0xbc33ef } ); 
 var position;
 const lineMaterial = new THREE.LineBasicMaterial({ color: 0x33bb4e });
 
-var path = []; // store points in path syntax (x, y, z, t)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
+directionalLight.position.z = 3
+scene.add(directionalLight);
+let vec3Points = [];
 
 function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurposed from ToolpathUnitGenerator
     //Make three-js group for adding draggable circle points
@@ -57,23 +63,21 @@ function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurpos
             z: 0,
             t: 0
         }
-        path.push(point); // store path in toolpath notation
+        state.path.push(point); // store path in toolpath notation
         //add draggable circle per point
-        const circle = new THREE.Mesh( circleGeometry, circleMaterial ); 
+        const circle = new THREE.Mesh(circleGeometry, circleMaterial ); 
         circle.position.set(point.x, point.y, point.z + zOffset);
         circleGroup.add(circle);
-
     }
-
     //draw lines from vec3
-    let vec3Points = [];
+    vec3Points = [];
     circleGroup.traverse(function(c){
         if(!(c.position.x == position[0] && c.position.y == position[1] && c.position.z == position[2])){
             vec3Points.push(c.position);
         } 
     })
     vec3Points.push(vec3Points[0]);
-    
+
     const lineGroup = new THREE.BufferGeometry().setFromPoints(vec3Points);
     const lines = new THREE.Line(lineGroup, lineMaterial);
     lines.name = "lines";
@@ -81,15 +85,27 @@ function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurpos
     scene.add(lines);
 }
 
-// Build Scene
-const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
-directionalLight.position.z = 3
-scene.add(directionalLight);
-initializePath(10, 9); //test values
+// values change
+function refreshPath(){
+    while (circleGroup.children.length)
+    {
+        circleGroup.remove(circleGroup.children[0]);
+    }
+    scene.remove(scene.getObjectByName("lines"));
+    if(global_state.nbPointsInLayer.length != 0 && global_state.radius.length != 0){
+        initializePath(global_state.radius, global_state.nbPointsInLayer);
+        defaultRadius = global_state.radius;
+        defaultNbPointsInLayer = global_state.nbPointsInLayer;
+    }
+    // TO ADD: calculate return types here (angular and polar coords)
+}
 
 function animate() {
 	renderer.render( scene, camera );
     zoomControls.update();
+    if(global_state.radius != defaultRadius || global_state.nbPointsInLayer != defaultNbPointsInLayer){ //execute only on path update, delete and rebuild toolpath
+        refreshPath();
+    }
 }
 
 window.addEventListener("resize", function(){
@@ -101,14 +117,12 @@ window.addEventListener("resize", function(){
 //dragging points
 const controls = new DragControls(circleGroup.children, camera, renderer.domElement);
 controls.addEventListener( 'dragstart', function ( event ) {
-    console.log(event.object);
 	event.object.material = circleHighlightMaterial;
 } );
 
 controls.addEventListener('drag', function(event){
     var lines = scene.getObjectByName("lines");
     scene.remove(lines);
-    //draw lines from vec3
     let vec3Points = [];
     circleGroup.traverse(function(c){
         if(!(c.position.x == position[0] && c.position.y == position[1] && c.position.z == position[2])){
@@ -125,7 +139,12 @@ controls.addEventListener('drag', function(event){
 
 controls.addEventListener( 'dragend', function ( event ) {
 	event.object.material = circleMaterial;
+    window.state.path = vec3Points;
 });
+
+
+
+
 
 
 
