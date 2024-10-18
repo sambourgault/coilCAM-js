@@ -32,7 +32,7 @@ function updatePath(newPath, refPath=[]){
   }
 }
 
-//Call in codemirror to initialize points in layerViewer
+//Call in codemirror to pass points to tpv/initialize path in layerViewer
 function updateLayer(radius, nbPointsInLayer, pos=[0, 0, 0]){
   var iframe = document.getElementById("layerVieweriFrame");
   if(radius != null && nbPointsInLayer != null){
@@ -352,15 +352,6 @@ function setUpCodeMirror(){
       addFileAsButton(localStorage.key(i), localStorage.getItem(localStorage.key(i)));
     }
   })
-  
-
-  //TO FIX;
-  // Was originally going to switch what was stored in the iframe on click,
-  // but it might make more sense to disable the visibility of certain iframes based on click.
-  // Reason being that updatePath() should still update the path of the toolpath even if the 
-  // toolpath viewer is currently hidden.
-  //alternatively, can manually run updatePath when switching back to TPV
-  //Switch between viewers
 
   document.getElementById("b_tpv").addEventListener("click", function(event){
     document.getElementById("layerVieweriFrame").setAttribute("hidden", "hidden");
@@ -371,7 +362,17 @@ function setUpCodeMirror(){
     document.getElementById("toolpathVieweriFrame").setAttribute("hidden", "hidden");
     document.getElementById("layerVieweriFrame").removeAttribute("hidden");
   });
+  
+  window.addEventListener('DOMContentLoaded', function () {
+    window.addEventListener('message', function (event) {
+        console.log("Message received:", event.data);
+        if (event.data.message === 'run-codemirror') {
+          runCode();
+        }
+    });
+  });
 }
+
 
 // main();
 setUpCodeMirror();

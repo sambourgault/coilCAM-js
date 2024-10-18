@@ -273,6 +273,28 @@ h2{
   height:100%;
   background-color: black;
 }
+
+
+
+
+.split-viewers{
+  width:100%;
+  height:100%;
+  background-color: red;
+}
+
+.split-tpv{
+  width:100%;
+  height:100%;
+  background-color: teal;
+}
+
+.split-layerviewer{
+  width:100%;
+  height:100%;
+  background-color: blue;
+}
+
 .files-group {
   white-space: initial;
   display: flex;

@@ -5,7 +5,7 @@ var potterbot_layerHeight = potterbot_nozzleDiameter*.5;
 
 // VESSEL PARAMETERS
 var nbLayers = 10;
-var nbPointsInLayer = 6;
+var nbPointsInLayer = 4;
 var vesselRadius = 10;
 var position = [0, 0, potterbot_layerHeight*1.5];
 

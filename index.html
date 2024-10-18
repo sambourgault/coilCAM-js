@@ -83,19 +83,22 @@
         </div> 
       </div>
       <div class="split-window">
-        <div class = "viewer-buttons">
-          <!-- Control visibility of toolpath -->
-          <button type="button" id="b_tpv">TPV</button> 
-          <button type="button" id="b_layerviewer">Layer</button> 
-          <!-- <button type="button" id="b_profileviewer">Profile</button>  -->
-        </div>
-        <!-- TODO: ToolpathViewer should be exported with the rest of the CoilCAM library -->
-        <!-- For now, embed local file as iframe -->
-        <iframe src="./layerViewer/LayerViewer.html" id="layerVieweriFrame" width="100%" height="100%" hidden=hidden></iframe>
-        <iframe src="./toolpathViewer/ToolpathViewer.html" id="toolpathVieweriFrame" width="100%" height="100%" ></iframe>
         
-
-
+        <div class="cell split-viewers">
+          <!-- TODO: ToolpathViewer should be exported with the rest of the CoilCAM library -->
+          <!-- For now, embed local file as iframe -->
+          <div class = "split-tpv">
+            <!-- <iframe src="./layerViewer/LayerViewer.html" id="layerVieweriFrame" width="100%" height="100%" hidden=hidden></iframe> -->
+            <iframe src="./toolpathViewer/ToolpathViewer.html" id="toolpathVieweriFrame" width="100%" height="100%"></iframe>
+          </div>
+          <div class = "split-layerviewer">
+           <div class = "viewer-buttons">
+              <button type="button" id="b_tpv">TPV</button> 
+              <button type="button" id="b_layerviewer">Layer</button> 
+            </div>
+            <iframe src="./layerViewer/LayerViewer.html" id="layerVieweriFrame" width="100%" height="100%"></iframe>
+          </div>
+        </div>
         <!-- <iframe src="./layerViewer/LayerViewer.html" id="vieweriFrame" width="100%" height="100%"></iframe> -->
         <!-- <iframe src="./toolpathViewer/ToolpathViewer.html" id="vieweriFrame" width="100%" height="100%"></iframe> -->
       </div>
@@ -113,6 +116,12 @@
     });
     Split(['.split-editor', '.split-console'], {
       sizes: [70, 30],
+      direction: 'vertical',
+      cursor: 'col-resize'
+    }
+    );
+    Split(['.split-tpv', '.split-layerviewer'], {
+      sizes: [50, 50],
       direction: 'vertical',
       cursor: 'col-resize'
     }

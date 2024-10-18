@@ -52,18 +52,19 @@ scene.add(directionalLight);
 let vec3Points = [];
 let defaultVec3Points = []; //save starting vec3
 
-
-let euclideanDist = (p1, p2) => Math.sqrt((p1.x-p2.x)**2 + (p1.y-p2.y)**2 + (p1.z-p2.z)**2);
-
 function calculateOffsets(){ //radial and angular offset
     let radialOffset = [];
     let angularOffset = [];
+    let positionVec3 = new THREE.Vector3(0, 0, 1);
     for(let i = 0; i < defaultVec3Points.length; i++){
-        radialOffset.push(euclideanDist(defaultVec3Points[i], vec3Points[i]));
-        // let v1 = new THREE.Vector3().subVectors(defaultVec3Points[i], new THREE.Vector3(position[0], position[1], position[2])); // Vector from position to pt1
-        // let v2 = new THREE.Vector3().subVectors(vec3Points[i], defaultVec3Points[i]);      // Vector from pt1 to pt2
-        // angularOffset.push(v1.angleTo(v2));
-        angularOffset.push(vec3Points[i].angleTo(defaultVec3Points[i]));
+        const cross = new THREE.Vector3().crossVectors(defaultVec3Points[i], vec3Points[i]);
+        const sign = cross.z >= 0 ? 1 : -1; //angle of rotation positive or negative based on cross product
+        let angle = defaultVec3Points[i].angleTo(vec3Points[i]) * sign;
+        angularOffset.push(angle);
+    
+        let newPt = defaultVec3Points[i].clone().applyAxisAngle(positionVec3, angle); 
+        let dist = (vec3Points[i]).distanceTo(positionVec3) - (newPt).distanceTo(positionVec3);
+        radialOffset.push(dist);
     }
     window.state.path = [radialOffset, angularOffset];
 }
@@ -74,15 +75,13 @@ function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurpos
     position = pos;
     position[2] = 0;
     for(let i = 0; i < nbPointsInLayer; i++){
-        //calculate default position
         let angle = 2 * i * Math.PI / nbPointsInLayer;
         const point = { //point, toolpath notation
-            x: (position[0] + (radius) * Math.cos(angle)),
-            y: (position[1] + (radius) * Math.sin(angle)),
+            x: (position[0] + (radius) * Math.cos(angle + (Math.PI))),
+            y: (position[1] + (radius) * Math.sin(angle + (Math.PI))),
             z: 0,
             t: 0
         }
-        // state.path.push(point); // store path in toolpath notation
         //add draggable circle per point
         const circle = new THREE.Mesh(circleGeometry, circleMaterial ); 
         circle.position.set(point.x, point.y, point.z + zOffset);
@@ -118,7 +117,6 @@ function refreshPath(){
         defaultRadius = global_state.radius;
         defaultNbPointsInLayer = global_state.nbPointsInLayer;
     }
-    // TO ADD: calculate return types here (angular and polar coords)
 }
 
 function animate() {
@@ -161,6 +159,9 @@ controls.addEventListener('drag', function(event){
 controls.addEventListener( 'dragend', function ( event ) {
 	event.object.material = circleMaterial;
     calculateOffsets();
+    console.log("should post here");
+    console.log("top", window.parent.location.href);
+    window.parent.postMessage({message:"run-codemirror"}, '*'); // update TPV when dragend finished
 });
 
 

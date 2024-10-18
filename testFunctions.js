@@ -82,8 +82,8 @@ export default function tug(position, initialRadius, layerHeight, nbLayers, nbPo
         for(let i = 0; i < nbPointsInLayer; i++){
             let angle = 2 * i * Math.PI / nbPointsInLayer;
             const newPoint = { // Store points in toolpath as objects for greater readability: (x coordinate, y coordinate, z coordinate, thickness)
-                x: (position[0] + (initialRadius + srsp[j] * radsp[0][ctr] + ssp[j]) * Math.cos(angle + radsp[1][i] + (rsp[j] * Math.PI/180)) + tsp[0][j]),
-                y: (position[1] + (initialRadius + srsp[j] * radsp[0][ctr] + ssp[j]) * Math.sin(angle + radsp[1][i] + (rsp[j] * Math.PI/180)) + tsp[1][j]),
+                x: (position[0] + (initialRadius + srsp[j] * radsp[0][ctr] + ssp[j]) * Math.cos(angle + (radsp[1][i]) + (rsp[j] * Math.PI/180)) + tsp[0][j]),
+                y: (position[1] + (initialRadius + srsp[j] * radsp[0][ctr] + ssp[j]) * Math.sin(angle + (radsp[1][i]) + (rsp[j] * Math.PI/180)) + tsp[1][j]),
                 z: (position[2] + layerHeight * j),
                 t: (thsp[ctr])
             }
