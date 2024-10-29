@@ -4,36 +4,27 @@ import {DragControls} from 'three/addons/controls/DragControls.js';
 
 var global_state = { // TO FIX: adding optional svg using file I/O
     svgPath: "",
-    radius: 0.0,
-    nbPointsInLayer: 0,
+    nbLayers: 0.0,
+    layerHeight: 0,
     path: [] //return this
 };
 window.state = global_state;
-let defaultRadius = 0;
-let defaultNbPointsInLayer = 0;
+let defaultNbLayers = 0;
+let defaultLayerHeight = 0;
 
 // Build Scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color( {color : 0xfaead6}); //colors from styles.css for pathDrawing
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.up.set(0, 0, 1); // to ensure z is up and down instead of default (y)
-camera.position.set(0, 0, 40); //adjust z with radius?
+// camera.up.set(0, 0, 1); // to ensure z is up and down instead of default (y)
+camera.position.set(0, 40, 0); //adjust z with radius?
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setAnimationLoop(animate);
 document.body.appendChild(renderer.domElement);
 const zoomControls = new OrbitControls(camera, renderer.domElement);
 zoomControls.enableRotate = false;
-const zOffset = -.001
-
-//Add crosshair at position[x, y]
-const crossMaterial = new THREE.LineBasicMaterial({color: 0xddd321});
-const crossHorizontalGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(5, 0, 0), new THREE.Vector3( -5, 0, 0)]);
-const crossVerticalGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -5, 0), new THREE.Vector3( 0, 5, 0)]);
-const crossHorizontal = new THREE.Line(crossHorizontalGeometry, crossMaterial);
-const crossVertical = new THREE.Line(crossVerticalGeometry, crossMaterial);
-scene.add(crossHorizontal);
-scene.add(crossVertical);
+const yOffset = -.001
 
 var circleGroup = new THREE.Group();
 circleGroup.name = "circleGroup";
@@ -47,6 +38,16 @@ directionalLight.position.z = 3
 scene.add(directionalLight);
 let vec3Points = [];
 let defaultVec3Points = []; //save starting vec3
+
+
+//Add crosshair at position[x, y]
+const crossMaterial = new THREE.LineBasicMaterial({color: 0xddd321});
+const crossHorizontalGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(5, 0, 0), new THREE.Vector3( -5, 0, 0)]);
+// const crossVerticalGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -5, 0), new THREE.Vector3( 0, 5, 0)]);
+const crossHorizontal = new THREE.Line(crossHorizontalGeometry, crossMaterial);
+// const crossVertical = new THREE.Line(crossVerticalGeometry, crossMaterial);
+scene.add(crossHorizontal);
+// scene.add(crossVertical);
 
 function calculateOffsets(){ //radial and angular offset
     let radialOffset = [];
@@ -65,25 +66,24 @@ function calculateOffsets(){ //radial and angular offset
     window.state.path = [radialOffset, angularOffset];
 }
 
-function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurposed from ToolpathUnitGenerator
+function initializePath(nbLayers, layerHeight, pos=[0, 0, 0]){ //code repurposed from ToolpathUnitGenerator
     //set camera proportional to radius
-    let circleGeometry = new THREE.CircleGeometry( radius/10, 32 ); 
-    camera.position.set(0, 0, radius*2);
+    let circleGeometry = new THREE.CircleGeometry( nbLayers/10, 32 ); 
+    camera.position.set(0, layerHeight*2, 0);
 
     //Make three-js group for adding draggable circle points
     position = pos;
     position[2] = 0;
-    for(let i = 0; i < nbPointsInLayer; i++){
-        let angle = 2 * i * Math.PI / nbPointsInLayer;
+    for(let i = 0; i < layerHeight; i++){
         const point = { //point, toolpath notation
-            x: (position[0] + (radius) * Math.cos(angle + (Math.PI))),
-            y: (position[1] + (radius) * Math.sin(angle + (Math.PI))),
-            z: 0,
+            x: 0,
+            y: 0,
+            z: layerHeight*i,
             t: 0
         }
         //add draggable circle per point
         const circle = new THREE.Mesh(circleGeometry, circleMaterial ); 
-        circle.position.set(point.x, point.y, point.z + zOffset);
+        circle.position.set(point.x, point.y + yOffset, point.z);
         circleGroup.add(circle);
     }
     //draw lines from vec3
@@ -111,17 +111,17 @@ function refreshPath(){
         circleGroup.remove(circleGroup.children[0]);
     }
     scene.remove(scene.getObjectByName("lines"));
-    if(global_state.nbPointsInLayer.length != 0 && global_state.radius.length != 0){
-        initializePath(global_state.radius, global_state.nbPointsInLayer);
-        defaultRadius = global_state.radius;
-        defaultNbPointsInLayer = global_state.nbPointsInLayer;
+    if(global_state.nbLayers.length != 0 && global_state.layerHeight.length != 0){
+        initializePath(global_state.nbLayers, global_state.layerHeight);
+        defaultLayerHeight = global_state.layerHeight;
+        defaultNbLayers = global_state.nbLayers;
     }
 }
 
 function animate() {
 	renderer.render( scene, camera );
     zoomControls.update();
-    if(global_state.radius != defaultRadius || global_state.nbPointsInLayer != defaultNbPointsInLayer){ //execute only on path update, delete and rebuild toolpath
+    if(global_state.layerHeight != defaultLayerHeight || global_state.nbLayers != defaultLayerHeight){ //execute only on path update, delete and rebuild toolpath
         refreshPath();
     }
 }
@@ -158,43 +158,8 @@ controls.addEventListener('drag', function(event){
 controls.addEventListener( 'dragend', function ( event ) {
 	event.object.material = circleMaterial;
     calculateOffsets();
-    console.log("should post here");
-    console.log("top", window.parent.location.href);
     window.parent.postMessage({message:"run-codemirror"}, '*'); // update TPV when dragend finished
 });
 
 
-
-
-
-
-
-
-
-// TODO:
-
-//Clean up code
-//Better UI/color palette
-
-//Updating parameters
-    //one: what to do if nbpointsinlayer updates
-    // - linear interpolation algorithm: can calculate the distance between points, divide by certain percentage?
-    // - should be O(n) ish
-    //two: what to do if radius updates: 
-    // - scale up/down points from radius (fairly straightforward)
-
-//How to interpret path in TUG
-    // Toolpath Unit Generator should have a check for RSP to test whether
-    // RSP is an array or a list of point objects
-    // If it's a list of point objects, set the radius as those point objects directly
-    // (after confirming that the number of point objects = nbPointsInLayer)
-    // Same goes for profile editor
-
-//Future additions 
-    // Add undo+redo+reset button, command+z shortcuts, shortcuts should only work if mouse is hovering over window
-    // Add a way to select multiple points
-    // Add a way to snap points to a cylindircal coordinate system/cartesian coordinates
-    // Include an svg to toolpath function in the coilcam library
-    // - Something like svgToRadius(radius, nbPointsInLayer, center=[0, 0])
-    // - layerviewer should also be able to take in an SVG as a starting point
-    // - Add function to display layerViewer as a popup or extra tab
+initializePath(3, 4);

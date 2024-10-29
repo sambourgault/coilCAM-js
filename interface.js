@@ -353,19 +353,18 @@ function setUpCodeMirror(){
     }
   })
 
-  document.getElementById("b_tpv").addEventListener("click", function(event){
-    document.getElementById("layerVieweriFrame").setAttribute("hidden", "hidden");
-    document.getElementById("toolpathVieweriFrame").removeAttribute("hidden");
-  });
+  // document.getElementById("b_tpv").addEventListener("click", function(event){
+  //   document.getElementById("layerVieweriFrame").setAttribute("hidden", "hidden");
+  //   document.getElementById("toolpathVieweriFrame").removeAttribute("hidden");
+  // });
 
-  document.getElementById("b_layerviewer").addEventListener("click", function(event){
-    document.getElementById("toolpathVieweriFrame").setAttribute("hidden", "hidden");
-    document.getElementById("layerVieweriFrame").removeAttribute("hidden");
-  });
+  // document.getElementById("b_layerviewer").addEventListener("click", function(event){
+  //   document.getElementById("toolpathVieweriFrame").setAttribute("hidden", "hidden");
+  //   document.getElementById("layerVieweriFrame").removeAttribute("hidden");
+  // });
   
   window.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('message', function (event) {
-        console.log("Message received:", event.data);
         if (event.data.message === 'run-codemirror') {
           runCode();
         }

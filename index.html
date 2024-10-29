@@ -6,8 +6,8 @@
 <!-- CoilCAM library -->
 <!-- <script src="https://unpkg.com/coilcam-js@1.0.39/dist/module.js"></script> -->
 <!-- CoilCAM library (includes Flatten-js for union + difference + base functions) -->
-<!-- <script src="https://unpkg.com/coilcam@1.0.29/dist/module.js"></script> -->
-<script src="https://unpkg.com/coilcam@1.0.32/dist/module.js"></script>
+<!-- <script src="https://unpkg.com/coilcam@1.0.36/dist/module.js"></script> -->
+<script src="https://unpkg.com/coilcam@latest/dist/module.js"></script>
 
 <!-- Resizing windows (Split-js)-->
 <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
@@ -83,24 +83,23 @@
         </div> 
       </div>
       <div class="split-window">
-        
-        <div class="cell split-viewers">
           <!-- TODO: ToolpathViewer should be exported with the rest of the CoilCAM library -->
           <!-- For now, embed local file as iframe -->
           <div class = "split-tpv">
-            <!-- <iframe src="./layerViewer/LayerViewer.html" id="layerVieweriFrame" width="100%" height="100%" hidden=hidden></iframe> -->
+            <!-- <h2>Toolpath Viewer</h2> -->
             <iframe src="./toolpathViewer/ToolpathViewer.html" id="toolpathVieweriFrame" width="100%" height="100%"></iframe>
           </div>
-          <div class = "split-layerviewer">
-           <div class = "viewer-buttons">
-              <button type="button" id="b_tpv">TPV</button> 
-              <button type="button" id="b_layerviewer">Layer</button> 
+          <div class = "split-viewers">
+            <div class = "cell split-layerviewer">
+              <!-- <h2>Layer Editor</h2> -->
+              <iframe src="./layerViewer/LayerViewer.html" id="layerVieweriFrame" width="100%" height="100%"></iframe>
             </div>
-            <iframe src="./layerViewer/LayerViewer.html" id="layerVieweriFrame" width="100%" height="100%"></iframe>
+            <div class = "cell split-profileviewer">
+              <!-- <h2>Profile Viewer</h2> -->
+              
+              <iframe src="./profileViewer/ProfileViewer.html" id="profileVieweriFrame" width="100%" height="100%"></iframe>
+            </div>
           </div>
-        </div>
-        <!-- <iframe src="./layerViewer/LayerViewer.html" id="vieweriFrame" width="100%" height="100%"></iframe> -->
-        <!-- <iframe src="./toolpathViewer/ToolpathViewer.html" id="vieweriFrame" width="100%" height="100%"></iframe> -->
       </div>
 
     </div>
@@ -120,9 +119,16 @@
       cursor: 'col-resize'
     }
     );
-    Split(['.split-tpv', '.split-layerviewer'], {
-      sizes: [50, 50],
+    Split(['.split-tpv', '.split-viewers'], {
+      sizes: [70, 30],
       direction: 'vertical',
+      cursor: 'row-resize'
+    }
+    );
+    Split(['.split-layerviewer', '.split-profileviewer'], {
+      sizes: [50, 50],
+      maxSize: [Infinity, Infinity],
+      direction: 'horizontal',
       cursor: 'col-resize'
     }
     );
