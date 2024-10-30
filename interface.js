@@ -32,18 +32,28 @@ function updatePath(newPath, refPath=[]){
   }
 }
 
-//Call in codemirror to pass points to tpv/initialize path in layerViewer
+//Call in codemirror to initialize path in layerViewer
 function updateLayer(radius, nbPointsInLayer, pos=[0, 0, 0]){
-  var iframe = document.getElementById("layerVieweriFrame");
+  let iframe = document.getElementById("layerVieweriFrame");
   if(radius != null && nbPointsInLayer != null){
     iframe.contentWindow.state.radius = radius;
     iframe.contentWindow.state.nbPointsInLayer = nbPointsInLayer;
   }
-  return iframe.contentWindow.state.path;
+  return iframe.contentWindow.state.values;
+}
+
+//Call in codemirror to initialize path in profileViewer
+function updateProfile(layerHeight, nbLayers, pos=[0, 0, 0]){
+  let iframe = document.getElementById("profileVieweriFrame");
+  if(nbLayers != null && layerHeight != null){
+    iframe.contentWindow.state.layerHeight = layerHeight;
+    iframe.contentWindow.state.nbLayers = nbLayers;
+  }
+  return iframe.contentWindow.state.values;
 }
 
 function setBedDimensions(printerType){
-  var iframe = document.getElementById("toolpathVieweriFrame");
+  let iframe = document.getElementById("toolpathVieweriFrame");
   if (printerType == "baby"){
     iframe.contentWindow.state.bedDimensions = [280, 265, 305];
   }
@@ -352,16 +362,6 @@ function setUpCodeMirror(){
       addFileAsButton(localStorage.key(i), localStorage.getItem(localStorage.key(i)));
     }
   })
-
-  // document.getElementById("b_tpv").addEventListener("click", function(event){
-  //   document.getElementById("layerVieweriFrame").setAttribute("hidden", "hidden");
-  //   document.getElementById("toolpathVieweriFrame").removeAttribute("hidden");
-  // });
-
-  // document.getElementById("b_layerviewer").addEventListener("click", function(event){
-  //   document.getElementById("toolpathVieweriFrame").setAttribute("hidden", "hidden");
-  //   document.getElementById("layerVieweriFrame").removeAttribute("hidden");
-  // });
   
   window.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('message', function (event) {
@@ -372,6 +372,4 @@ function setUpCodeMirror(){
   });
 }
 
-
-// main();
 setUpCodeMirror();

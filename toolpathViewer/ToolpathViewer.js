@@ -6,27 +6,24 @@ export default class ToolpathViewer {
     scene;
     camera;
     renderer;
+    TPVcontainer;
     defaultPath = null; //stores current path inside TPV, check against global state path to monitor for changes
     defaultReferencePath = null;
+    defaultBedDimensions = [280, 265, 305];
     globalState = { //variables updatable outside toolpathviewer
         path: [],
         referencePath: [],
-        bedDimensions: []
+        bedDimensions: [280, 265, 305]
     };
     baseHeight = 1; //height for base of printer bed (constant)
     
     constructor(TPVcontainer) {
-        console.log("test1");
         this.TPVcontainer = TPVcontainer;
 
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(60, 400 / 400, 0.1, 1000);
+        this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
 
-        //initialize based on params passed to constructor (later)
-        this.globalState.path = [];
-        this.globalState.referencePath = [];
-        this.globalState.bedDimensions = [28, 26.5, 30.5];
         window.state = this.globalState;
 
         this.initScene();
@@ -121,7 +118,6 @@ export default class ToolpathViewer {
 
     // turn collection of points into toolpath
     createPath(scene, path, pathType){
-        console.log("p:", path.length);
         if(path.length === 0){
             return;
         }
@@ -146,7 +142,6 @@ export default class ToolpathViewer {
 
     // Change toolpath on update
     refreshPath(scene, pathType){
-        // console.log("refreshpath called");
         const toolpath = scene.getObjectByName(pathType); 
         scene.remove(toolpath);
         if(pathType === "path" && this.globalState.path.length != 0){
@@ -163,23 +158,20 @@ export default class ToolpathViewer {
     animate() {
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
-        if(this.bedDimensions != this.defaultDimensions && this.bedDimensions.length !== 0){ //execute only on update to bedDimensions inport
+        if(this.globalState.bedDimensions != this.defaultBedDimensions && this.globalState.bedDimensions.length !== 0){ //execute only on update to bedDimensions inport
             var borders = this.scene.getObjectByName("printerBedBorders");  //update borders
-            console.log(borders);
-            borders.scale.set(this.bedDimensions[0]/(this.defaultDimensions[0]*10), 
-                this.bedDimensions[1]/(this.defaultDimensions[1]*10), 
-                this.bedDimensions[2]/(this.defaultDimensions[2]*10));
+            borders.scale.set(this.globalState.bedDimensions[0]/(this.defaultBedDimensions[0]*10), 
+                this.globalState.bedDimensions[1]/(this.defaultBedDimensions[1]*10), 
+                this.globalState.bedDimensions[2]/(this.defaultBedDimensions[2]*10));
 
             var base = this.scene.getObjectByName("printerBedBase"); //update base (don't scale z)
-            base.scale.set(this.globalState.bedDimensions[0]/(defaultDimensions[0]*10), 
-                this.globalState.bedDimensions[1]/(defaultDimensions[1]*10), 
+            base.scale.set(this.globalState.bedDimensions[0]/(this.defaultBedDimensions[0]*10), 
+                this.globalState.bedDimensions[1]/(this.defaultBedDimensions[1]*10), 
                 1);
 
             var printerBed = this.scene.getObjectByName("printerBed"); //reposition group
-            printerBed.position.set(-this.globalState.bedDimensions[0]/20, -this.globalState.bedDimensions[1]/20, -baseHeight/2);
+            printerBed.position.set(-(this.globalState.bedDimensions[0]/20), -this.globalState.bedDimensions[1]/20, -this.baseHeight/2);
         }
-        // console.log("this.globalState.path", this.globalState.path);
-        // console.log("defaultPath", defaultPath);
         if(this.globalState.path !== this.defaultPath){ //execute only on path update, delete and rebuild toolpath
             this.refreshPath(this.scene, "path");
         }
@@ -193,9 +185,6 @@ export default class ToolpathViewer {
 window.ToolpathViewer = ToolpathViewer;
 
 window.addEventListener('DOMContentLoaded', () => {
-    const TPVcontainer = document.getElementById('toolpathVieweriFrame'); // Select the div
-    // const containerName = window.containerName;
-    // const TPVcontainer = document.getElementById(containerName);
-
+    const TPVcontainer = document.getElementById('toolpathVieweriFrame'); // select the div
     const TPV = new ToolpathViewer(TPVcontainer);
 });

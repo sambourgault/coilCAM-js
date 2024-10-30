@@ -6,7 +6,7 @@ var global_state = { // TO FIX: adding optional svg using file I/O
     svgPath: "",
     radius: 0.0,
     nbPointsInLayer: 0,
-    path: [] //return this
+    values: [] //return this
 };
 window.state = global_state;
 let defaultRadius = 0;
@@ -62,7 +62,7 @@ function calculateOffsets(){ //radial and angular offset
         let dist = (vec3Points[i]).distanceTo(positionVec3) - (newPt).distanceTo(positionVec3);
         radialOffset.push(dist);
     }
-    window.state.path = [radialOffset, angularOffset];
+    window.state.values = [radialOffset, angularOffset];
 }
 
 function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurposed from ToolpathUnitGenerator
@@ -158,8 +158,6 @@ controls.addEventListener('drag', function(event){
 controls.addEventListener( 'dragend', function ( event ) {
 	event.object.material = circleMaterial;
     calculateOffsets();
-    console.log("should post here");
-    console.log("top", window.parent.location.href);
     window.parent.postMessage({message:"run-codemirror"}, '*'); // update TPV when dragend finished
 });
 
