@@ -2,7 +2,7 @@
 // POTTERBOT CONFIGURATION
 var potterbot_printSpeed = 30;
 var potterbot_nozzleDiameter = 5.0;
-var potterbot_layerHeight = potterbot_nozzleDiameter*.5;
+var potterbot_layerHeight = potterbot_nozzleDiameter*2.5;
 var potterbot_extrusionMultiplier = 1.0;
 var potterbot_bedSize = [280, 265, 305];
 

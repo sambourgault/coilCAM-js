@@ -9,6 +9,7 @@ export default class ToolpathViewer {
     TPVcontainer;
     controls;
     transformControls;
+    raycaster;
     defaultPath; //stores current path inside TPV, check against global state path to monitor for changes
     defaultReferencePath;
     defaultBedDimensions = [28.0, 26.5, 30.5]; // 1 3js = 10 mm
@@ -19,6 +20,7 @@ export default class ToolpathViewer {
     };
     baseHeight = 1; //height for base of printer bed (constant)
     circles; //store the editable points
+    hoverOver = false; // check whether mouse is hovering over object
     
     constructor(TPVcontainer) {
         this.TPVcontainer = TPVcontainer;
@@ -33,23 +35,63 @@ export default class ToolpathViewer {
 
         this.initScene();
 
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.transformControls = new TransformControls(this.camera, this.renderer.domElement);
-        this.scene.add(this.transformControls);
         
-
         this.circles = new THREE.Group(); // store editable spheres in threejs group
         this.circles.name = "circles";
         this.scene.add(this.circles);
-        // this.transformControls.attach(this.circles);
+        this.raycaster = new THREE.Raycaster();
+        this.pointer = new THREE.Vector2();
+        
+
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.transformControls = new TransformControls(this.camera, this.renderer.domElement);
+        this.scene.add(this.controls);
+        this.scene.add(this.transformControls.getHelper());
+
+
         document.body.appendChild(this.renderer.domElement);
         window.addEventListener("resize", this.onWindowResize.bind(this));
+        window.addEventListener('pointermove', this.onPointerMove.bind(this));
+        document.body.addEventListener('pointerdown', this.disableOrbit.bind(this));
+        document.body.addEventListener('pointerup', this.enableOrbit.bind(this));
+    }
+
+    enableOrbit(){
+        if(this.transformControls.object){
+            console.log("ENABLE ORBIT");
+            this.controls.enabled = true;
+            this.transformControls.detach();
+        };
+    }
+
+    disableOrbit(){
+        if(this.transformControls.object && this.hoverOver){
+            console.log("DISABLE ORBIT");
+            console.log(this.controls);
+            this.controls.enabled = false;
+        }
     }
 
     onWindowResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    onPointerMove(event) { //following threejs.org/examples/#webgl_geometry_spline_editor, attach transformcontrols to object via raycasting
+        this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        this.raycaster.setFromCamera( this.pointer, this.camera );
+        const intersects = this.raycaster.intersectObjects(this.circles.children, true );
+        this.hoverOver = intersects.length > 0;
+        if (this.hoverOver) {
+            const object = intersects[ 0 ].object;
+            if ( object !== this.transformControls.object ) {
+                console.log(object);
+                object.material = new THREE.MeshToonMaterial({color: 0x9a2033})
+                this.transformControls.attach(object);
+            }
+        }
     }
 
     //initialize 3js elements
@@ -137,9 +179,8 @@ export default class ToolpathViewer {
         if(path.length === 0){
             return;
         }
-        let circleGeometry = new THREE.BoxGeometry( 10, 10, 10 );
+        let circleGeometry = new THREE.BoxGeometry(5, 5, 5);
         let circleMaterial = new THREE.MeshToonMaterial({color: 0x998f86})
-        let circles = this.scene.getObjectByName("circles");
         
         const toolpath = new THREE.Group(); //group for printer bed
         var material;
@@ -158,11 +199,10 @@ export default class ToolpathViewer {
             }
             const circle = new THREE.Mesh(circleGeometry, circleMaterial ); 
             circle.position.set(path[i].x, path[i].y, path[i].z);
-            circles.add(circle);
-            console.log(circle);
+            this.circles.add(circle);
         }
-        circles.scale.set(.1, .1, .1);
-        console.log(circles);
+        this.circles.scale.set(.1, .1, .1);
+        console.log(this.circles);
         toolpath.scale.set(.1, .1, .1); //scale relative to printer bed, 10 3js = 1m
         scene.add(toolpath);
     }
@@ -174,10 +214,6 @@ export default class ToolpathViewer {
         scene.remove(toolpath);
         const circles = scene.getObjectByName("circles"); 
         circles.clear();
-        // while (circles.children.length > 3){
-        //     circles.remove(circles.children[1]);
-        // }
-        // console.log(scene);
 
         if(pathType === "path" && this.globalState.path.length != 0){
             this.createPath(scene, this.globalState.path, pathType);
