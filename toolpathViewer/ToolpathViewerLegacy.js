@@ -1,16 +1,14 @@
+// referencing https://threejs.org/docs/index.html?q=camera#manual/en/introduction/Creating-a-scene
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import { TransformControls } from 'three/addons/controls/TransformControls.js';
 
 export default class ToolpathViewer {
     scene;
     camera;
     renderer;
     TPVcontainer;
-    controls;
-    transformControls;
-    defaultPath; //stores current path inside TPV, check against global state path to monitor for changes
-    defaultReferencePath;
+    defaultPath = null; //stores current path inside TPV, check against global state path to monitor for changes
+    defaultReferencePath = null;
     defaultBedDimensions = [28.0, 26.5, 30.5]; // 1 3js = 10 mm
     globalState = { //variables updatable outside toolpathviewer
         path: [],
@@ -18,7 +16,6 @@ export default class ToolpathViewer {
         bedDimensions: [28.0, 26.5, 30.5]
     };
     baseHeight = 1; //height for base of printer bed (constant)
-    circles; //store the editable points
     
     constructor(TPVcontainer) {
         this.TPVcontainer = TPVcontainer;
@@ -26,23 +23,14 @@ export default class ToolpathViewer {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.defaultPath = this.globalState.path;
-        this.defaultReferencePath = this.globalState.referencePath;
 
         window.state = this.globalState;
 
         this.initScene();
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.transformControls = new TransformControls(this.camera, this.renderer.domElement);
-        this.scene.add(this.transformControls);
-        
-
-        this.circles = new THREE.Group(); // store editable spheres in threejs group
-        this.circles.name = "circles";
-        this.scene.add(this.circles);
-        // this.transformControls.attach(this.circles);
         document.body.appendChild(this.renderer.domElement);
+
         window.addEventListener("resize", this.onWindowResize.bind(this));
     }
 
@@ -132,15 +120,11 @@ export default class ToolpathViewer {
     }
 
     // turn collection of points into toolpath
-    // with added circles this time
     createPath(scene, path, pathType){
         if(path.length === 0){
             return;
         }
-        let circleGeometry = new THREE.BoxGeometry( 10, 10, 10 );
-        let circleMaterial = new THREE.MeshToonMaterial({color: 0x998f86})
-        let circles = this.scene.getObjectByName("circles");
-        
+
         const toolpath = new THREE.Group(); //group for printer bed
         var material;
         if(pathType == "path"){
@@ -152,33 +136,17 @@ export default class ToolpathViewer {
             material = new THREE.MeshToonMaterial( {color: 0x0091c2} ); 
         }
         
-        for(let i = 0; i < path.length ; i++){
-            if(i != path.length - 1){
-                this.cylinderFromPoints(path[i], path[i+1], toolpath, material);
-            }
-            const circle = new THREE.Mesh(circleGeometry, circleMaterial ); 
-            circle.position.set(path[i].x, path[i].y, path[i].z);
-            circles.add(circle);
-            console.log(circle);
+        for(let i = 0; i < path.length - 1; i++){
+            this.cylinderFromPoints(path[i], path[i+1], toolpath, material);
         }
-        circles.scale.set(.1, .1, .1);
-        console.log(circles);
         toolpath.scale.set(.1, .1, .1); //scale relative to printer bed, 10 3js = 1m
         scene.add(toolpath);
     }
 
     // Change toolpath on update
     refreshPath(scene, pathType){
-        console.log("REFRESH");
         const toolpath = scene.getObjectByName(pathType); 
         scene.remove(toolpath);
-        const circles = scene.getObjectByName("circles"); 
-        circles.clear();
-        // while (circles.children.length > 3){
-        //     circles.remove(circles.children[1]);
-        // }
-        // console.log(scene);
-
         if(pathType === "path" && this.globalState.path.length != 0){
             this.createPath(scene, this.globalState.path, pathType);
             this.defaultPath = this.globalState.path;
@@ -192,7 +160,6 @@ export default class ToolpathViewer {
     // Update viewer on camera shift, changes in dimensions/toolpath
     animate() {
         this.controls.update();
-        this.transformControls.update();
         this.renderer.render(this.scene, this.camera);
         if(JSON.stringify(this.globalState.bedDimensions) !== JSON.stringify(this.defaultBedDimensions) && this.globalState.bedDimensions.length !== 0){
             var borders = this.scene.getObjectByName("printerBedBorders");  //update borders
@@ -208,13 +175,15 @@ export default class ToolpathViewer {
             var printerBed = this.scene.getObjectByName("printerBed"); //reposition group
             printerBed.position.set(-(this.globalState.bedDimensions[0]/20), -this.globalState.bedDimensions[1]/20, -this.baseHeight/2);
         }
-        if(this.globalState.path != this.defaultPath){ //execute only on path update, delete and rebuild toolpath
+        if(this.globalState.path !== this.defaultPath){ //execute only on path update, delete and rebuild toolpath
             this.refreshPath(this.scene, "path");
         }
-        if(this.globalState.referencePath != this.defaultReferencePath){ //execute only on path update, delete and rebuild toolpath
+        if(this.globalState.referencePath !== this.defaultReferencePath){ //execute only on path update, delete and rebuild toolpath
             this.refreshPath(this.scene, "referencePath");
         }
     }
+
+    
 }
 window.ToolpathViewer = ToolpathViewer;
 

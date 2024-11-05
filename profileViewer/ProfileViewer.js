@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js'
 import {DragControls} from 'three/addons/controls/DragControls.js';
+
+// TO ADD: multiselect with click and drag
+
+
 var global_state = { // TO FIX: adding optional svg using file I/O
     svgPath: "",
     nbLayers: 0,
@@ -13,7 +17,7 @@ let defaultLayerHeight = 0;
 
 // Build Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color( {color : 0xfaead6}); //colors from styles.css for pathDrawing
+scene.background = new THREE.Color( {color : 0xe3e1de}); //colors from styles.css for pathDrawing
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.up.set(0, 0, 1); // to ensure z is up and down instead of default (y)
 camera.position.set(0, 40, 0); //adjust z with radius?
@@ -28,17 +32,16 @@ const yOffset = 0;
 var circleGroup = new THREE.Group();
 circleGroup.name = "circleGroup";
 const circleMaterial = new THREE.MeshToonMaterial( { color: 0xb7afa6 } ); 
-const circleHighlightMaterial = new THREE.MeshToonMaterial( { color: 0xbc33ef } ); 
+const circleHighlightMaterial = new THREE.MeshToonMaterial( { color: 0x85807b } ); 
 var position;
-const lineMaterial = new THREE.LineBasicMaterial({ color: 0x33bb4e });
-
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0xc2bfba });
 const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
 directionalLight.position.z = 3
 scene.add(directionalLight);
 let vec3Points = [];
 
 //Add crosshair at position[x, y]
-const crossMaterial = new THREE.LineBasicMaterial({color: 0xddd321});
+const crossMaterial = new THREE.LineBasicMaterial({color: 0xc2bfba});
 const crossHorizontalGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(5, 0, 0), new THREE.Vector3( 0, 0, 0)]);
 const crossHorizontal = new THREE.Line(crossHorizontalGeometry, crossMaterial);
 scene.add(crossHorizontal);
@@ -116,9 +119,18 @@ window.addEventListener("resize", function(){
 //dragging points
 let pointZ;
 const controls = new DragControls(circleGroup.children, camera, renderer.domElement);
+
+controls.addEventListener('hoveron', function ( event ) {
+	event.object.material = circleHighlightMaterial;
+})
+
+controls.addEventListener('hoveroff', function ( event ) {
+	event.object.material = circleMaterial;
+})
+
+
 controls.addEventListener( 'dragstart', function ( event ) {
     pointZ = event.object.position.z;
-	event.object.material = circleHighlightMaterial;
 } );
 
 controls.addEventListener('drag', function(event){

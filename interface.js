@@ -22,12 +22,12 @@ var viewerType = "tpv"; //control which viewer type is currently on screen
 // var bedDimensions = [280, 265, 305];
 
 //Call in codemirror to change the toolpath in the threejs toolpath viewer
-function updatePath(newPath, refPath=[]){
+function updatePath(newPath, referencePath=null){
   var iframe = document.getElementById("toolpathVieweriFrame");
   if(newPath !== null){
       iframe.contentWindow.state.path = newPath;
   }
-  if(refPath !== null){
+  if(referencePath !== null){
       iframe.contentWindow.state.referencePath = refPath;
   }
 }
@@ -54,11 +54,11 @@ function updateProfile(layerHeight, nbLayers, pos=[0, 0, 0]){
 
 function setBedDimensions(printerType){
   let iframe = document.getElementById("toolpathVieweriFrame");
-  if (printerType == "baby"){
-    iframe.contentWindow.state.bedDimensions = [280, 265, 305];
+  if (printerType == "baby"){ // 1 3js = 10 mm
+    iframe.contentWindow.state.bedDimensions = [28.0, 26.5, 30.5];
   }
   if (printerType == "super"){
-    iframe.contentWindow.state.bedDimensions = [415, 405, 500];
+    iframe.contentWindow.state.bedDimensions = [41.5, 40.5, 50.0];
   }
 }
 

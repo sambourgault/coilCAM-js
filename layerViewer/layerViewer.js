@@ -14,7 +14,7 @@ let defaultNbPointsInLayer = 0;
 
 // Build Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color( {color : 0xfaead6}); //colors from styles.css for pathDrawing
+scene.background = new THREE.Color( {color : 0xe3e1de}); //colors from styles.css for pathDrawing
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.up.set(0, 0, 1); // to ensure z is up and down instead of default (y)
 camera.position.set(0, 0, 40); //adjust z with radius?
@@ -27,7 +27,7 @@ zoomControls.enableRotate = false;
 const zOffset = -.001
 
 //Add crosshair at position[x, y]
-const crossMaterial = new THREE.LineBasicMaterial({color: 0xddd321});
+const crossMaterial = new THREE.LineBasicMaterial({color: 0xc2bfba});
 const crossHorizontalGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(5, 0, 0), new THREE.Vector3( -5, 0, 0)]);
 const crossVerticalGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -5, 0), new THREE.Vector3( 0, 5, 0)]);
 const crossHorizontal = new THREE.Line(crossHorizontalGeometry, crossMaterial);
@@ -38,9 +38,9 @@ scene.add(crossVertical);
 var circleGroup = new THREE.Group();
 circleGroup.name = "circleGroup";
 const circleMaterial = new THREE.MeshToonMaterial( { color: 0xb7afa6 } ); 
-const circleHighlightMaterial = new THREE.MeshToonMaterial( { color: 0xbc33ef } ); 
+const circleHighlightMaterial = new THREE.MeshToonMaterial( { color: 0x85807b } ); 
 var position;
-const lineMaterial = new THREE.LineBasicMaterial({ color: 0x33bb4e });
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0xc2bfba });
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
 directionalLight.position.z = 3

@@ -43,27 +43,35 @@
     <div class = "CC-header">
       <h2>coilCAM-js</h2>
       <div class = "CC-header-buttons">
-        <button type="button" id="b_run">run</button> 
-        <button type="button" id="b_save">save</button> 
-        <input type="file" id="file_input" hidden/>
-        <button type="button" id="b_upload">upload</button> 
-        <div class="dropdown">
-          <button type="button">examples</button>
-          <div id="example-dropdown" class="dropdown-content">
-            <a id="example-vase">demo vase</a>
-            <a id="example-cup">demo cup</a>
-            <a id="example-plate">demo plate</a>
+        <div class = "CC-header-buttons-left">
+          <button type="button" id="b_run">run</button> 
+          <button type="button" id="b_save">save</button> 
+          <input type="file" id="file_input" hidden/>
+          <button type="button" id="b_upload">upload</button> 
+          <div class="dropdown">
+            <button type="button">examples</button>
+            <div id="example-dropdown" class="dropdown-content">
+              <a id="example-vase">demo vase</a>
+              <a id="example-cup">demo cup</a>
+              <a id="example-plate">demo plate</a>
+            </div>
           </div>
-        </div>
-        <div class="dropdown">
-          <button type="printer-button" id="b_printer_dims">printer dimensions</button> 
-          <div id="example-dropdown" class="dropdown-content">
-            <a id="baby_pb">baby potterbot</a>
-            <a id="super_pb">super potterbot</a>
+          <div class="dropdown">
+            <button type="printer-button" id="b_printer_dims">printer dimensions</button> 
+            <div id="example-dropdown" class="dropdown-content">
+              <a id="baby_pb">baby potterbot</a>
+              <a id="super_pb">super potterbot</a>
+            </div>
           </div>
+          <button type="button" id="b_docs">documentation</button> 
+        </div> 
+        <div class = "CC-header-buttons-right">
+          <button type="button" id="b_github">
+            <img src="./assets/icons/github-logo.png" height="22px" width="22px">
+          </button> 
         </div>
-        <button type="button" id="b_docs">documentation</button> 
       </div>
+      
       
     </div>
 
@@ -96,7 +104,6 @@
             </div>
             <div class = "cell split-profileviewer">
               <!-- <h2>Profile Viewer</h2> -->
-              
               <iframe src="./profileViewer/ProfileViewer.html" id="profileVieweriFrame" width="100%" height="100%"></iframe>
             </div>
           </div>

@@ -38,7 +38,7 @@ export default class ProfileViewer {
     }
 
     initScene(){
-        this.scene.background = new THREE.Color(0xffffff);
+        this.scene.background = new THREE.Color(0xe3e1de);
         this.camera.up.set(0, 0, 1); // to ensure z is up and down instead of default (y)
         camera.position.set(0, 0, 40); //adjust z with radius?
         this.renderer.setSize(window.innerWidth, window.innerHeight);

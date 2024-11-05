@@ -199,11 +199,24 @@ h2{
   display: flex;
   padding: .5em;
   gap: .5em;
+  
 }
 
 .CC-header-buttons{
+  float: left;
+  display: flex;
+  justify-content: space-between;
+}
+
+.CC-header-buttons-left{
+  gap: .5em;
+  float: left;
+}
+
+.CC-header-buttons-right{
   gap: .5em;
   float: right;
+  margin-left: auto;
 }
 
 
@@ -227,9 +240,6 @@ h2{
   background: var(--gray);
 }
 
-/* .cell{
-  background-color: teal;
-} */
 
 
 .split { 
@@ -248,6 +258,7 @@ h2{
   background: var(--gray);
   height: 100%;
 }
+/* all codemirror windows */
 .split-editors{
   background-color: gray;
   width: 100%;
