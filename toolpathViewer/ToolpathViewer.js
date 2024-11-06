@@ -21,6 +21,9 @@ export default class ToolpathViewer {
     baseHeight = 1; //height for base of printer bed (constant)
     circles; //store the editable points
     hoverOver = false; // check whether mouse is hovering over object
+    dragging = false; // check whether toggle point is being dragged
+    dragpoint = false;
+    pointToLinesMap = new Map(); // map assist objects to cylinders
     
     constructor(TPVcontainer) {
         this.TPVcontainer = TPVcontainer;
@@ -34,7 +37,6 @@ export default class ToolpathViewer {
         window.state = this.globalState;
 
         this.initScene();
-
         
         this.circles = new THREE.Group(); // store editable spheres in threejs group
         this.circles.name = "circles";
@@ -48,7 +50,6 @@ export default class ToolpathViewer {
         this.scene.add(this.controls);
         this.scene.add(this.transformControls.getHelper());
 
-
         document.body.appendChild(this.renderer.domElement);
         window.addEventListener("resize", this.onWindowResize.bind(this));
         window.addEventListener('pointermove', this.onPointerMove.bind(this));
@@ -61,6 +62,8 @@ export default class ToolpathViewer {
             console.log("ENABLE ORBIT");
             this.controls.enabled = true;
             this.transformControls.detach();
+            this.dragging = false;
+            this.dragpoint = null;
         };
     }
 
@@ -69,6 +72,8 @@ export default class ToolpathViewer {
             console.log("DISABLE ORBIT");
             console.log(this.controls);
             this.controls.enabled = false;
+            this.dragging = true;
+            this.dragpoint = this.transformControls.object.position;
         }
     }
 
@@ -78,7 +83,7 @@ export default class ToolpathViewer {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    onPointerMove(event) { //following threejs.org/examples/#webgl_geometry_spline_editor, attach transformcontrols to object via raycasting
+    onPointerMove(event) { 
         this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
         this.raycaster.setFromCamera( this.pointer, this.camera );
@@ -179,6 +184,7 @@ export default class ToolpathViewer {
         if(path.length === 0){
             return;
         }
+        this.pointToLinesMap.clear();
         let circleGeometry = new THREE.BoxGeometry(5, 5, 5);
         let circleMaterial = new THREE.MeshToonMaterial({color: 0x998f86})
         
@@ -192,15 +198,26 @@ export default class ToolpathViewer {
             toolpath.name = "referencePath";
             material = new THREE.MeshToonMaterial( {color: 0x0091c2} ); 
         }
-        
         for(let i = 0; i < path.length ; i++){
-            if(i != path.length - 1){
-                this.cylinderFromPoints(path[i], path[i+1], toolpath, material);
-            }
             const circle = new THREE.Mesh(circleGeometry, circleMaterial ); 
             circle.position.set(path[i].x, path[i].y, path[i].z);
             this.circles.add(circle);
+            if(i != path.length - 1){
+                this.cylinderFromPoints(path[i], path[i+1], toolpath, material);
+            }
         }
+        // this.pointToLinesMap.set(this.circles.children[0].uuid, [0]);
+        // for( let i = 1; i < path.length - 2; i++){
+        //     this.pointToLinesMap.set(this.circles.children[i].uuid, [i-1, i]);
+        // }
+        // this.pointToLinesMap.set(this.circles.children[this.circles.children.length-1].uuid, [toolpath.children.length-1]);
+      
+        this.pointToLinesMap.set(this.circles.children[0].uuid, toolpath.children[0].uuid);
+        for( let i = 1; i < path.length - 2; i++){
+            this.pointToLinesMap.set(this.circles.children[i].uuid, [toolpath.children[i-1].uuid, toolpath.children[i].uuid]);
+        }
+        this.pointToLinesMap.set(this.circles.children[this.circles.children.length-1].uuid, [toolpath.children[toolpath.children.length-1].uuid]);
+      
         this.circles.scale.set(.1, .1, .1);
         console.log(this.circles);
         toolpath.scale.set(.1, .1, .1); //scale relative to printer bed, 10 3js = 1m
@@ -249,6 +266,31 @@ export default class ToolpathViewer {
         }
         if(this.globalState.referencePath != this.defaultReferencePath){ //execute only on path update, delete and rebuild toolpath
             this.refreshPath(this.scene, "referencePath");
+        }
+        if(this.transformControls.object && this.hoverOver && this.dragging){ //run if dragging object
+            // let cylinderIDs = this.pointToLinesMap.get(this.transformControls.object.uuid);
+            // let toolpath = this.scene.getObjectByName("path");
+            // console.log("TP", toolpath.children);
+            // if(cylinderIDs != undefined){
+            //     for(let i = 0; i < cylinderIDs.length; i++){
+            //         let obj = toolpath.children[cylinderIDs[i]];
+
+            //         console.log("id, ", cylinderIDs[i], "obj,", obj);
+            //         toolpath.remove(obj);
+            //     }
+            // }
+            let cylinderUUIDs = this.pointToLinesMap.get(this.transformControls.object.uuid);
+            let toolpath = this.scene.getObjectByName("path");
+            if(cylinderUUIDs != undefined){
+                for(let i = 0; i < cylinderUUIDs.length; i++){
+                    let obj = this.scene.getObjectByProperty("uuid", cylinderUUIDs[i]);
+                    console.log(obj);
+                    toolpath.remove(obj);
+                }
+            }
+            // here, find out what point on the cylinder matches the starting dragpoint
+
+            
         }
     }
 }

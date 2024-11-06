@@ -7,8 +7,8 @@ var potterbot_extrusionMultiplier = 1.0;
 var potterbot_bedSize = [280, 265, 305];
 
 // VESSEL PARAMETERS
-var nbLayers = 8;
-var nbPointsInLayer = 5;
+var nbLayers = 2;
+var nbPointsInLayer = 10;
 var vesselRadius = 35;
 var position = [0, 0, 0];
 var scalingParameter = sinusoidal(10, 60, 20, nbLayers, 0, "");
