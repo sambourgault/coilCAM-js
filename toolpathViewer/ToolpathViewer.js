@@ -24,7 +24,8 @@ export default class ToolpathViewer {
     dragging = false; // check whether toggle point is being dragged
     dragpoint = false;
     pointToLinesMap = new Map(); // map assist objects to cylinders
-    
+    uuidToPoint = new Map();
+
     constructor(TPVcontainer) {
         this.TPVcontainer = TPVcontainer;
 
@@ -53,24 +54,22 @@ export default class ToolpathViewer {
         document.body.appendChild(this.renderer.domElement);
         window.addEventListener("resize", this.onWindowResize.bind(this));
         window.addEventListener('pointermove', this.onPointerMove.bind(this));
-        document.body.addEventListener('pointerdown', this.disableOrbit.bind(this));
-        document.body.addEventListener('pointerup', this.enableOrbit.bind(this));
+        document.body.addEventListener('pointerdown', this.pointerDown.bind(this));
+        document.body.addEventListener('pointerup', this.pointerUp.bind(this));
     }
 
-    enableOrbit(){
+    pointerUp(){
         if(this.transformControls.object){
-            console.log("ENABLE ORBIT");
             this.controls.enabled = true;
             this.transformControls.detach();
             this.dragging = false;
             this.dragpoint = null;
+            // this.toolpath
         };
     }
 
-    disableOrbit(){
+    pointerDown(){
         if(this.transformControls.object && this.hoverOver){
-            console.log("DISABLE ORBIT");
-            console.log(this.controls);
             this.controls.enabled = false;
             this.dragging = true;
             this.dragpoint = this.transformControls.object.position;
@@ -158,24 +157,31 @@ export default class ToolpathViewer {
     }
 
     //helper function to convert line segment to cylinder (for thickness)
-    cylinderFromPoints(pointStart, pointEnd, group, material){
-        //convert to Vec3
-        let pointStartVec = new THREE.Vector3(pointStart.x, pointStart.y, pointStart.z);
-        let pointEndVec = new THREE.Vector3(pointEnd.x, pointEnd.y, pointEnd.z);
+    //lineWidth() ThreeJS has a maximum/minimum limit of 1
+    cylinderFromPoints(pointStart, pointEnd, material){
+        let pointStartThickness = 0;
+        let pointEndThickness = 0;
+        if(!pointStart.isVector3){ //convert to Vec3
+            pointStartThickness = pointStart.t;
+            pointStart = new THREE.Vector3(pointStart.x, pointStart.y, pointStart.z); 
+        }
+        if(!pointEnd.isVector3){
+            pointEndThickness = pointEnd.t;
+            pointEnd = new THREE.Vector3(pointEnd.x, pointEnd.y, pointEnd.z);
+        }
 
-        var dir = new THREE.Vector3().subVectors(pointEndVec, pointStartVec);
+        var dir = new THREE.Vector3().subVectors(pointEnd, pointStart);
         var quat = new THREE.Quaternion();
         quat.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize()); 
 
         var offset = new THREE.Vector3(); //midpoint of cylinder
-        offset.addVectors(pointEndVec, pointStartVec).divideScalar(2);
+        offset.addVectors(pointEnd, pointStart).divideScalar(2);
         
-        const segmentGeometry = new THREE.CylinderGeometry(pointEnd.t+1, pointStart.t+1, dir.length(), 8);
+        const segmentGeometry = new THREE.CylinderGeometry(pointEndThickness+1, pointStartThickness+1, dir.length(), 8);
         const segment = new THREE.Mesh(segmentGeometry, material); 
         segment.quaternion.copy(quat);
         segment.position.set(offset.x, offset.y, offset.z);
-
-        group.add(segment);
+        return segment;
     }
 
     // turn collection of points into toolpath
@@ -203,20 +209,23 @@ export default class ToolpathViewer {
             circle.position.set(path[i].x, path[i].y, path[i].z);
             this.circles.add(circle);
             if(i != path.length - 1){
-                this.cylinderFromPoints(path[i], path[i+1], toolpath, material);
+                toolpath.add(this.cylinderFromPoints(path[i], path[i+1], material));
             }
+            this.uuidToPoint.set(circle.uuid, i);
         }
-        // this.pointToLinesMap.set(this.circles.children[0].uuid, [0]);
-        // for( let i = 1; i < path.length - 2; i++){
-        //     this.pointToLinesMap.set(this.circles.children[i].uuid, [i-1, i]);
-        // }
-        // this.pointToLinesMap.set(this.circles.children[this.circles.children.length-1].uuid, [toolpath.children.length-1]);
-      
-        this.pointToLinesMap.set(this.circles.children[0].uuid, toolpath.children[0].uuid);
+        //BY INDEX
+        this.pointToLinesMap.set(this.circles.children[0].uuid, [undefined, 0]);
         for( let i = 1; i < path.length - 2; i++){
-            this.pointToLinesMap.set(this.circles.children[i].uuid, [toolpath.children[i-1].uuid, toolpath.children[i].uuid]);
+            this.pointToLinesMap.set(this.circles.children[i].uuid, [i-1, i]);
         }
-        this.pointToLinesMap.set(this.circles.children[this.circles.children.length-1].uuid, [toolpath.children[toolpath.children.length-1].uuid]);
+        this.pointToLinesMap.set(this.circles.children[this.circles.children.length-1].uuid, [toolpath.children.length-1, undefined]);
+      
+        // // BY UUID
+        // this.pointToLinesMap.set(this.circles.children[0].uuid, toolpath.children[0].uuid);
+        // for( let i = 1; i < path.length - 2; i++){
+        //     this.pointToLinesMap.set(this.circles.children[i].uuid, [toolpath.children[i-1].uuid, toolpath.children[i].uuid]);
+        // }
+        // this.pointToLinesMap.set(this.circles.children[this.circles.children.length-1].uuid, [toolpath.children[toolpath.children.length-1].uuid]);
       
         this.circles.scale.set(.1, .1, .1);
         console.log(this.circles);
@@ -268,29 +277,64 @@ export default class ToolpathViewer {
             this.refreshPath(this.scene, "referencePath");
         }
         if(this.transformControls.object && this.hoverOver && this.dragging){ //run if dragging object
-            // let cylinderIDs = this.pointToLinesMap.get(this.transformControls.object.uuid);
-            // let toolpath = this.scene.getObjectByName("path");
-            // console.log("TP", toolpath.children);
-            // if(cylinderIDs != undefined){
-            //     for(let i = 0; i < cylinderIDs.length; i++){
-            //         let obj = toolpath.children[cylinderIDs[i]];
+            // BY POSITION IN TOOLPATH
+            let newMaterial = new THREE.MeshToonMaterial({color: 0x6e4032});
+            let cylinderIDs = this.pointToLinesMap.get(this.transformControls.object.uuid);
+            let toolpath = this.scene.getObjectByName("path");
+            for(let i = 0; i < cylinderIDs.length; i++){
+                if (cylinderIDs[i] == undefined){
+                    continue;
+                }
+                let obj = toolpath.children[cylinderIDs[i]];
+                
+                let newCylinder;
+                if(i == 0){
+                    newCylinder = this.cylinderFromPoints(this.globalState.path[cylinderIDs[i]], this.transformControls.object.position, newMaterial);
+                } else{
+                    newCylinder = this.cylinderFromPoints(this.transformControls.object.position, this.globalState.path[cylinderIDs[i]+1], newMaterial);
+                }
+                this.globalState.path[this.uuidToPoint.get(this.transformControls.object.uuid)] = this.transformControls.object.position;
+                obj.copy(newCylinder);
+            }
+            
+            // // USING UUID TO GET EXACT CYLINDER
+            // let cylinderUUIDs = this.pointToLinesMap.get(this.transformControls.object.uuid);
+            // if(cylinderUUIDs != undefined){
+            //     let newMaterial = new THREE.MeshToonMaterial({color: 0x2e4032});
+            //     for(let i = 0; i < cylinderUUIDs.length; i++){
+            //         let obj = this.scene.getObjectByProperty("uuid", cylinderUUIDs[i]);
+            //         console.log(obj);
 
-            //         console.log("id, ", cylinderIDs[i], "obj,", obj);
-            //         toolpath.remove(obj);
+            //         //determine start and end points of each cylinder segment from quaternion and height
+            //         const localAxis = new THREE.Vector3(0, 1, 0);
+                    
+            //         const worldDirection = localAxis.clone().applyQuaternion(obj.quaternion);
+
+            //         let segmentHeight = obj.geometry.parameters.height;
+            //         const halfLengthVector = worldDirection.multiplyScalar(segmentHeight/2);
+            //         const pointStart = obj.position.clone().sub(halfLengthVector);
+            //         const pointEnd = obj.position.clone().add(halfLengthVector);
+                    
+            //         console.log("start", pointStart, "end", pointEnd);
+
+            //         const testPT = {
+            //             x: 0.0,
+            //             y: 0.0,
+            //             z: 0.0,
+            //             t: -0.9
+            //         };                    
+            //         let newCylinder;
+            //         if(i == 0){ //pointEnd will be the edited point of the cylinder
+            //             newCylinder = this.cylinderFromPoints(pointStart, testPT, newMaterial);
+                        
+            //             console.log("newCylinder", newCylinder);
+            //         } else{ //pointStart will be the edited point of the cylinder
+            //             newCylinder = this.cylinderFromPoints(testPT, pointEnd, newMaterial);
+            //         }
+            //         obj.geometry = newCylinder.geometry;
+            //         // toolpath.remove(obj);
             //     }
             // }
-            let cylinderUUIDs = this.pointToLinesMap.get(this.transformControls.object.uuid);
-            let toolpath = this.scene.getObjectByName("path");
-            if(cylinderUUIDs != undefined){
-                for(let i = 0; i < cylinderUUIDs.length; i++){
-                    let obj = this.scene.getObjectByProperty("uuid", cylinderUUIDs[i]);
-                    console.log(obj);
-                    toolpath.remove(obj);
-                }
-            }
-            // here, find out what point on the cylinder matches the starting dragpoint
-
-            
         }
     }
 }
