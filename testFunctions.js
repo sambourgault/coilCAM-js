@@ -115,7 +115,7 @@ function extrude(nozzleDiameter, layerHeight, segmentLen, thicknesses){ //noncum
     points.push(0);
     for(var i = 0; i < segmentLen.length; i++){
         var newPoint = (segmentLen[i]*layerHeight/nozzleDiameter) * (4/Math.PI + layerHeight/nozzleDiameter);
-        let pointThicknessOffset = (1 + (0.05 * thicknesses[i])); // 5% offset for extrusion rate
+        let pointThicknessOffset = (1 + (0.3 * thicknesses[i])); // 10% offset for extrusion rate
         points.push((newPoint * extrusionMultiplier * pointThicknessOffset).toFixed(3));
         totalExtruded += newPoint;
     }

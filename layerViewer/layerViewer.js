@@ -76,8 +76,8 @@ function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurpos
     for(let i = 0; i < nbPointsInLayer; i++){
         let angle = 2 * i * Math.PI / nbPointsInLayer;
         const point = { //point, toolpath notation
-            x: (position[0] + (radius) * Math.cos(angle + (Math.PI))),
-            y: (position[1] + (radius) * Math.sin(angle + (Math.PI))),
+            x: (position[0] + (radius) * Math.cos(angle)),
+            y: (position[1] + (radius) * Math.sin(angle)),
             z: 0,
             t: 0
         }

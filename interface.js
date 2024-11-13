@@ -30,6 +30,7 @@ function updatePath(newPath, referencePath=null){
   if(referencePath !== null){
       iframe.contentWindow.state.referencePath = refPath;
   }
+  return iframe.contentWindow.state.outputPath;
 }
 
 //Call in codemirror to initialize path in layerViewer
