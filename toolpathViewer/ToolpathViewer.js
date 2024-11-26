@@ -29,6 +29,8 @@ export default class ToolpathViewer {
     cylinderHighlightMaterial = new THREE.MeshToonMaterial({color: 0x826f63});
     highlightedMaterials = false; // check whether materials are currently highlighted
 
+    showDragPoints = false; //debugging purposes: should users be able to drag points?
+
     constructor(TPVcontainer) {
         this.TPVcontainer = TPVcontainer;
         this.scene = new THREE.Scene();
@@ -58,18 +60,17 @@ export default class ToolpathViewer {
     }
 
     pointerUp(){
-        if(this.transformControls.object){
+        if(this.showDragPoints && this.transformControls.object){
             this.transformControls.object.material = this.cylinderMaterial;
             this.controls.enabled = true;
             this.transformControls.detach();
             window.state.outputPath = this.globalState.path;
-            console.log("OUTPUT PATH:", window.state.outputPath);
             // window.parent.postMessage({message:"run-codemirror"}, '*'); // update TPV when dragend finished
         };
     }
 
     pointerDown(){
-        if(this.transformControls.object){
+        if(this.showDragPoints && this.transformControls.object){
             this.controls.enabled = false; 
         }
     }
@@ -81,17 +82,19 @@ export default class ToolpathViewer {
     }
 
     onPointerMove(event) { 
-        this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-        this.raycaster.setFromCamera( this.pointer, this.camera );
-        
-        const intersects = this.raycaster.intersectObjects(this.dragPoints.children, true );
-        this.hoverOver = intersects.length > 0;
-        if (this.hoverOver) {
-            const object = intersects[ 0 ].object;
-            if ( object !== this.transformControls.object ) {
-                this.transformControls.attach(object);
-            }
+        if(this.showDragPoints){
+            this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+            this.raycaster.setFromCamera( this.pointer, this.camera );
+            
+            const intersects = this.raycaster.intersectObjects(this.dragPoints.children, true );
+            this.hoverOver = intersects.length > 0;
+            if (this.hoverOver) {
+                const object = intersects[ 0 ].object;
+                if ( object !== this.transformControls.object ) {
+                    this.transformControls.attach(object);
+                }
+            } 
         } 
     }
 
@@ -147,9 +150,7 @@ export default class ToolpathViewer {
             printerBedBorders.add(line);
         }
         printerBed.add(printerBedBorders);
-        console.log(printerBed.position);
         printerBed.position.set(dimensions[0]/2, dimensions[1]/2, -this.baseHeight/2);
-        console.log(printerBed.position);
         scene.add(printerBed);
     }
 
@@ -158,7 +159,6 @@ export default class ToolpathViewer {
     cylinderFromPoints(pointStart, pointEnd, material, dragPointThickness=0){
         let pointStartThickness = dragPointThickness;
         let pointEndThickness = dragPointThickness;
-        console.log("point start:", pointStart);
         if(!pointStart.isVector3){ //convert to Vec3
             pointStartThickness = pointStart.t;
             pointStart = new THREE.Vector3(pointStart.x, pointStart.y, pointStart.z); 
@@ -199,16 +199,17 @@ export default class ToolpathViewer {
             material = this.cylinderReferenceMaterial;
         }
         for(let i = 0; i < path.length ; i++){
-            const dragPoint = new THREE.Mesh(circleGeometry, this.cylinderMaterial); 
-            dragPoint.position.set(path[i].x, path[i].y, path[i].z);
-            let dragPointRadius = 2 + path[i].t; //dragpoint radius proportional to thickness - hard to grab extremely thin points
-            dragPoint.scale.set(dragPointRadius, dragPointRadius, dragPointRadius);
-            this.dragPoints.add(dragPoint);
-
+            if(this.showDragPoints){
+                const dragPoint = new THREE.Mesh(circleGeometry, this.cylinderMaterial); 
+                dragPoint.position.set(path[i].x, path[i].y, path[i].z);
+                let dragPointRadius = 2 + path[i].t; //dragpoint radius proportional to thickness - hard to grab extremely thin points
+                dragPoint.scale.set(dragPointRadius, dragPointRadius, dragPointRadius);
+                this.dragPoints.add(dragPoint);    
+                this.uuidToPoint.set(dragPoint.uuid, i);
+            }
             if(i != path.length - 1){
                 toolpath.add(this.cylinderFromPoints(path[i], path[i+1], material));
             }
-            this.uuidToPoint.set(dragPoint.uuid, i);
         }
 
         this.dragPoints.scale.set(.1, .1, .1);
@@ -225,7 +226,6 @@ export default class ToolpathViewer {
         circles.clear();
 
         if(pathType === "path" && this.globalState.path.length != 0){
-            console.log("REFRESH");
             this.createPath(scene, this.globalState.path, pathType);
             this.defaultPath = this.globalState.path;
         }
@@ -262,7 +262,7 @@ export default class ToolpathViewer {
         }
 
         let toolpath = this.scene.getObjectByName("path");
-        if(this.transformControls.dragging){ //run if dragging point along the toolpath
+        if(this.showDragPoints && this.transformControls.dragging){ //run if dragging point along the toolpath
             let dragPoint = this.transformControls.object;
             let index = this.uuidToPoint.get(dragPoint.uuid);
             let cylinderIDs = [index-1, index];
