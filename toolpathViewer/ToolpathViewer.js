@@ -102,7 +102,7 @@ export default class ToolpathViewer {
     initScene(){
         this.scene.background = new THREE.Color(0xe3e1de);
         this.camera.up.set(0, 0, 1); // to ensure z is up and down instead of default (y)
-        this.camera.position.set(-2, -20, 30);
+        this.camera.position.set(0, 50, 34.5);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setAnimationLoop(this.animate.bind(this));
         this.createPrinterBed(this.scene, this.globalState.bedDimensions);
@@ -242,17 +242,18 @@ export default class ToolpathViewer {
         this.renderer.render(this.scene, this.camera);
         if(JSON.stringify(this.globalState.bedDimensions) !== JSON.stringify(this.defaultBedDimensions) && this.globalState.bedDimensions.length !== 0){
             var borders = this.scene.getObjectByName("printerBedBorders");  //update borders
-            borders.scale.set(this.globalState.bedDimensions[0]/(this.defaultBedDimensions[0]), 
-                this.globalState.bedDimensions[1]/(this.defaultBedDimensions[1]), 
-                this.globalState.bedDimensions[2]/(this.defaultBedDimensions[2]));
+            var prevScale = borders.scale.clone();
+            borders.scale.set(
+                prevScale.x * this.globalState.bedDimensions[0]/(this.defaultBedDimensions[0]), 
+                prevScale.y * this.globalState.bedDimensions[1]/(this.defaultBedDimensions[1]), 
+                prevScale.z * this.globalState.bedDimensions[2]/(this.defaultBedDimensions[2]));
 
             var base = this.scene.getObjectByName("printerBedBase"); //update base (don't scale z)
-            base.scale.set(this.globalState.bedDimensions[0]/(this.defaultBedDimensions[0]), 
-                this.globalState.bedDimensions[1]/(this.defaultBedDimensions[1]), 
+            base.scale.set(
+                prevScale.x * this.globalState.bedDimensions[0]/(this.defaultBedDimensions[0]), 
+                prevScale.y * this.globalState.bedDimensions[1]/(this.defaultBedDimensions[1]), 
                 1);
-            this.defaultBedDimensions = this.globalState.bedDimensions;
-            var printerBed = this.scene.getObjectByName("printerBed"); //reposition group
-            printerBed.position.set(-(this.globalState.bedDimensions[0]/20), -this.globalState.bedDimensions[1]/20, -this.baseHeight/2);
+            this.defaultBedDimensions = [...this.globalState.bedDimensions];
         }
         if(this.globalState.path != this.defaultPath){ //execute only on path update, delete and rebuild toolpath
             this.refreshPath(this.scene, "path");
