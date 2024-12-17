@@ -56,10 +56,10 @@ function updateProfile(layerHeight, nbLayers, pos=[0, 0, 0]){
 function setBedDimensions(printerType){
   let iframe = document.getElementById("toolpathVieweriFrame");
   if (printerType == "baby"){ // 1 3js = 10 mm
-    iframe.contentWindow.state.bedDimensions = [28.0, 26.5, 30.5];
+    iframe.contentWindow.state.bedDimensions = [280, 265, 305];
   }
   if (printerType == "super"){
-    iframe.contentWindow.state.bedDimensions = [41.5, 40.5, 50.0];
+    iframe.contentWindow.state.bedDimensions = [415, 405, 500];
   }
 }
 

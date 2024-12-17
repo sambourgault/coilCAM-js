@@ -12,11 +12,12 @@ export default class ToolpathViewer {
     raycaster;
     defaultPath; //stores current path inside TPV, check against global state path to monitor for changes
     defaultReferencePath;
-    defaultBedDimensions = [28.0, 26.5, 30.5]; // 1 3js = 10 mm
+    defaultBedDimensions = [280, 265, 305]; // 1 3js = 10 mm
     globalState = { //variables updatable outside toolpathviewer
         path: [],
         referencePath: [],
-        bedDimensions: [28.0, 26.5, 30.5],
+        // bedDimensions: [28.0, 26.5, 30.5],
+        bedDimensions: [280, 265, 305],
         outputPath: [] //return this
     };
     baseHeight = 1; //height for base of printer bed (constant)
@@ -34,7 +35,7 @@ export default class ToolpathViewer {
     constructor(TPVcontainer) {
         this.TPVcontainer = TPVcontainer;
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.defaultPath = this.globalState.path;
         this.defaultReferencePath = this.globalState.referencePath;
@@ -102,7 +103,7 @@ export default class ToolpathViewer {
     initScene(){
         this.scene.background = new THREE.Color(0xe3e1de);
         this.camera.up.set(0, 0, 1); // to ensure z is up and down instead of default (y)
-        this.camera.position.set(0, 50, 34.5);
+        this.camera.position.set(0, 500, 400);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setAnimationLoop(this.animate.bind(this));
         this.createPrinterBed(this.scene, this.globalState.bedDimensions);
@@ -212,8 +213,6 @@ export default class ToolpathViewer {
             }
         }
 
-        this.dragPoints.scale.set(.1, .1, .1);
-        toolpath.scale.set(.1, .1, .1); //scale relative to printer bed, 10 3js = 1m
         scene.add(toolpath);
         window.state.outputPath = path;
     }
