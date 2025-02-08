@@ -57,7 +57,6 @@ function initializePath(layerHeight, nbLayers, pos=[0, 0, 0]){ //code repurposed
     const crossVertical = new THREE.Line(crossVerticalGeometry, crossMaterial);
     scene.add(crossVertical);
 
-    //set camera proportional to radius
     let circleGeometry = new THREE.CircleGeometry(layerHeight/2, 32 ); 
 
     //Make three-js group for adding draggable circle points
@@ -152,9 +151,3 @@ controls.addEventListener( 'dragend', function ( event ) {
     calculateOffsets();
     window.parent.postMessage({message:"run-codemirror"}, '*'); // update TPV when dragend finished
 });
-
-
-
-// TODO:
-// Create class for ProfileViewer so that LayerViewer and ProfileViewer both extend one default class
-// Add visual warning system if the angle between layers is too high

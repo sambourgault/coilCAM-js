@@ -66,9 +66,7 @@ function calculateOffsets(){ //radial and angular offset
 }
 
 function initializePath(radius, nbPointsInLayer, pos=[0, 0, 0]){ //code repurposed from ToolpathUnitGenerator
-    //set camera proportional to radius
     let circleGeometry = new THREE.CircleGeometry( radius/10, 32 ); 
-    camera.position.set(0, 0, radius*2);
 
     //Make three-js group for adding draggable circle points
     position = pos;
@@ -160,39 +158,3 @@ controls.addEventListener( 'dragend', function ( event ) {
     calculateOffsets();
     window.parent.postMessage({message:"run-codemirror"}, '*'); // update TPV when dragend finished
 });
-
-
-
-
-
-
-
-
-
-// TODO:
-
-//Clean up code
-//Better UI/color palette
-
-//Updating parameters
-    //one: what to do if nbpointsinlayer updates
-    // - linear interpolation algorithm: can calculate the distance between points, divide by certain percentage?
-    // - should be O(n) ish
-    //two: what to do if radius updates: 
-    // - scale up/down points from radius (fairly straightforward)
-
-//How to interpret path in TUG
-    // Toolpath Unit Generator should have a check for RSP to test whether
-    // RSP is an array or a list of point objects
-    // If it's a list of point objects, set the radius as those point objects directly
-    // (after confirming that the number of point objects = nbPointsInLayer)
-    // Same goes for profile editor
-
-//Future additions 
-    // Add undo+redo+reset button, command+z shortcuts, shortcuts should only work if mouse is hovering over window
-    // Add a way to select multiple points
-    // Add a way to snap points to a cylindircal coordinate system/cartesian coordinates
-    // Include an svg to toolpath function in the coilcam library
-    // - Something like svgToRadius(radius, nbPointsInLayer, center=[0, 0])
-    // - layerviewer should also be able to take in an SVG as a starting point
-    // - Add function to display layerViewer as a popup or extra tab

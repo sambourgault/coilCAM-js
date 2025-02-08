@@ -16,11 +16,6 @@ async function getExampleVessel(file){
 
 var viewerType = "tpv"; //control which viewer type is currently on screen
 
-// let path = []; //toolpath for vessel
-// let referencePath = []; //reference layer (optional)
-// let bedPath = []; //toolpath for bed
-// var bedDimensions = [280, 265, 305];
-
 //Call in codemirror to change the toolpath in the threejs toolpath viewer
 function updatePath(newPath, referencePath=null){
   var iframe = document.getElementById("toolpathVieweriFrame");
