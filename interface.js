@@ -263,7 +263,6 @@ function setUpCodeMirror(){
     //event listener to remove file from localstorage
     let divName = 'uploaded-file-div_'+filename.split('.')[0]+filename.split('.')[1];
     trashButton.addEventListener('click', function() {
-      console.log("throw out file", filename);
       localStorage.removeItem(filename);
       parent = document.getElementById(divName);
       while (parent.firstChild) {
@@ -287,7 +286,6 @@ function setUpCodeMirror(){
     if (file) {
       var fileExtension = file.name.split('.').pop();
       if(localStorage.getItem(file.name) === null){ //file has unique name
-        console.log("extension", fileExtension);
         let validExtensions = ['txt', 'wav', 'json', 'csv', 'mp3', 'mid']; //arbitrary, can be expanded
         if (validExtensions.includes(fileExtension)) { 
           var contents;
@@ -358,7 +356,6 @@ function setUpCodeMirror(){
 
   //load all files from localstorage on page load
   document.addEventListener('DOMContentLoaded', function(e){
-    console.log("localstorage files");
     for(let i = 0; i < localStorage.length; i++) {
       addFileAsButton(localStorage.key(i), localStorage.getItem(localStorage.key(i)));
     }

@@ -287,23 +287,23 @@ h2{
   display: flex;
   width:100%;
   height:100%;
-  background-color: red;
+  background-color: gray;
 }
 .split-tpv{
   width:100%;
   height:100%;
-  background-color: teal;
+  background-color: gray;
 }
 .split-layerviewer{
   width:100%;
   height:100%;
-  background-color: blue;
+  background-color: gray;
 }
 
 .split-profileviewer{
   width:100%;
   height:100%;
-  background-color: purple;
+  background-color: gray;
 }
 
 .files-group {

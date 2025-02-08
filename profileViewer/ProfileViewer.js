@@ -91,9 +91,7 @@ function initializePath(layerHeight, nbLayers, pos=[0, 0, 0]){ //code repurposed
 
 // input values change
 function refreshPath(){
-    console.log("children", circleGroup.children);
     circleGroup.remove(...circleGroup.children);
-    console.log("children", [...circleGroup.children]);
     scene.remove(scene.getObjectByName("lines"));
     if(global_state.nbLayers.length != 0 && global_state.layerHeight.length != 0){
         initializePath(global_state.layerHeight, global_state.nbLayers);

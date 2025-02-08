@@ -13,7 +13,7 @@ var radius = 18.0;
 let position = [0.0, 0.0, potterbot_layerHeight*4];
 var rsp = sinusoidal(4.0, 7.0, 30.0, nbPointsInLayer, [], "multiplicative");
 var ssp1 = sinusoidal(1,9.0, 55.0, nbLayers, [], "additive");
-var ssp2 = linear(0.35,ssp1, nbLayers, [], "additive");
+var ssp2 = linear(0.35, 1, nbLayers, ssp1, "additive");
 var ssp3 = linear(-0.45, 4, nbLayers, ssp2, "additive");
 
 var ssp = sinusoidal(2,30.0, -9.0, nbLayers, ssp3, "additive");
