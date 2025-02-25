@@ -199,23 +199,23 @@ h2{
   display: flex;
   padding: .5em;
   gap: .5em;
-  
+  justify-content: space-between;
 }
 
 .CC-header-buttons{
-  float: left;
   display: flex;
-  justify-content: space-between;
+  width: 100%;
+  align-items: left;
 }
 
 .CC-header-buttons-left{
   gap: .5em;
-  float: left;
+  align-items: left;
 }
 
 .CC-header-buttons-right{
+  display: flex;
   gap: .5em;
-  float: right;
   margin-left: auto;
 }
 

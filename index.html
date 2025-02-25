@@ -15,9 +15,6 @@
 <!-- UI + updatePath functionality (for online editor) -->
 <script type="module" src="interface.js"></script>
 
-<!-- testing -->
-<script type="module" src="testFunctions.js"></script>
-
 <script> //test CoilCAM library on load
   document.addEventListener("DOMContentLoaded", () => {
     try{
@@ -41,7 +38,7 @@
 <body>
   <div class = "page" id="layout">
     <div class = "CC-header">
-      <h2>coilCAM-js</h2>
+      <h2 style="white-space: nowrap;">coilCAM-js</h2>
       <div class = "CC-header-buttons">
         <div class = "CC-header-buttons-left">
           <button type="button" id="b_run">run</button> 
@@ -66,9 +63,11 @@
           <button type="button" id="b_docs">documentation</button> 
         </div> 
         <div class = "CC-header-buttons-right">
-          <button type="button" id="b_github">
-            <img src="./assets/icons/github-logo.png" height="22px" width="22px">
-          </button> 
+          <a href="https://github.com/sambourgault/coilCAM-js" target="_blank">
+            <button type="button" id="b_github">
+              <img src="./assets/icons/github-logo.png" height="22px" width="22px">
+            </button> 
+          </a>
         </div>
       </div>
       
@@ -91,8 +90,6 @@
         </div> 
       </div>
       <div class="split-window">
-          <!-- TODO: ToolpathViewer should be exported with the rest of the CoilCAM library -->
-          <!-- For now, embed local file as iframe -->
           <div class = "split-tpv">
             <!-- <h2>Toolpath Viewer</h2> -->
             <iframe src="./toolpathViewer/ToolpathViewer.html" id="toolpathVieweriFrame" width="100%" height="100%"></iframe>

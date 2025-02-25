@@ -1,11 +1,30 @@
 <!DOCTYPE html>
 <html>
-<!-- SIMPLE EDITOR FOR HUGO DOCS -->
 
 <!-- LIBRARIES / IMPORTS -->
+ 
+<!-- CoilCAM library -->
+<!-- <script src="https://unpkg.com/coilcam-js@1.0.39/dist/module.js"></script> -->
+<!-- CoilCAM library (includes Flatten-js for union + difference + base functions) -->
+<!-- <script src="https://unpkg.com/coilcam@1.0.36/dist/module.js"></script> -->
 <script src="https://unpkg.com/coilcam@latest/dist/module.js"></script>
+
+<!-- Resizing windows (Split-js)-->
 <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
+
+<!-- UI + updatePath functionality (for online editor) -->
 <script type="module" src="interface.js"></script>
+
+<script> //test CoilCAM library on load
+  document.addEventListener("DOMContentLoaded", () => {
+    try{
+      var linear2DOperator = linear2D(0.4, 1, 0.3, 0, 30, 0, "");
+      var toolpath = toolpathUnitGenerator([0, 0, 0], 30, 3, 30, 50, [], [], [], linear2DOperator, [], []);
+    } catch{
+      console.log("CoilCAM library test failed.");
+    }
+  });
+</script>
 
 <!-- CodeMirror -->
 <link rel="stylesheet" href="style-interface.css">
@@ -20,9 +39,18 @@
   <div class = "page" id="layout">
     <div class = "CC-header">
       <div class = "CC-header-buttons">
-        <button type="simple-button" id="b_run">run</button> 
-        <button type="simple-button" id="b_save">save</button> 
-        <!-- <button type="simple-button" id="b_fullscreen">&#9974;</button>  -->
+        <div class = "CC-header-buttons-left">
+          <button type="button" id="b_run">run</button> 
+          <button type="button" id="b_save">save</button> 
+          
+        </div> 
+        <div class = "CC-header-buttons-right">
+          <a href="https://github.com/sambourgault/coilCAM-js" target="_blank">
+            <button type="button" id="b_github">
+              <img src="./assets/icons/github-logo.png" height="22px" width="22px">
+            </button> 
+          </a>
+        </div>
       </div>
     </div>
 
@@ -36,11 +64,22 @@
         </div> 
       </div>
       <div class="split-window">
-        <!-- TODO: ToolpathViewer should be exported with the rest of the CoilCAM library -->
-        <!-- For now, embed local file as iframe -->
-         <!-- <iframe src="./toolpathViewer/ToolpathViewer.html" id="TPVcontainer" width="80%" height="80%" allow="fullscreen"></iframe> -->
-        <iframe src="./toolpathViewer/ToolpathViewer.html" id="vieweriFrame" width="100%" height="100%" allow="fullscreen"></iframe>
+          <div class = "split-tpv">
+            <!-- <h2>Toolpath Viewer</h2> -->
+            <iframe src="./toolpathViewer/ToolpathViewer.html" id="toolpathVieweriFrame" width="100%" height="100%"></iframe>
+          </div>
+          <div class = "split-viewers">
+            <div class = "cell split-layerviewer">
+              <!-- <h2>Layer Editor</h2> -->
+              <iframe src="./layerViewer/LayerViewer.html" id="layerVieweriFrame" width="100%" height="100%"></iframe>
+            </div>
+            <div class = "cell split-profileviewer">
+              <!-- <h2>Profile Viewer</h2> -->
+              <iframe src="./profileViewer/ProfileViewer.html" id="profileVieweriFrame" width="100%" height="100%"></iframe>
+            </div>
+          </div>
       </div>
+
     </div>
   </div>
 
@@ -50,12 +89,25 @@
       maxSize: [Infinity, Infinity],
       minSize: 10,
       direction: 'horizontal',
-      cursor: 'col-resize'
+      cursor: 'row-resize'
     });
     Split(['.split-editor', '.split-console'], {
-      sizes: [85, 15],
+      sizes: [70, 30],
+      direction: 'vertical',
+      cursor: 'col-resize'
+    }
+    );
+    Split(['.split-tpv', '.split-viewers'], {
+      sizes: [70, 30],
       direction: 'vertical',
       cursor: 'row-resize'
+    }
+    );
+    Split(['.split-layerviewer', '.split-profileviewer'], {
+      sizes: [50, 50],
+      maxSize: [Infinity, Infinity],
+      direction: 'horizontal',
+      cursor: 'col-resize'
     }
     );
   </script>
