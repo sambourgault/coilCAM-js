@@ -113,23 +113,26 @@ function setUpCodeMirror(){
   
   // code editor console
   textArea2 = document.getElementById("console");
-  textArea2.className = 'codemirror_textarea';
-  textArea2.style.marginLeft = 20+'px';
-  textArea2.style.width = 140+'%';
-  textArea2.style.height = 200+'px';
+  if(textArea2){
+    textArea2.className = 'codemirror_textarea';
+    textArea2.style.marginLeft = 20+'px';
+    textArea2.style.width = 140+'%';
+    textArea2.style.height = 200+'px';
+  
 
-  // configs
-  consoleCodeMirror = CodeMirror.fromTextArea(textArea2, {
-    lineNumbers: true,
-    mode: 'javascript',
-    lineWrapping: true,
-    
-    //extraKeys: {"Ctrl-Space":"autocomplete"}
-  });
-  consoleCodeMirror.setSize("100%", "100%");
+    // configs
+    consoleCodeMirror = CodeMirror.fromTextArea(textArea2, {
+      lineNumbers: true,
+      mode: 'javascript',
+      lineWrapping: true,
+      
+      //extraKeys: {"Ctrl-Space":"autocomplete"}
+    });
+    consoleCodeMirror.setSize("100%", "100%");
 
-  function printErrorToCodeMirror(errorString){
-    consoleCodeMirror.replaceRange(`$ `+(errorString)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+    function printErrorToCodeMirror(errorString){
+      consoleCodeMirror.replaceRange(`$ `+(errorString)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+    }
   }
   
   //dropdown menu
@@ -195,14 +198,17 @@ function setUpCodeMirror(){
   function runCode() {
     const codeToRun = editorCodeMirror.getValue();
     try {
-      consoleCodeMirror.replaceRange(`$ `+eval(`${codeToRun}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+      consoleCodeMirror?.replaceRange(`$ `+eval(`${codeToRun}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
     }
     catch(err){
-      consoleCodeMirror.replaceRange(`$ `+err+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+      consoleCodeMirror?.replaceRange(`$ `+err+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
     }
   }
 
-  document.getElementById("b_save").addEventListener("click", saveCode, {capture: true});
+  const saveButton = document.getElementById("b_save")
+  if (saveButton){
+    saveButton.addEventListener("click", saveCode, {capture: true});
+  }
   function saveCode(){
     let textInEditor = editorCodeMirror.getValue();
     var blob = new Blob([textInEditor], {type: "text/plain"});
@@ -211,6 +217,27 @@ function setUpCodeMirror(){
     anchor.download = "coilCAM-js.txt";
     anchor.click();
   }
+  
+  document.getElementById("b_reset").addEventListener("click", resetCodeMirror);
+  function resetCodeMirror(){
+    // console.log("resetting code mirror");
+    // const currentUrl = window.location.href;
+    // const url = new URL (currentUrl);
+    // const params = url.searchParams;
+    // var folder = params.get('folder'); //specifies folder
+    // var vesselName = params.get('example'); //specifies name of file 
+
+    // if(vesselName !== null){
+    //   if(folder == null){ folder = ""; }
+    //   var pathToVessel = "examples/" + folder+'/'+vesselName+'.js'; //from URL parameters
+    //   getExampleVessel(pathToVessel).then(text => {
+    //     if(text !== null){
+    //       editorCodeMirror.setValue(text)
+    //     }
+    //   });
+    // }
+  }
+  
 
   const b_docs = document.getElementById("b_docs")
   if(b_docs){
@@ -223,16 +250,16 @@ function setUpCodeMirror(){
     }
   }
 
-  document.getElementById("baby_pb").addEventListener("click", function(){setBedDimensions("baby")});
-  document.getElementById("super_pb").addEventListener("click", function(){setBedDimensions("super")});
+  document.getElementById("baby_pb")?.addEventListener("click", function(){setBedDimensions("baby")});
+  document.getElementById("super_pb")?.addEventListener("click", function(){setBedDimensions("super")});
 
   
 
   //Upload data
-  document.getElementById('b_upload_files').addEventListener('click', function(){
+  document.getElementById('b_upload_files')?.addEventListener('click', function(){
     document.getElementById('upload_data').click();
   }, {capture: true});
-  document.getElementById('upload_data').addEventListener('change', handleFiles);
+  document.getElementById('upload_data')?.addEventListener('change', handleFiles);
 
   function addFileAsButton(filename, contents){ //add file to lefthand toolbar
     //add new button to dropbox area
@@ -326,21 +353,21 @@ function setUpCodeMirror(){
 
   //drag + drop functionality
   let dropbox = document.getElementById("dropbox");
-  dropbox.addEventListener('dragover', function(e) {
+  dropbox?.addEventListener('dragover', function(e) {
     e.preventDefault();
     e.stopPropagation();
     dropbox.classList.add('dragging');
   });
-  dropbox.addEventListener('dragleave', function(e) {
+  dropbox?.addEventListener('dragleave', function(e) {
     e.preventDefault();
     e.stopPropagation();
     dropbox.classList.remove('dragging');
   });
-  dropbox.addEventListener("dragenter", function(e){
+  dropbox?.addEventListener("dragenter", function(e){
     e.stopPropagation();
     e.preventDefault();
   });
-  dropbox.addEventListener("drop", function(e) {
+  dropbox?.addEventListener("drop", function(e) {
     e.stopPropagation();
     e.preventDefault();
     const dt = e.dataTransfer;

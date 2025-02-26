@@ -30,7 +30,7 @@ export default class ToolpathViewer {
     cylinderHighlightMaterial = new THREE.MeshToonMaterial({color: 0x826f63});
     highlightedMaterials = false; // check whether materials are currently highlighted
 
-    showDragPoints = true; //debugging purposes: should users be able to drag points?
+    showDragPoints = false; //debugging purposes: should users be able to drag points?
 
     constructor(TPVcontainer) {
         this.TPVcontainer = TPVcontainer;
