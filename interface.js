@@ -218,27 +218,6 @@ function setUpCodeMirror(){
     anchor.click();
   }
   
-  document.getElementById("b_reset").addEventListener("click", resetCodeMirror);
-  function resetCodeMirror(){
-    // console.log("resetting code mirror");
-    // const currentUrl = window.location.href;
-    // const url = new URL (currentUrl);
-    // const params = url.searchParams;
-    // var folder = params.get('folder'); //specifies folder
-    // var vesselName = params.get('example'); //specifies name of file 
-
-    // if(vesselName !== null){
-    //   if(folder == null){ folder = ""; }
-    //   var pathToVessel = "examples/" + folder+'/'+vesselName+'.js'; //from URL parameters
-    //   getExampleVessel(pathToVessel).then(text => {
-    //     if(text !== null){
-    //       editorCodeMirror.setValue(text)
-    //     }
-    //   });
-    // }
-  }
-  
-
   const b_docs = document.getElementById("b_docs")
   if(b_docs){
     b_docs.addEventListener("click", newTab, {capture: true});
