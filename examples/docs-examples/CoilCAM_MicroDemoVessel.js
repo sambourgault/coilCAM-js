@@ -9,7 +9,8 @@ var potterbot_bedSize = [280, 265, 305];
 //--Main Vessel
 var nbLayers = 60;
 var nbPointsInLayer = 42;
-var main_position = [0.0, 0.0, 7.0];
+var main_position = [0.0, 0.0, potterbot_layerHeight*2];
+var radius = 48;
 
 // RADIUS SHAPING PARAMETER
 var rsp = square(2.6, 7.0, 0.0, 3.0, nbPointsInLayer, [], "additive");
@@ -31,15 +32,15 @@ var spout_ssp = linear(0.63, 0.0, 60, [], "additive");
 var spout_tsp = linear2D(0.712, 0.0, 0.0, 0.0, 60, [], [], "")
 
 // TOOLPATH UNIT GENERATORS
-var baseToolpath = toolpathUnitGenerator(main_position, 48, potterbot_layerHeight, nbLayers=60, nbPointsInLayer=42, rsp, ssp3, srsp, [], rtsp);
-var spoutToolpath = toolpathUnitGenerator([-18.0, 0.0, 7.0], 5.14, potterbot_layerHeight, nbLayers=60.0, nbPointsInLayer=3.0, [], spout_ssp, [], spout_tsp, []);
+var baseToolpath = toolpathUnitGenerator(main_position, radius, potterbot_layerHeight, nbLayers=60, nbPointsInLayer=42, rsp, ssp3, srsp, [], rtsp);
+var spoutToolpath = toolpathUnitGenerator([-25.0, 0.0, potterbot_nozzleDiameter*2], 5, potterbot_layerHeight, nbLayers=58, nbPointsInLayer=3, [], spout_ssp, [], spout_tsp, []);
 var toolpath = union(baseToolpath, spoutToolpath);
-var b = base(main_position, baseToolpath, nbPointsInLayer=42, potterbot_layerHeight, potterbot_nozzleDiameter, 48.16);
-toolpath = b.concat(toolpath);
-toolpath = centerPrint(toolpath, main_position, potterbot_bedSize, potterbot_layerHeight);
+let lowerBase = baseFill([0, 0, 0], radius, nbPointsInLayer, potterbot_nozzleDiameter, baseToolpath);
+let upperBase = baseSpiral([0, 0, potterbot_layerHeight], nbPointsInLayer, potterbot_nozzleDiameter, radius);
+toolpath = lowerBase.concat(upperBase.concat(toolpath));
+// toolpath = centerPrint(toolpath, main_position, potterbot_bedSize, potterbot_layerHeight);
 updatePath(toolpath);
 
 // GCODE
-console.log(generateGCode(toolpath, potterbot_printSpeed, potterbot_nozzleDiameter, potterbot_layerHeight));
 var gcode = generateGCode(toolpath, potterbot_layerHeight, potterbot_nozzleDiameter, potterbot_printSpeed);
-//downloadGCode(gcode, "microdemovessel.gcode");
+//downloadGCode(gcode, "CC_microdemovessel.gcode");

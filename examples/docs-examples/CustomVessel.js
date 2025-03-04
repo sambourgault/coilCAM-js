@@ -20,6 +20,4 @@ var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight
 updatePath(vessel);
 
 // // SAVE GCODE
-// downloadGCode(gcode, "CC_custom_profile.gcode"); 
-
-// // STARTING VESSEL
+// downloadGCode(gcode, "custom_vars.gcode"); 

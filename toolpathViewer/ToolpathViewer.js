@@ -176,7 +176,7 @@ export default class ToolpathViewer {
         var offset = new THREE.Vector3(); //midpoint of cylinder
         offset.addVectors(pointEnd, pointStart).divideScalar(2);
         
-        const segmentGeometry = new THREE.CylinderGeometry(pointEndThickness+1, pointStartThickness+1, dir.length(), 8);
+        const segmentGeometry = new THREE.CylinderGeometry((pointEndThickness+1)/2, (pointStartThickness+1)/2, dir.length(), 8);
         const segment = new THREE.Mesh(segmentGeometry, material); 
         segment.quaternion.copy(quat);
         segment.position.set(offset.x, offset.y, offset.z);

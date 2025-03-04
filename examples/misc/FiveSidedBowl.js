@@ -9,15 +9,16 @@ var potterbot_bedSize = [280, 265, 305];
 var nbLayers = 40;
 var nbPointsInLayer = 5;
 var vesselRadius = 80;
-var position = [0, 0, potterbot_layerHeight*1.5];
+var position = [0, 0, potterbot_layerHeight*2];
 var scalingParameter = sinusoidal(10, 60, 20, nbLayers, 0, "");
 var thicknessParameter = sinusoidal(1, 5, 0, nbPointsInLayer, 0, "");
 
 // BUILD VESSEL
 var vessel = toolpathUnitGenerator(position, vesselRadius, potterbot_layerHeight, nbLayers, nbPointsInLayer, [], scalingParameter, [], [], [], [], []);
-var b = base(position, vessel, nbPointsInLayer, potterbot_layerHeight, potterbot_nozzleDiameter, vesselRadius);
+//base(position, radius, layerHeight, nbPointsInLayer, nozzle_diameter, path){
+var b = base(position, vesselRadius+10, potterbot_layerHeight, nbPointsInLayer, potterbot_nozzleDiameter, vessel);
 var toolpath = b.concat(spiralize(vessel, potterbot_layerHeight));
-toolpath = centerPrint(toolpath, position, potterbot_bedSize, potterbot_layerHeight);
+toolpath = centerPrint(toolpath, [0, 0, 0], potterbot_bedSize, potterbot_layerHeight);
 updatePath(toolpath);
 
 // GENERATE GCODE

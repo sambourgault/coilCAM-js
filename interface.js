@@ -137,9 +137,11 @@ function setUpCodeMirror(){
   
   //dropdown menu
   const exampleVessels={ //add examples here
-    "example-cup":["examples/BooleanUnionCup.js"], 
-    "example-vase":["examples/SimpleVase.js"], 
-    "example-plate":["examples/BooleanUnionDish.js"]
+    "example-mug":["examples/web-editor/UnionMug.js"],
+    "example-bowl":["examples/web-editor/CheckerboardBowl.js"],
+    "example-dish":["examples/web-editor/BooleanUnionDish.js"],
+    "example-candleholder":["examples/web-editor/CandleHolder.js"],
+    "example-vase":["examples/web-editor/SimpleVase.js"],
   };
 
   for (let buttonID in exampleVessels){
