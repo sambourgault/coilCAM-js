@@ -1,4 +1,4 @@
-// Boolean Union Vase
+// BOOLEAN UNION VASE
 // -- Complex example to demonstrate union between six smaller vessels and a main vase.
 
 // POTTERBOT CONFIGURATION

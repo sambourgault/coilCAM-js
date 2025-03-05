@@ -20,6 +20,7 @@
     "codemirror": "^6.0.1",
     "coilcam": "^1.0.69",
     "extrude-polyline": "^1.0.6",
+    "font-awesome": "^4.7.0",
     "jquery": "^3.7.1",
     "parcel-bundler": "^1.12.5",
     "polyline-normals": "^2.0.2",

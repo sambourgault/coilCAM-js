@@ -15,6 +15,9 @@
 <!-- UI + updatePath functionality (for online editor) -->
 <script type="module" src="interface.js"></script>
 
+<!-- Fontawesome icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 <script> //test CoilCAM library on load
   document.addEventListener("DOMContentLoaded", () => {
     try{
@@ -62,12 +65,16 @@
               <a id="super_pb">super potterbot</a>
             </div>
           </div>
-          <button type="button" id="b_docs">documentation</button> 
         </div> 
         <div class = "CC-header-buttons-right">
-          <a href="https://github.com/sambourgault/coilCAM-js" target="_blank">
+          <a href="https://sambourgault.github.io/coilCAM-docs" target="_blank" title="Documentation">
+            <button type="button" id="b_docs">
+              <i class="fa-solid fa-book"></i>
+            </button> 
+          </a>
+          <a href="https://github.com/sambourgault/coilCAM-js" target="_blank" title="Source Code">
             <button type="button" id="b_github">
-              <img src="./assets/icons/github-logo.png" height="22px" width="22px">
+              <i class="fa-brands fa-github"></i>
             </button> 
           </a>
         </div>

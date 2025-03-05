@@ -11,7 +11,7 @@ var nbLayers = 15;
 var nbPointsInLayer = 60;
 var radius = 76;
 var mainRadius = 82;
-var position = [0.0, 0.0, potterbot_layerHeight*2];
+var position = [0.0, 0.0, potterbot_layerHeight*3];
 
 // -- Shaping parameters
 var radiusParameter = sinusoidal(11.0, 12.0, 1.8, nbPointsInLayer, [], "multiplicative");
@@ -24,7 +24,7 @@ var mainToolpath = toolpathUnitGenerator(position, mainRadius, potterbot_layerHe
 var toolpathBase = base(position, mainRadius, potterbot_layerHeight, nbPointsInLayer, potterbot_nozzleDiameter, mainToolpath);
 var toolpath = spiralize(union(starShapedToolpath, mainToolpath), potterbot_layerHeight);
 toolpath = (toolpathBase.concat(toolpath));
-toolpath = centerPrint(toolpath, position, potterbot_bedSize, potterbot_layerHeight);
+toolpath = centerPrint(toolpath, [0,0,0], potterbot_bedSize);
 updatePath(toolpath);
 
 // GENERATE GCODE

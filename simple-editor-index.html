@@ -15,6 +15,9 @@
 <!-- UI + updatePath functionality (for online editor) -->
 <script type="module" src="interface.js"></script>
 
+<!-- Fontawesome icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 <script> //test CoilCAM library on load
   document.addEventListener("DOMContentLoaded", () => {
     try{
@@ -40,16 +43,17 @@
     <div class = "CC-header">
       <div class = "CC-header-buttons">
         <div class = "CC-header-buttons-left">
-          <button type="button" id="b_run">run</button> 
-          <button type="button" id="b_save">save</button>
-          
+          <button type="button" id="b_run">
+            <i class="fa-solid fa-play"></i>
+          </button> 
+          <button type="button" id="b_save">
+            <i class="fa-solid fa-download"></i>
+          </button>
         </div> 
         <div class = "CC-header-buttons-right">
-          <a href="https://github.com/sambourgault/coilCAM-js" target="_blank">
-            <button type="button" id="b_github">
-              <img src="./assets/icons/github-logo.png" height="22px" width="22px">
-            </button> 
-          </a>
+          <button type="button" id="b_editor" alt="Open Web Editor">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </button> 
         </div>
       </div>
     </div>
@@ -59,6 +63,9 @@
         <div class="cell split-editor">
           <textarea id = "editor"></textarea>
         </div>
+        <div class="cell split-console">
+            <textarea id = "console"></textarea>
+        </div> 
       </div>
       <div class="split-window">
           <div class = "split-tpv">
@@ -77,6 +84,11 @@
       minSize: 10,
       direction: 'horizontal',
       cursor: 'row-resize'
+    });
+    Split(['.split-editor', '.split-console'], {
+      sizes: [70, 30],
+      direction: 'vertical',
+      cursor: 'col-resize'
     });
   </script>
 </body>

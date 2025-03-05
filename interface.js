@@ -31,7 +31,7 @@ function updatePath(newPath, referencePath=null){
 //Call in codemirror to initialize path in layerViewer
 function updateLayer(radius, nbPointsInLayer, pos=[0, 0, 0]){
   let iframe = document.getElementById("layerVieweriFrame");
-  if(radius != null && nbPointsInLayer != null){
+  if(iframe && radius != null && nbPointsInLayer != null){
     iframe.contentWindow.state.radius = radius;
     iframe.contentWindow.state.nbPointsInLayer = nbPointsInLayer;
   }
@@ -41,7 +41,7 @@ function updateLayer(radius, nbPointsInLayer, pos=[0, 0, 0]){
 //Call in codemirror to initialize path in profileViewer
 function updateProfile(layerHeight, nbLayers, pos=[0, 0, 0]){
   let iframe = document.getElementById("profileVieweriFrame");
-  if(nbLayers != null && layerHeight != null){
+  if(iframe && nbLayers != null && layerHeight != null){
     iframe.contentWindow.state.layerHeight = layerHeight;
     iframe.contentWindow.state.nbLayers = nbLayers;
   }
@@ -56,6 +56,18 @@ function setBedDimensions(printerType){
   if (printerType == "super"){
     iframe.contentWindow.state.bedDimensions = [415, 405, 500];
   }
+}
+
+function getCoilCAMExample(){
+  // Check URL parameters for example vessel to load in
+  // since there are no buttons in the simple viewer
+  // Structure should be (ex: folder=some-folder&example=some-example (ex: folder=tutorial-functions&example=functions_sine)
+  const currentUrl = window.location.href;
+  const url = new URL (currentUrl);
+  const params = url.searchParams;
+  var folder = params.get('folder'); //specifies folder
+  var vesselName = params.get('example'); //specifies name of file 
+  return [folder, vesselName];
 }
 
 function setUpCodeMirror(){
@@ -73,15 +85,8 @@ function setUpCodeMirror(){
   getExampleVessel(defaultPathToVessel) 
   .then(text => {editorCodeMirror.setValue(text)});
   
-  // Check URL parameters for example vessel to load in
-  // since there are no buttons in the simple viewer
-  // Structure should be (ex: folder=some-folder&example=some-example (ex: folder=tutorial-functions&example=functions_sine)
-  const currentUrl = window.location.href;
-  const url = new URL (currentUrl);
-  const params = url.searchParams;
-  var folder = params.get('folder'); //specifies folder
-  var vesselName = params.get('example'); //specifies name of file 
 
+  var [folder, vesselName] = getCoilCAMExample();
   if(vesselName !== null){
     if(folder == null){ folder = ""; }
     var pathToVessel = "examples/" + folder+'/'+vesselName+'.js'; //from URL parameters
@@ -97,17 +102,32 @@ function setUpCodeMirror(){
     mode: 'javascript',
     lineWrapping: true,
   }); 
-  window.onload = function() { //shortcut to comment out line
-    editorCodeMirror.setOption("extraKeys", {"Cmd-/":function(cm) {
-      let cursor = cm.getCursor();
-      let lineNumber = cursor.line;
-      let currentLine = cm.getLine(lineNumber);
-      if(currentLine.startsWith("//")){
-        editorCodeMirror.replaceRange(currentLine.slice(2), CodeMirror.Pos(lineNumber, 0), CodeMirror.Pos(lineNumber), 0);
-      } else{
-        editorCodeMirror.replaceRange("//"+currentLine, CodeMirror.Pos(lineNumber, 0), CodeMirror.Pos(lineNumber), 0);
+  window.onload = function() { //shortcut to comment out single line
+    editorCodeMirror.setOption("extraKeys", {
+      "Cmd-/":function(cm) {
+        let cursor = cm.getCursor();
+        let lineNumber = cursor.line;
+        let currentLine = cm.getLine(lineNumber);
+        if(currentLine.startsWith("//")){
+          editorCodeMirror.replaceRange(currentLine.slice(2), CodeMirror.Pos(lineNumber, 0), CodeMirror.Pos(lineNumber), 0);
+        } else{
+          editorCodeMirror.replaceRange("//"+currentLine, CodeMirror.Pos(lineNumber, 0), CodeMirror.Pos(lineNumber), 0);
+        }
+      }, 
+      "Cmd-Enter":function(cm) {
+        runCode();
+      },
+      "Shift-Enter":function(cm) {
+        runCode();
       }
-    }},);}
+    });
+  }
+
+  editorCodeMirror.setOption("extraKeys", {"Cmd-Enter":function(cm) {
+    console.log("working");
+    runCode();
+  }});
+  
 
   editorCodeMirror.setSize("100%", "100%");
   
@@ -119,14 +139,13 @@ function setUpCodeMirror(){
     textArea2.style.width = 140+'%';
     textArea2.style.height = 200+'px';
   
-
     // configs
     consoleCodeMirror = CodeMirror.fromTextArea(textArea2, {
       lineNumbers: true,
       mode: 'javascript',
       lineWrapping: true,
       
-      //extraKeys: {"Ctrl-Space":"autocomplete"}
+      // extraKeys: {"Ctrl-Space":"autocomplete"}
     });
     consoleCodeMirror.setSize("100%", "100%");
 
@@ -191,10 +210,17 @@ function setUpCodeMirror(){
     });
   }
 
-
-  
-
-
+  var webEditorButton = document.getElementById("b_editor");
+  if(webEditorButton){
+    webEditorButton.addEventListener("click", function(){
+      var [folder, vesselName] = getCoilCAMExample(); 
+      if(vesselName !== null || folder !== null){
+        window.location.href = "https://sambourgault.github.io/coilCAM-js/?folder="+folder+"&example="+vesselName;
+      } else{
+        window.location.href = "https://sambourgault.github.io/coilCAM-js";
+      }
+    });
+  }
 
   document.getElementById("b_run").addEventListener("click", runCode);
   function runCode() {
@@ -220,17 +246,6 @@ function setUpCodeMirror(){
     anchor.click();
   }
   
-  const b_docs = document.getElementById("b_docs")
-  if(b_docs){
-    b_docs.addEventListener("click", newTab, {capture: true});
-    function newTab(){
-      let newTab = document.createElement('a');
-      newTab.href = "https://github.com/sambourgault/coilCAM-docs";
-      newTab.target = "_blank";
-      newTab.click();
-    }
-  }
-
   document.getElementById("baby_pb")?.addEventListener("click", function(){setBedDimensions("baby")});
   document.getElementById("super_pb")?.addEventListener("click", function(){setBedDimensions("super")});
 

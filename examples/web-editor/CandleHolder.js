@@ -6,7 +6,7 @@ var potterbot_nozzleDiameter = 5.0;
 var potterbot_layerHeight = potterbot_nozzleDiameter/2;
 
 // VESSEL PARAMETERS
-var position = [0.0, 0.0, potterbot_layerHeight*2];
+var position = [0.0, 0.0, potterbot_layerHeight*3];
 var radius = 30;
 var nbLayers = 60;
 var nbPointsInLayer = 50;
@@ -21,6 +21,7 @@ var rotationParameter = linear(15, 0, nbLayers, 0, "");
 var toolpath = toolpathUnitGenerator(position, radius, potterbot_layerHeight, nbLayers, nbPointsInLayer, radiusParameter, scaleParameter, scalingParameter, [], rotationParameter, []);
 var toolpathBase = base(position, radius, potterbot_layerHeight, nbPointsInLayer, potterbot_nozzleDiameter, toolpath);
 toolpath = toolpathBase.concat(spiralize(toolpath, potterbot_layerHeight));
+toolpath = centerPrint(toolpath, [0,0,0]);
 updatePath(toolpath);
 
 // GENERATE GCODE

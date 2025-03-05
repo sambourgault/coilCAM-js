@@ -15,7 +15,7 @@ var nbLayers = 60;
 var nbPointsInLayer = 60;
 
 // HANDLE PARAMETERS
-var position = [0.0, 0.0, potterbot_layerHeight*2];
+var position = [0.0, 0.0, potterbot_layerHeight*3];
 var radius = 40;
 var nbLayers = 35;
 
@@ -31,7 +31,7 @@ var toolpath = union(mugToolpath, handleToolpath);
 var toolpathBase = base(position, radius, potterbot_layerHeight, nbPointsInLayer, potterbot_nozzleDiameter, toolpath);
 toolpath = spiralize(toolpath, potterbot_layerHeight);
 toolpath = toolpathBase.concat(toolpath);
-toolpath = enterPrint(toolpath, position, potterbot_bedSize, potterbot_layerHeight);
+toolpath = centerPrint(toolpath, [0,0,0], potterbot_bedSize);
 updatePath(toolpath);
 
 // GENERATE GCODE
