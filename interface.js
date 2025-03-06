@@ -25,7 +25,7 @@ function updatePath(newPath, referencePath=null){
   if(referencePath !== null){
       iframe.contentWindow.state.referencePath = refPath;
   }
-  return iframe.contentWindow.state.outputPath;
+  // return iframe.contentWindow.state.outputPath;
 }
 
 //Call in codemirror to initialize path in layerViewer
@@ -97,11 +97,13 @@ function setUpCodeMirror(){
     });
   }
 
-  editorCodeMirror = CodeMirror.fromTextArea(textArea, {
-    lineNumbers: true,
-    mode: 'javascript',
-    lineWrapping: true,
-  }); 
+  if (!editorCodeMirror) {
+    editorCodeMirror = CodeMirror.fromTextArea(textArea, {
+      lineNumbers: true,
+      mode: 'javascript',
+      lineWrapping: true,
+    });
+  }  
   window.onload = function() { //shortcut to comment out single line
     editorCodeMirror.setOption("extraKeys", {
       "Cmd-/":function(cm) {
@@ -128,7 +130,6 @@ function setUpCodeMirror(){
     runCode();
   }});
   
-
   editorCodeMirror.setSize("100%", "100%");
   
   // code editor console
@@ -225,11 +226,21 @@ function setUpCodeMirror(){
   document.getElementById("b_run").addEventListener("click", runCode);
   function runCode() {
     const codeToRun = editorCodeMirror.getValue();
+    consoleCodeMirror.setValue("");
+
+    console.log = function (...args) { //redirect console.log to codemirror console
+        const logMessage = args.map(arg => String(arg)).join(" ");
+        consoleCodeMirror?.replaceRange(`${logMessage}\n`, CodeMirror.Pos(consoleCodeMirror.lastLine()));
+    };
+
     try {
-      consoleCodeMirror?.replaceRange(`$ `+eval(`${codeToRun}`)+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+      let result = eval(codeToRun);
+      if (result){
+        consoleCodeMirror?.replaceRange(result+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+      }
     }
     catch(err){
-      consoleCodeMirror?.replaceRange(`$ `+err+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
+      consoleCodeMirror?.replaceRange(err+"\n", CodeMirror.Pos(consoleCodeMirror.lastLine()));
     }
   }
 
