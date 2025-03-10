@@ -1,4 +1,4 @@
-// Created by Devon Frost for CoilCAM (https://github.com/devonkay223)
+// Created by Devon Frost and Sam Bourgault for CoilCAM
 
 // POTTERBOT CONFIG
 var potterbot_printSpeed = 30;
