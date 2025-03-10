@@ -26,5 +26,13 @@ toolpath = b.concat(toolpath);
 // SPIRALIZE
 toolpath = spiralize(toolpath, layerHeight);
 
+// CENTER PRINT
+var potterbotBedSize = [280, 265, 305];
+toolpath = centerPrint(toolpath, [0, 0, 0]);
+
 // DISPLAY PATH
 updatePath(toolpath);
+
+// GENERATE AND DOWNLOAD GCODE
+var gcode = generateGCode(toolpath, layerHeight, layerThickness);
+//downloadGCode(gcode, "tutorial.gcode");

@@ -10,7 +10,7 @@ var nbPointsInLayer = 50;
 // SHAPING PARAMETERS
 var radiusShapingParameter = sinusoidal(10, 10, 20, nbPointsInLayer, 0, "");
 var scaleShapingParameter = sinusoidal(18, 60, -5.5, nbLayers, 0, "");
-var scalingRadiusParameter = sinusoidal(.6, 30, -12, nbLayers, 0, "");
+var scalingRadiusParameter = sinusoidal(.7, 30, -12, nbLayers, 0, "");
 
 // GENERATE TOOLPATH
 var toolpath = toolpathUnitGenerator(position, radius, layerHeight, nbLayers, nbPointsInLayer, radiusShapingParameter, scaleShapingParameter, scalingRadiusParameter, [], [], []);
